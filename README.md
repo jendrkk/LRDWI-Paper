@@ -55,6 +55,23 @@ pip install -r requirements.txt
 
 ## 📊 Usage
 
+### Quick Start: Run the Complete Pipeline
+
+For a quick start, run the complete pipeline with a single command:
+
+```bash
+python run_pipeline.py
+```
+
+This will:
+1. Download/scrape data from all sources
+2. Process and clean the data
+3. Provide instructions for running the analysis notebooks
+
+### Step-by-Step Usage
+
+Alternatively, you can run each step individually:
+
 ### Step 1: Data Collection (Web Scraping)
 
 Run the data scraper to download wealth inequality data from various sources:
