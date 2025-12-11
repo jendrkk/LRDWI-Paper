@@ -22,8 +22,13 @@ try:
     from sentence_transformers import CrossEncoder
 except Exception:
     CrossEncoder = None
+    
+import sys
+import os
+wd = os.getcwd()
+print(wd)
 
-import download_localLLM as dl
+
 
 
 def _cosine_to_unit(x: float) -> float:
