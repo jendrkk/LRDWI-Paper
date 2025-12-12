@@ -16,7 +16,138 @@ class PDFAnalyzer:
     def __init__(self, pdf_path: str):
         self.pdf_path = pdf_path
         self.doc = fitz.open(pdf_path)
+        
+    def extract_questions(self) -> List[Tuple[int, str, str, Tuple]]:
+        """
+        Extracts all questions, that is text after the word
+        'Etykieta', strings starting with 'q' followed by 
+        digits and a type of table that is after the phrase
+        'Wartosci z etykietami' from the PDF.
+        Returns a list of tuples (question_text, page_number).
+        """
+        results = []
+        q_pattern = re.compile(r'q(\d+)', re.IGNORECASE)
+        etyk_re = re.compile(r'Etykieta', re.IGNORECASE)
+        typ_re = re.compile(r'Typ', re.IGNORECASE)
+        table_re = re.compile(r'Wartości z etykietami', re.IGNORECASE)
+        
+        if_codebook = False
+        for page_num in range(len(self.doc)):
+            page = self.doc.load_page(page_num)
+            page_numer = page_num + 1  # 1-based page numbering
+            page_text = page.get_text()
+            
+            if 'Codebook' in page_text:
+                if_codebook = True
+            if not if_codebook:
+                continue  # skip pages before CODEBOOK
+            
+            found_q_string = None
+            found_q_strings = []
+            found_etykieta = None
+            found_table = []
+            
+            # Find all 'q...' occurrences
+            for m in q_pattern.finditer(page_text):
+                q_text = m.group(0)
+                found_q_strings.append((q_text, page_num))
+            
+            # For the found q string on this page, choose the q string with the highest number
+            if found_q_strings:
+                found_q_strings.sort(key=lambda x: int(re.search(r'\d+', x[0]).group(0)), reverse=True)
+                found_q_string = found_q_strings[0][0]
+            
+            # Find all 'Etykieta' occurrences and, for the first one, locate the nearest
+            # non-whitespace character geometrically to its left and return the whole
+            # concatenated text that lies to the right of that character (include the
+            # etykieta block and any right-side overlapping blocks).
+            try:
+                blocks = page.get_text("blocks")
+                found_etykieta = None
 
+                # blocks: list of tuples (x0, y0, x1, y1, "text", ...)
+                etyk_blocks = [b for b in blocks if etyk_re.search(b[4] if len(b) > 4 else "")]
+                if etyk_blocks:
+                    # use first occurrence
+                    etb = etyk_blocks[0]
+                    ex0, ey0, ex1, ey1 = etb[0], etb[1], etb[2], etb[3]
+
+                    # find left-side blocks that vertically overlap and lie to the left
+                    left_candidates = [
+                        b for b in blocks
+                        if (min(ey1, b[3]) - max(ey0, b[1]) > 0) and (b[2] <= ex0 + 1)
+                    ]
+                    left_block = max(left_candidates, key=lambda b: b[2]) if left_candidates else None
+
+                    if left_block:
+                        # boundary is the right edge of the closest left block
+                        boundary_x = left_block[2]
+                        # collect blocks to the right of that boundary that vertically overlap
+                        right_candidates = [
+                            b for b in blocks
+                            if (min(ey1, b[3]) - max(ey0, b[1]) > 0) and (b[0] >= boundary_x - 1)
+                        ]
+                        right_sorted = [t[4] for t in sorted(right_candidates, key=lambda x: x[0])]
+                        found_etykieta = " ".join(right_sorted).strip()
+                    else:
+                        # etykieta is in a block without a separate left block:
+                        # find first non-whitespace char to the left inside the same block
+                        etb_text = etb[4] if len(etb) > 4 else ""
+                        mloc = re.search(r'etykieta', etb_text, re.IGNORECASE)
+                        if mloc:
+                            start_idx = mloc.start()
+                            i = start_idx - 1
+                            while i >= 0 and etb_text[i].isspace():
+                                i -= 1
+                            if i >= 0:
+                                # text that follows that left-found character (to the right)
+                                tail = etb_text[i+1:].strip()
+                            else:
+                                tail = etb_text[start_idx:].strip()
+                            # also include any right-side overlapping blocks (to the right of etyk block)
+                            right_candidates = [
+                                b for b in blocks
+                                if (min(ey1, b[3]) - max(ey0, b[1]) > 0) and (b[0] >= ex1 - 1)
+                            ]
+                            right_sorted = [t[4] for t in sorted(right_candidates, key=lambda x: x[0])]
+                            found_etykieta = " ".join([tail] + right_sorted).strip()
+                else:
+                    # fallback to plain text search: find first non-whitespace char to the left in page text
+                    m = etyk_re.search(page_text)
+                    if m:
+                        left_slice = page_text[:m.start()]
+                        j = len(left_slice) - 1
+                        while j >= 0 and left_slice[j].isspace():
+                            j -= 1
+                        if j >= 0:
+                            snippet = page_text[j+1:m.end() + 200]
+                        else:
+                            snippet = page_text[m.end():m.end() + 200]
+                        found_etykieta = snippet.strip()
+
+                found_etykieta = found_etykieta or ""
+            except Exception:
+                found_etykieta = ""
+            
+            # Remove the wort 'Etykieta' from the beginning if present
+            if found_etykieta.lower().startswith('etykieta'):
+                found_etykieta = found_etykieta[len('etykieta'):].strip()
+                
+            # Find all new line indications in found_etykieta and replace them with spaces
+            found_etykieta = re.sub(r'\s*\n\s*', ' ', found_etykieta)
+            
+            '''
+            # Find all 'Wartości z etykietami' occurrences
+            for m in table_re.finditer(page_text):
+                # Now extract the table-like text that is to the right of the phrase and below the text found on right to the phrase
+                start = m.end()
+                snippet = page_text[start:start + 500]  # grab following text
+                found_table.append(snippet.strip())
+            '''
+            results.append((page_numer, found_q_string or "", found_etykieta or "", tuple(found_table)))
+            
+        return results
+    
     def extract_phrase_with_number_and_etykieta(self, phrase: str) -> Tuple[str, str, str, str, int]:
         """
         Search the PDF for the first page that contains `phrase`. On that page:
@@ -167,7 +298,7 @@ def main():
     
     results = {}
     
-    for id in range(1,340):
+    for id in range(1,2):
         
         pdf_id = f"CBOS_{id}"
         
@@ -180,6 +311,8 @@ def main():
         
         temp = []
         print(f"Analyzing {pdf_file}...")
+        
+        '''
         for phrase in phrases_to_search:
             analyzer = PDFAnalyzer(pdf_path)
             extracted_data = analyzer.extract_phrase_with_number_and_etykieta(phrase)
@@ -189,8 +322,17 @@ def main():
                 continue
             else:
                 print(f"  Found phrase '{extracted_data[0]}' on page {extracted_data[4]} with q='{extracted_data[2]}'")
-            
+        
         results[pdf_id] = temp
+        '''
+        
+        analyzer = PDFAnalyzer(pdf_path)
+        extracted_data = analyzer.extract_questions()
+        results[pdf_id] = extracted_data
+        for item in extracted_data:
+            page_num, q_string, etyk_text, tables = item
+            print(f"  Found q_string '{q_string}' on page {page_num} with etykieta '{etyk_text}'")
+        analyzer.close()
         
     # Save results as json
     with open("pdf_analysis_results.json", "w", encoding="utf-8") as f:

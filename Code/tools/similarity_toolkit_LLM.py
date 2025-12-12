@@ -23,8 +23,9 @@ try:
 except Exception:
     CrossEncoder = None
     
-import Code.tools.download_local_LLM as dl
+import download_local_LLM as dl
 
+CASHE_ROOT_DEFAULT = Path.home() / ".cache" / "similarity_toolkit"
 
 
 def _cosine_to_unit(x: float) -> float:
@@ -39,6 +40,8 @@ class SimilarityToolkit:
         cache_root: Optional[str] = None,
         use_cross_encoder: bool = False,
         cross_encoder_model: Optional[str] = None,
+        force_download: bool = False,
+        local_files_only: bool | None = None,
     ):
         """
         Initialize the SimilarityToolkit with a sentence transformer model.
@@ -55,16 +58,25 @@ class SimilarityToolkit:
             Whether to load a cross-encoder for higher-precision scoring.
         cross_encoder_model : Optional[str]
             HF repo id for cross-encoder (required if use_cross_encoder=True).
+        force_download : bool
+            Force a fresh download of the model even if files exist locally.
+        local_files_only : Optional[bool]
+            If True, only use local cache; if False always hit HF Hub; if None try cache then Hub.
         """
         self.model_name = model_name
         self.cache_root = Path(cache_root or Path.home() / ".cache" / "similarity_toolkit")
+        self.force_download = force_download
+        self.local_files_only = local_files_only
+        self.cross_encoder_model = cross_encoder_model
         
         # Download and load the main sentence transformer model
         self.local_model_path = dl.ensure_local_model(
             self.model_name,
-            str(self.cache_root / model_name.replace("/", "--"))
+            str(self.cache_root / model_name.replace("/", "--")),
+            force_download=self.force_download,
+            local_files_only=self.local_files_only,
         )
-        self.encoder = SentenceTransformer(str(self.local_model_path))
+        self.encoder = self._load_sentence_encoder()
 
         # Optionally load cross-encoder for refined similarity scoring
         self.cross_encoder = None
@@ -75,9 +87,40 @@ class SimilarityToolkit:
                 raise ImportError("sentence-transformers CrossEncoder not available. Install sentence-transformers >= 2.x")
             cross_encoder_path = dl.ensure_local_model(
                 cross_encoder_model,
-                str(self.cache_root / cross_encoder_model.replace("/", "--"))
+                str(self.cache_root / cross_encoder_model.replace("/", "--")),
+                force_download=self.force_download,
+                local_files_only=self.local_files_only,
             )
-            self.cross_encoder = CrossEncoder(str(cross_encoder_path))
+            self.cross_encoder = self._load_cross_encoder(cross_encoder_model, cross_encoder_path)
+
+    def _load_sentence_encoder(self) -> SentenceTransformer:
+        """Load encoder with a single auto-retry that forces re-download if needed."""
+        try:
+            return SentenceTransformer(str(self.local_model_path))
+        except OSError as err:
+            print(f"[SimilarityToolkit] Encoder load failed, forcing re-download: {err}")
+            refreshed_path = dl.ensure_local_model(
+                self.model_name,
+                str(self.cache_root / self.model_name.replace("/", "--")),
+                force_download=True,
+                local_files_only=False,
+            )
+            self.local_model_path = refreshed_path
+            return SentenceTransformer(str(refreshed_path))
+
+    def _load_cross_encoder(self, repo_id: str, model_path: str):
+        """Load cross encoder with a retry on missing files."""
+        try:
+            return CrossEncoder(str(model_path))
+        except OSError as err:
+            print(f"[SimilarityToolkit] Cross-encoder load failed, forcing re-download: {err}")
+            refreshed_path = dl.ensure_local_model(
+                repo_id,
+                str(self.cache_root / repo_id.replace("/", "--")),
+                force_download=True,
+                local_files_only=False,
+            )
+            return CrossEncoder(str(refreshed_path))
 
     def encode(self, texts: Sequence[str], normalize: bool = True) -> np.ndarray:
         """
@@ -192,8 +235,9 @@ class SimilarityToolkit:
 
 def main():
     # Example usage
+    # force_download=True, local_files_only=False
     st = SimilarityToolkit()
-    a = "Czy pada dziś deszcz?"
+    a = "Jak się nazywasz?"
     b = "Is it raining today?"
     result = st.similarity(a, b)
     print(result)
