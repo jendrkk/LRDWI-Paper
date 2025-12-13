@@ -5,7 +5,8 @@ and extracting them along with a specified number.
 
 import fitz  # PyMuPDF
 import re
-import os 
+import os
+import time
 from typing import List, Tuple
 import pickle
 import numpy as np
@@ -236,6 +237,7 @@ class PDFAnalyzer:
         # Auxiliary vectorized functions
         f_vstartswith = np.vectorize(lambda x,y: x.startswith(y) if isinstance(x, str) and isinstance(y,str) else x)
         f_vcompare = np.vectorize(lambda x,y: x==y)
+        f_vreplace = np.vectorize(lambda x, old, new: x.replace(old, new) if isinstance(x, str) else x)
         
         for page_num in range(len(self.doc)):
             # Load the page
@@ -250,10 +252,10 @@ class PDFAnalyzer:
             # Prepare blocks
             page_blocks = self.get_blocks_on_page(page_num)
             page_blocks = np.array(page_blocks)
-            
+                        
             for i in range(len(page_blocks)):
                 page_blocks[i, 4] = page_blocks[i, 4].astype(str).strip()
-                page_blocks[i, 4] = page_blocks[i, 4].replace('\n', ' ')
+                page_blocks[i, 4] = page_blocks[i, 4].replace('\n', '')
                 
             # Quick look up
             
@@ -315,9 +317,9 @@ class PDFAnalyzer:
                             blocks[:,2].astype(float).max(), max(seq_of_rows)+10]
                     table = page.find_tables(clip = rect, strategy= 'text', min_words_vertical=1, snap_tolerance=6)
                     
-                else: 
-                    rect = [blocks[ref_idx,2].astype(float)-5, blocks[ref_idx,1].astype(float),
-                            blocks[:,2].astype(float).max(), max(seq_of_rows)+10]
+                else:
+                    rect = [blocks[ref_idx,2].astype(float)-5, blocks[ref_idx,1].astype(float), blocks[:,2].astype(float).max(),
+                            np.max(seq_of_rows)+10]
                     table = page.find_tables(clip = rect, strategy= 'text', snap_tolerance=6)
                     
                 if len(table.tables) == 0 :
@@ -408,7 +410,7 @@ class PDFAnalyzer:
             print(f"Found q-string: {found_q_string}, etykieta: {found_etykieta[:10]}..., type: {found_type}, table size: {found_table.shape}, continued table size: {continued_table_pd.shape} \n")
             
             results.append((page_numer, found_q_string, found_etykieta, found_type,
-                            preprocess_pandas(found_table), preprocess_pandas(continued_table_pd)))
+                            found_table, continued_table_pd))
             
         return results, diagnostics
     
@@ -429,7 +431,8 @@ def main():
     
     results = {}
     
-    for id in range(1,2):
+    start_time = time.time()
+    for id in range(1,360):
         
         pdf_id = f"CBOS_{id}"
         
@@ -438,28 +441,13 @@ def main():
         pdf_file = pdf_id_file_map[pdf_id]
         
         pdf_path = PATH_PDF + pdf_file  # Replace with your PDF file path
-        phrases_to_search = ["dochód", "Z ilu osób", "łączne dochody", "wykształcenie", "właścicielem gospodarstwa rolnego"]  # Example phrases
+        #phrases_to_search = ["dochód", "Z ilu osób", "łączne dochody", "wykształcenie", "właścicielem gospodarstwa rolnego"]  # Example phrases
         
-        temp = []
         print(f"Analyzing {pdf_file}...")
-        
-        '''
-        for phrase in phrases_to_search:
-            analyzer = PDFAnalyzer(pdf_path)
-            extracted_data = analyzer.extract_phrase_with_number_and_etykieta(phrase)
-            temp.append(extracted_data)
-            analyzer.close()
-            if extracted_data[4] == -1:
-                continue
-            else:
-                print(f"  Found phrase '{extracted_data[0]}' on page {extracted_data[4]} with q='{extracted_data[2]}'")
-        
-        results[pdf_id] = temp
-        '''
         
         analyzer = PDFAnalyzer(pdf_path)
         extracted_data, diagnotics = analyzer.extract_questions()
-        results[pdf_id] = extracted_data
+        results[pdf_file[:-4]] = extracted_data
         '''
         for item in extracted_data:
             page_num, q_string, etyk_text, typ, tables, old_table = item
@@ -469,8 +457,12 @@ def main():
         '''
         analyzer.close()
         
-    # Save results as json
-    with open(f"pdf_codebook_{pdf_file}.json", "wb") as f:
+    # Save results as json and remove .pdf from the filename
+     
+    print("The analysis took:", time.time() - start_time," seconds.")
+    print(f"Saving results under pdf_codebook.json.")
+     
+    with open(f"pdf_codebook.json", "wb") as f:
         pickle.dump(results, f, protocol=pickle.HIGHEST_PROTOCOL)
 
 if __name__ == "__main__":
