@@ -1,278 +1,248 @@
-def robust_primefaces_download(page_url, component_id, outfile="download.bin", session=None, save_ajax_dump="ajax_response.html", 
-                               download_dir="/Users/jedrek/Documents/Studium Volkswirschaftslehre/3. Semester/Long-run dynamics of wealth inequalities/Paper/Data/CBOS numerical"):
-    sess = session or requests.Session()
-    sess.headers.update({
-        "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120 Safari/537.36",
-        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-    })
+    """
+    def extract_questions(self) -> List[Tuple[int, str, str, List]]:
+        
+        Extracts all questions, that is text after the word
+        'Etykieta', strings starting with 'q' followed by 
+        digits and a type of table that is after the phrase
+        'Wartosci z etykietami' from the PDF.
+        Returns a list of tuples (question_text, page_number).
+        
+        results = []
+        q_pattern = re.compile(r'q(\d+)', re.IGNORECASE)
+        etyk_re = re.compile(r'\bEtykieta\b', re.IGNORECASE)
+        typ_re = re.compile(r'\bTyp\b', re.IGNORECASE)
+        # accept both accented and non-accented spellings
+        table_re = re.compile(r'Wartości z etykietami|Wartosci z etykietami', re.IGNORECASE)
+        
+        if_codebook = False
+        for page_num in range(len(self.doc)):
+            page = self.doc.load_page(page_num)
+            page_numer = page_num + 1  # 1-based page numbering
+            page_text = page.get_text()
+            if 'Codebook' in page_text:
+                if_codebook = True
+            if not if_codebook:
+                continue  # skip pages before CODEBOOK
+            
+            found_q_string = None
+            found_q_strings = []
+            found_etykieta = None
+            found_table = []
+            
+            # Find all 'q...' occurrences
+            for m in q_pattern.finditer(page_text):
+                q_text = m.group(0)
+                found_q_strings.append((q_text, page_num))
+            
+            # For the found q string on this page, choose the q string with the highest number
+            if found_q_strings:
+                found_q_strings.sort(key=lambda x: int(re.search(r'\d+', x[0]).group(0)), reverse=True)
+                found_q_string = found_q_strings[0][0]
+            
+            # Extract the question text after 'Etykieta'
+            # Find all 'Etykieta' occurrences and, for the first one, locate the nearest
+            # non-whitespace character geometrically to its left and return the whole
+            # concatenated text that lies to the right of that character (include the
+            # etykieta block and any right-side overlapping blocks).
+            try:
+                blocks = page.get_text("blocks")
+                found_etykieta = None
 
-    # 1) GET page
-    r = sess.get(page_url)
-    r.raise_for_status()
-    doc = LH.fromstring(r.text)
+                # blocks: list of tuples (x0, y0, x1, y1, "text", ...)
+                etyk_blocks = [b for b in blocks if etyk_re.search(b[4] if len(b) > 4 else "")]
+                if etyk_blocks:
+                    # use first occurrence
+                    etb = etyk_blocks[0]
+                    ex0, ey0, ex1, ey1 = etb[0], etb[1], etb[2], etb[3]
 
-    # 2) find the relevant <form> (tries to match the form that contains the component id)
-    form = None
-    forms = doc.xpath("//form")
-    if not forms:
-        # save the fetched page for debugging and raise a clear error
-        try:
-            tf = tempfile.NamedTemporaryFile(delete=False, suffix=".html")
-            tf.write(r.content)
-            tf.flush()
-            tf.close()
-            page_dump = tf.name
-        except Exception:
-            page_dump = save_ajax_dump
-        raise RuntimeError(f"No <form> elements found on page {page_url}. Saved page to {page_dump}")
-    for f in forms:
-        # if component_id appears in this form's markup, choose it
-        if component_id.split(':')[0] in (f.get("id") or "") or component_id in etree.tostring(f, encoding="unicode"):
-            form = f
-            break
-    if form is None and forms:
-        form = forms[0]
+                    # find left-side blocks that vertically overlap and lie to the left
+                    left_candidates = [
+                        b for b in blocks
+                        if (min(ey1, b[3]) - max(ey0, b[1]) > 0) and (b[2] <= ex0 + 1)
+                    ]
+                    left_block = max(left_candidates, key=lambda b: b[2]) if left_candidates else None
 
-    # compute action
-    action = form.get("action") or page_url
-    action = urljoin(page_url, action)
-
-    # Keep a local outfile variable so it's always defined in this scope
-    _outfile = outfile
-
-    # 3) collect all form inputs (hidden or visible) to include in payload
-    payload = {}
-    for inp in form.xpath(".//input"):
-        name = inp.get("name")
-        if not name:
-            continue
-        # Prefer existing value, otherwise empty string
-        value = inp.get("value") or ""
-        payload[name] = value
-
-    # Ensure ViewState present
-    vs_name = "javax.faces.ViewState"
-    if vs_name not in payload:
-        v = doc.xpath("//input[@name='javax.faces.ViewState']/@value")
-        if v:
-            payload[vs_name] = v[0]
-
-    # 4) add PrimeFaces/JSF ajax parameters (typical)
-    payload.update({
-        "javax.faces.partial.ajax": "true",
-        "javax.faces.source": component_id,
-        "javax.faces.partial.execute": component_id,
-        # the onclick you pasted had u:@widgetVar(downloadPackagePopup) -> render that widget
-        "javax.faces.partial.render": "@widgetVar(downloadPackagePopup)",
-    })
-    # include the component param itself (many implementations accept empty string)
-    # try both: empty string (most common) and the id string — server often accepts one of them
-    payload.setdefault(component_id, "")
-
-    headers_ajax = {
-        "Faces-Request": "partial/ajax",
-        "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
-        "Referer": page_url,
-    }
-
-    # 5) POST the AJAX request
-    resp = sess.post(action, data=payload, headers=headers_ajax, allow_redirects=True)
-    # save the raw response for debugging; try the provided path, else fall back to a temp file
-    save_path = save_ajax_dump
-    try:
-        with open(save_path, "wb") as fh:
-            fh.write(resp.content)
-    except Exception:
-        tf = tempfile.NamedTemporaryFile(delete=False, suffix=".html")
-        try:
-            tf.write(resp.content)
-            tf.flush()
-        finally:
-            tf.close()
-        save_path = tf.name
-
-    # quick checks: status, redirect to login, presence of login marker
-    if resp.status_code >= 400:
-        raise RuntimeError(f"AJAX POST returned status {resp.status_code}. Saved response to {save_path}")
-    txt = resp.text
-
-    # detect likely redirect-to-login or missing-auth: look for common words
-    login_markers = ["login", "sign in", "authenticate", "csrf", "session expired"]
-    low = txt.lower()
-    if any(marker in low for marker in login_markers):
-        # still save and raise informative error
-        raise RuntimeError(f"AJAX response looks like a login/expired session page. Saved response to {save_path}")
-
-    # 6) try many extraction strategies (XML partial response, script tags, JSON-like, plain URL)
-    download_url = None
-
-    # A) If server returned JSF partial-response XML, parse it and look for extension/update/script nodes
-    try:
-        root = etree.fromstring(resp.content)
-        # look for <extension> nodes whose text may include apiDownloadLink or full URL
-        for ext in root.findall(".//extension"):
-            if ext.text:
-                s = ext.text.strip()
-                # unescape html entities
-                s2 = html.unescape(s)
-                m = re.search(r'(https?://[^"\'>\s\\]+)', s2)
-                if m:
-                    download_url = m.group(1)
-                    break
-                # try js function
-                m2 = re.search(r'apiDownloadLink["\']?\s*[:=]\s*["\']([^"\']+)["\']', s2)
-                if m2:
-                    download_url = m2.group(1); break
-        # also check <update> sections (CDATA often inside)
-        if download_url is None:
-            for upd in root.findall(".//update"):
-                text = "".join(upd.itertext()).strip()
-                if text:
-                    s2 = html.unescape(text)
-                    m = re.search(r'(https?://[^"\'>\s\\]+)', s2)
+                    if left_block:
+                        # boundary is the right edge of the closest left block
+                        boundary_x = left_block[2]
+                        # collect blocks to the right of that boundary that vertically overlap
+                        right_candidates = [
+                            b for b in blocks
+                            if (min(ey1, b[3]) - max(ey0, b[1]) > 0) and (b[0] >= boundary_x - 1)
+                        ]
+                        right_sorted = [t[4] for t in sorted(right_candidates, key=lambda x: x[0])]
+                        found_etykieta = " ".join(right_sorted).strip()
+                    else:
+                        # etykieta is in a block without a separate left block:
+                        # find first non-whitespace char to the left inside the same block
+                        etb_text = etb[4] if len(etb) > 4 else ""
+                        mloc = re.search(r'etykieta', etb_text, re.IGNORECASE)
+                        if mloc:
+                            start_idx = mloc.start()
+                            i = start_idx - 1
+                            while i >= 0 and etb_text[i].isspace():
+                                i -= 1
+                            if i >= 0:
+                                # text that follows that left-found character (to the right)
+                                tail = etb_text[i+1:].strip()
+                            else:
+                                tail = etb_text[start_idx:].strip()
+                            # also include any right-side overlapping blocks (to the right of etyk block)
+                            right_candidates = [
+                                b for b in blocks
+                                if (min(ey1, b[3]) - max(ey0, b[1]) > 0) and (b[0] >= ex1 - 1)
+                            ]
+                            right_sorted = [t[4] for t in sorted(right_candidates, key=lambda x: x[0])]
+                            found_etykieta = " ".join([tail] + right_sorted).strip()
+                else:
+                    # fallback to plain text search: find first non-whitespace char to the left in page text
+                    m = etyk_re.search(page_text)
                     if m:
-                        download_url = m.group(1)
-                        break
-    except Exception:
-        # not XML or parse failed — continue to other strategies
-        pass
+                        left_slice = page_text[:m.start()]
+                        j = len(left_slice) - 1
+                        while j >= 0 and left_slice[j].isspace():
+                            j -= 1
+                        if j >= 0:
+                            snippet = page_text[j+1:m.end() + 200]
+                        else:
+                            snippet = page_text[m.end():m.end() + 200]
+                        found_etykieta = snippet.strip()
 
-    # B) search for refreshAndClickDownloadLink("https://...")
-    if not download_url:
-        m = re.search(r'refreshAndClickDownloadLink\(\s*["\']([^"\']+)["\']\s*\)', txt)
-        if m:
-            download_url = html.unescape(m.group(1))
-
-    # C) search for apiDownloadLink in JSON-like or JS
-    if not download_url:
-        m = re.search(r'apiDownloadLink["\']?\s*[:=]\s*["\']([^"\']+)["\']', txt)
-        if m:
-            download_url = html.unescape(m.group(1))
-
-    # D) fallback: look for any https link with expected extensions or /download path
-    if not download_url:
-        m = re.search(r'(https?://[^"\'>\s\\]+(?:/download|\.zip|\.dta|\.csv|\.xls|\.xlsx)[^"\'>\s\\]*)', txt)
-        if m:
-            download_url = html.unescape(m.group(1))
-
-    if not download_url:
-        # Save snippet and raise for user debugging
-        snippet = txt[:2000].replace("\n", " ")
-        raise RuntimeError(f"Couldn't find a download URL in AJAX response. Saved response to {save_path}. First 2000 chars:\n{snippet}")
-
-    # normalize relative URLs
-    download_url = urljoin(page_url, download_url)
-    print("Found download URL:", download_url)
-
-    # 7) download the actual file (stream)
-    # Ensure download directory exists and is writable
-    try:
-        os.makedirs(download_dir, exist_ok=True)
-    except Exception as e:
-        raise RuntimeError(f"Could not create download directory {download_dir}: {e}")
-    if not os.access(download_dir, os.W_OK):
-        raise RuntimeError(f"Download directory is not writable: {download_dir}")
-
-    with sess.get(download_url, stream=True) as r2:
-        r2.raise_for_status()
-        # examine content-type to detect HTML responses (likely errors/login pages)
-        content_type = r2.headers.get("content-type", "").lower()
-        if content_type.startswith("text/html"):
-            # save the HTML to a temp file for debugging and raise
-            try:
-                tf_err = tempfile.NamedTemporaryFile(delete=False, suffix=".html")
-                tf_err.write(r2.content)
-                tf_err.flush()
-                tf_err.close()
-                raise RuntimeError(f"Download URL returned HTML (not a file). Saved HTML to {tf_err.name}")
+                found_etykieta = found_etykieta or ""
             except Exception:
-                raise RuntimeError("Download URL returned HTML (not a file) and saving the HTML failed.")
-
-        # try to pick filename from headers
-        cd = r2.headers.get("content-disposition", "")
-        candidate = None
-        if "filename=" in cd:
-            import re as _re
-            fn = _re.search(r'filename\*?=(?:UTF-8\'\')?["\']?([^"\';]+)', cd)
-            if fn:
-                candidate = fn.group(1)
-
-        # if no filename from header, parse from URL
-        if not candidate:
-            p = urlparse(download_url)
-            candidate = os.path.basename(unquote(p.path))
-
-        # fallback: try to find a .dta or .pdf in the URL
-        if not candidate or not os.path.splitext(candidate)[1]:
-            m = re.search(r'([^/\\]+\.(?:dta|pdf))(?:$|[?;])', download_url, flags=re.IGNORECASE)
-            if m:
-                candidate = m.group(1)
-
-        # sanitize and ensure extension is .dta or .pdf
-        candidate = candidate or outfile
-        candidate = os.path.basename(candidate)
-        name, ext = os.path.splitext(candidate)
-        ext = ext.lower()
-        allowed = {".dta", ".pdf"}
-        if ext not in allowed:
-            # if we can detect .dta or .pdf in the URL, use that; else default to .dta
-            m2 = re.search(r'\.(dta|pdf)(?:$|[?;])', download_url, flags=re.IGNORECASE)
-            if m2:
-                ext = "." + m2.group(1).lower()
-            else:
-                ext = ".dta"
-            candidate = name + ext
-
-        # final target path (avoid name collisions)
-        target_path = os.path.join(download_dir, candidate)
-        base, extension = os.path.splitext(target_path)
-        i = 1
-        while os.path.exists(target_path):
-            target_path = f"{base}_{i}{extension}"
-            i += 1
-
-        # write to temporary file in target dir then atomically move
-        try:
-            tf = tempfile.NamedTemporaryFile(delete=False, dir=download_dir, suffix=".part")
-            try:
-                for chunk in r2.iter_content(8192):
-                    if chunk:
-                        tf.write(chunk)
-                tf.flush()
-            finally:
-                tf.close()
-            os.replace(tf.name, target_path)
-            _outfile = target_path
-        except Exception as e:
-            # fallback: write to system temp
-            try:
-                tf2 = tempfile.NamedTemporaryFile(delete=False, suffix=ext)
+                found_etykieta = ""
+            
+            # Remove the wort 'Etykieta' from the beginning if present
+            if found_etykieta.lower().startswith('etykieta'):
+                found_etykieta = found_etykieta[len('etykieta'):].strip()
+                
+            # Find all new line indications in found_etykieta and replace them with spaces
+            found_etykieta = re.sub(r'\s*\n\s*', ' ', found_etykieta)
+            
+            # Extract 'Wartości z etykietami' tables (only the block to the right/below of the phrase until the next horizontal line)
+            for m in table_re.finditer(page_text):
                 try:
-                    for chunk in r2.iter_content(8192):
-                        if chunk:
-                            tf2.write(chunk)
-                    tf2.flush()
-                finally:
-                    tf2.close()
-                _outfile = tf2.name
-            except Exception:
-                raise RuntimeError(f"Failed to save downloaded file to {download_dir} and system temp. Error: {e}")
+                    blocks = page.get_text("blocks")
 
-    return _outfile
+                    # Locate the phrase geometry via search_for (more reliable than blocks)
+                    phrase_rects = page.search_for("Wartości z etykietami") + page.search_for("Wartosci z etykietami")
+                    phrase_rect = phrase_rects[0] if phrase_rects else None
+                    
+                    # Fallback: locate the block that contains the phrase text
+                    phrase_block = None
+                    if not phrase_rect:
+                        for b in blocks:
+                            txt = b[4] if len(b) > 4 else ""
+                            if table_re.search(txt):
+                                phrase_block = b
+                                break
+                    
+                    if phrase_rect:
+                        phrase_x0, phrase_y0, phrase_x1, _ = phrase_rect
+                    elif phrase_block:
+                        phrase_x0, phrase_y0, phrase_x1, _ = phrase_block[0], phrase_block[1], phrase_block[2], phrase_block[3]
+                    else:
+                        phrase_x0, phrase_y0, phrase_x1 = 0, 0, 0
 
+                    page_width = page.rect.width
 
+                    # Detect a long horizontal rule to stop the table (prefer the first one below the phrase)
+                    stop_y = None
+                    try:
+                        drawings = page.get_drawings()
+                        for d in drawings:
+                            rect = d.get('rect') if isinstance(d, dict) else None
+                            if rect:
+                                w = rect[2] - rect[0]
+                                h = rect[3] - rect[1]
+                                if w >= page_width * 0.7 and h <= 3 and rect[1] > phrase_y0:
+                                    stop_y = rect[1]
+                                    break
+                            items = d.get('items') if isinstance(d, dict) else None
+                            if items:
+                                for it in items:
+                                    if not it:
+                                        continue
+                                    if it[0] == 'l':
+                                        _, (x0, y0, x1, y1) = it
+                                        w = abs(x1 - x0)
+                                        h = abs(y1 - y0)
+                                        if w >= page_width * 0.7 and h <= 3 and y0 > phrase_y0:
+                                            stop_y = min(y0, y1)
+                                            break
+                                if stop_y is not None:
+                                    break
+                    except Exception:
+                        stop_y = None
 
+                    if stop_y is None:
+                        stop_y = page.rect.height  # conservative fallback
 
+                    start_y = max(phrase_y0 - 2, 0)
 
+                    # Collect only the blocks that are to the right of the phrase and between start_y and stop_y
+                    region_blocks = []
+                    for b in blocks:
+                        bx0, by0, bx1, by1 = b[0], b[1], b[2], b[3]
+                        if by0 < start_y - 1 or by0 > stop_y + 1:
+                            continue
+                        # Keep a small tolerance so we don't miss slightly left-aligned numeric column
+                        if bx0 < phrase_x1 - 5:
+                            continue
+                        # skip the phrase block itself
+                        if phrase_block and b is phrase_block:
+                            continue
+                        region_blocks.append(b)
 
+                    # Group blocks into rows (visual clustering)
+                    rows_map = []  # list of (y_top, [blocks_on_row])
+                    v_tol = 5.0
+                    for b in sorted(region_blocks, key=lambda x: x[1]):
+                        by0 = b[1]
+                        placed = False
+                        for entry in rows_map:
+                            y_top = entry[0]
+                            if abs(by0 - y_top) <= v_tol:
+                                entry[1].append(b)
+                                placed = True
+                                break
+                        if not placed:
+                            rows_map.append([by0, [b]])
 
+                    table_rows = []
+                    for _, blks in rows_map:
+                        sorted_cols = [t for _, t in sorted([(bb[0], bb) for bb in blks], key=lambda x: x[0])]
+                        texts = [ (bb[4] if len(bb) > 4 else "").strip() for bb in sorted_cols ]
+                        if len(texts) > 4:
+                            texts = texts[:3] + [" ".join(texts[3:])]
+                        while len(texts) < 4:
+                            texts.append("")
+                        texts = [re.sub(r'\s+',' ', t).strip() for t in texts]
+                        if any(t for t in texts):
+                            table_rows.append(texts)
 
+                    # Fallback to plain text parsing limited to nearby snippet if no rows found
+                    if not table_rows:
+                        start = m.end()
+                        snippet = page_text[start:start + 400]
+                        lines = [ln.strip() for ln in snippet.splitlines() if ln.strip()]
+                        for ln in lines:
+                            parts = re.split(r'\s{2,}', ln)
+                            if len(parts) >= 3:
+                                if len(parts) == 3:
+                                    parts.append("")
+                                if len(parts) > 4:
+                                    parts = parts[:3] + [" ".join(parts[3:])]
+                                parts = [re.sub(r'\s+',' ', p).strip() for p in parts]
+                                table_rows.append(parts)
 
-
-comp = "datasetForm:tabView:filesTable:1:j_idt644:tabularOriginalDownloadPopupButton"
-    try:
-        res = robust_primefaces_download(page, comp, outfile="data.dta")
-        print("Downloaded to", res)
-    except Exception as e:
-        print("ERROR:", e)
-        # ajax response saved as ajax_response.html for inspection
+                    if table_rows:
+                        found_table.append(table_rows)
+                except Exception:
+                    # don't let one failure stop the page processing; append an empty placeholder
+                    found_table.append(())
+            
+            results.append((page_numer, found_q_string or "", found_etykieta or "", found_table))
+            
+        return results
+        """

@@ -7,17 +7,219 @@ import fitz  # PyMuPDF
 import re
 import os 
 from typing import List, Tuple
-import json
-
+import pickle
+import numpy as np
+import pandas as pd
 
 PATH_PDF = "/Users/jedrek/Documents/Studium Volkswirschaftslehre/3. Semester/Long-run dynamics of wealth inequalities/Paper/Data/CBOS pdf/"
+
+def preprocess_pandas(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Preprocesses a pandas DataFrame by removing empty rows and columns.
+
+    Parameters:
+    -----------
+    df : pd.DataFrame
+        The DataFrame to preprocess.
+
+    Returns:
+    --------
+    pd.DataFrame
+        The preprocessed DataFrame.
+
+    NEW COMMENT:
+    If there is a cell with "Strona XX" (XX: arbitrary number) and apart of that the row is empty,
+    we remove that row as it is not part of the table.
+    """
+    # Defensive check: require a DataFrame
+    if not isinstance(df, pd.DataFrame):
+        return pd.DataFrame()
+
+    # Work on a copy to avoid mutating caller's object
+    df = df.copy()
+
+    # Remove fully empty rows and columns first
+    df = df.dropna(how='all')
+    df = df.dropna(axis=1, how='all')
+
+    # Remove rows that contain only a "Strona <number>" string (case-insensitive)
+    rows_to_drop = []
+    for idx in df.index:
+        row = df.loc[idx]
+        # collect non-empty cells in this row
+        non_empty = []
+        for cell in row:
+            if pd.isna(cell):
+                continue
+            if isinstance(cell, str):
+                txt = cell.strip()
+                if txt == "":
+                    continue
+                non_empty.append(txt)
+            else:
+                # numeric or other non-NA value
+                non_empty.append(str(cell))
+        if len(non_empty) == 1:
+            # Check if the single non-empty cell matches "Strona <digits>"
+            if re.match(r'^\s*Strona\s*\d+\s*$', non_empty[0], flags=re.IGNORECASE):
+                rows_to_drop.append(idx)
+    if rows_to_drop:
+        df = df.drop(index=rows_to_drop)
+        df = df.dropna(how='all')  # drop if that made fully-empty rows
+
+    # The output dataframe should have always 4 columns where:
+    # Column 0: Int
+    # Column 1: Label
+    # Column 2: Count
+    # Column 3: Percent
+    # First entry of the output dataframe should be at location [0,0] in the input dataframe
+    # If this is empty, we priortize the first number we find somewhat diagonally to the right
+    # and below from the [0,0] position.
+
+    if df.shape[1] < 4:
+        return pd.DataFrame()  # not enough columns
+
+    def is_integer_like(x):
+        if pd.isna(x):
+            return False
+        if isinstance(x, (int, np.integer)):
+            return True
+        if isinstance(x, (float, np.floating)):
+            return float(x).is_integer()
+        if isinstance(x, str):
+            s = x.strip()
+            # Only digits (no thousands separators). If you have commas, adjust here.
+            return bool(re.fullmatch(r"\d+", s))
+        return False
+
+    first_num_pos = None
+    for i in range(df.shape[0]):
+        # search up to diagonal (i+1 columns)
+        for j in range(min(i + 1, df.shape[1])):
+            cell = df.iat[i, j]
+            if is_integer_like(cell):
+                first_num_pos = (i, j)
+                break
+        if first_num_pos is not None:
+            break
+
+    if first_num_pos is None:
+        return pd.DataFrame()  # no numbers found
+
+    row, col = first_num_pos
+
+    # Build label from cells left of the found number in the same row (non-numeric, non-empty)
+    label_parts = []
+    for j in range(col):
+        cell = df.iat[row, j]
+        if pd.isna(cell):
+            continue
+        if isinstance(cell, str):
+            txt = cell.strip()
+            if txt == "":
+                continue
+            # skip if cell contains numbers
+            if any(ch.isdigit() for ch in txt):
+                continue
+            label_parts.append(txt)
+        else:
+            s = str(cell).strip()
+            if s == "":
+                continue
+            if any(ch.isdigit() for ch in s):
+                continue
+            label_parts.append(s)
+
+    label = ' '.join(label_parts).strip()
+
+    count_cell = df.iat[row, col]
+    if not is_integer_like(count_cell):
+        return pd.DataFrame()  # can't interpret count
+
+    # normalize count to int
+    try:
+        count_int = int(float(str(count_cell).strip()))
+    except Exception:
+        return pd.DataFrame()
+
+    percent = None
+    if (col + 1) < df.shape[1]:
+        pct_cell = df.iat[row, col + 1]
+        if not pd.isna(pct_cell):
+            percent = pct_cell
+
+    # Build resulting DataFrame (one-row) with the same column names as original function
+    out = pd.DataFrame({
+        "Dummy": [count_int],
+        "Label": [label],
+        "Count": [count_int],
+        "Percent": [percent]
+    })
+
+    return out.reset_index(drop=True)
 
 class PDFAnalyzer:
     def __init__(self, pdf_path: str):
         self.pdf_path = pdf_path
         self.doc = fitz.open(pdf_path)
+    
+    def get_blocks_on_page(self, page_num: int) -> List[Tuple[float, float, float, float, str, pd.DataFrame]]:
+        """
+        Get text blocks on a specific page.
+
+        Parameters:
+        -----------
+        page_num : int
+            The page number (0-based index).
+
+        Returns:
+        --------
+        List[Tuple[float, float, float, float, str]]
+            A list of tuples containing (x0, y0, x1, y1, text) for each block.
+        """
+        page = self.doc.load_page(page_num)
+        blocks = page.get_text("blocks")
+        return blocks
+    
+    def get_drawings_on_page(self, page_num: int) -> List[dict]:
+        """
+        Get drawing objects on a specific page.
+
+        Parameters:
+        -----------
+        page_num : int
+            The page number (0-based index).
+
+        Returns:
+        --------
+        List[dict]
+            A list of drawing objects.
+        """
+        page = self.doc.load_page(page_num)
+        drawings = page.get_cdrawings()
+        return drawings
+    
+    
+    def get_page_size(self, page_num: int) -> Tuple[float, float]:
+        """
+        Get the size of a specific page.
+
+        Parameters:
+        -----------
+        page_num : int
+            The page number (0-based index).
+
+        Returns:
+        --------
+        Tuple[float, float]
+            A tuple containing (width, height) of the page.
+        """
         
-    def extract_questions(self) -> List[Tuple[int, str, str, Tuple]]:
+        page = self.doc.load_page(page_num)        
+        return (page.rect.width, page.rect.height)
+    
+    
+    def extract_questions(self) -> Tuple[List[Tuple[int, str, str, str, pd.DataFrame, pd.DataFrame]], dict]:
         """
         Extracts all questions, that is text after the word
         'Etykieta', strings starting with 'q' followed by 
@@ -26,260 +228,189 @@ class PDFAnalyzer:
         Returns a list of tuples (question_text, page_number).
         """
         results = []
-        q_pattern = re.compile(r'q(\d+)', re.IGNORECASE)
-        etyk_re = re.compile(r'Etykieta', re.IGNORECASE)
-        typ_re = re.compile(r'Typ', re.IGNORECASE)
-        table_re = re.compile(r'Wartości z etykietami', re.IGNORECASE)
+        diagnostics = {'pages_with_no_q_strings': [],
+                       'pages_with_multiple_q_strings': []}
         
         if_codebook = False
+        
+        # Auxiliary vectorized functions
+        f_vstartswith = np.vectorize(lambda x,y: x.startswith(y) if isinstance(x, str) and isinstance(y,str) else x)
+        f_vcompare = np.vectorize(lambda x,y: x==y)
+        
         for page_num in range(len(self.doc)):
+            # Load the page
             page = self.doc.load_page(page_num)
             page_numer = page_num + 1  # 1-based page numbering
-            page_text = page.get_text()
             
-            if 'Codebook' in page_text:
+            if 'Codebook' in page.get_text():
                 if_codebook = True
             if not if_codebook:
                 continue  # skip pages before CODEBOOK
+            print(f"[PDFAnalyzer] Processing page {page_num + 1} / {len(self.doc)}")
+            # Prepare blocks
+            page_blocks = self.get_blocks_on_page(page_num)
+            page_blocks = np.array(page_blocks)
             
-            found_q_string = None
-            found_q_strings = []
-            found_etykieta = None
-            found_table = []
-            
-            # Find all 'q...' occurrences
-            for m in q_pattern.finditer(page_text):
-                q_text = m.group(0)
-                found_q_strings.append((q_text, page_num))
-            
-            # For the found q string on this page, choose the q string with the highest number
-            if found_q_strings:
-                found_q_strings.sort(key=lambda x: int(re.search(r'\d+', x[0]).group(0)), reverse=True)
-                found_q_string = found_q_strings[0][0]
-            
-            # Find all 'Etykieta' occurrences and, for the first one, locate the nearest
-            # non-whitespace character geometrically to its left and return the whole
-            # concatenated text that lies to the right of that character (include the
-            # etykieta block and any right-side overlapping blocks).
-            try:
-                blocks = page.get_text("blocks")
-                found_etykieta = None
-
-                # blocks: list of tuples (x0, y0, x1, y1, "text", ...)
-                etyk_blocks = [b for b in blocks if etyk_re.search(b[4] if len(b) > 4 else "")]
-                if etyk_blocks:
-                    # use first occurrence
-                    etb = etyk_blocks[0]
-                    ex0, ey0, ex1, ey1 = etb[0], etb[1], etb[2], etb[3]
-
-                    # find left-side blocks that vertically overlap and lie to the left
-                    left_candidates = [
-                        b for b in blocks
-                        if (min(ey1, b[3]) - max(ey0, b[1]) > 0) and (b[2] <= ex0 + 1)
-                    ]
-                    left_block = max(left_candidates, key=lambda b: b[2]) if left_candidates else None
-
-                    if left_block:
-                        # boundary is the right edge of the closest left block
-                        boundary_x = left_block[2]
-                        # collect blocks to the right of that boundary that vertically overlap
-                        right_candidates = [
-                            b for b in blocks
-                            if (min(ey1, b[3]) - max(ey0, b[1]) > 0) and (b[0] >= boundary_x - 1)
-                        ]
-                        right_sorted = [t[4] for t in sorted(right_candidates, key=lambda x: x[0])]
-                        found_etykieta = " ".join(right_sorted).strip()
-                    else:
-                        # etykieta is in a block without a separate left block:
-                        # find first non-whitespace char to the left inside the same block
-                        etb_text = etb[4] if len(etb) > 4 else ""
-                        mloc = re.search(r'etykieta', etb_text, re.IGNORECASE)
-                        if mloc:
-                            start_idx = mloc.start()
-                            i = start_idx - 1
-                            while i >= 0 and etb_text[i].isspace():
-                                i -= 1
-                            if i >= 0:
-                                # text that follows that left-found character (to the right)
-                                tail = etb_text[i+1:].strip()
-                            else:
-                                tail = etb_text[start_idx:].strip()
-                            # also include any right-side overlapping blocks (to the right of etyk block)
-                            right_candidates = [
-                                b for b in blocks
-                                if (min(ey1, b[3]) - max(ey0, b[1]) > 0) and (b[0] >= ex1 - 1)
-                            ]
-                            right_sorted = [t[4] for t in sorted(right_candidates, key=lambda x: x[0])]
-                            found_etykieta = " ".join([tail] + right_sorted).strip()
-                else:
-                    # fallback to plain text search: find first non-whitespace char to the left in page text
-                    m = etyk_re.search(page_text)
-                    if m:
-                        left_slice = page_text[:m.start()]
-                        j = len(left_slice) - 1
-                        while j >= 0 and left_slice[j].isspace():
-                            j -= 1
-                        if j >= 0:
-                            snippet = page_text[j+1:m.end() + 200]
-                        else:
-                            snippet = page_text[m.end():m.end() + 200]
-                        found_etykieta = snippet.strip()
-
-                found_etykieta = found_etykieta or ""
-            except Exception:
-                found_etykieta = ""
-            
-            # Remove the wort 'Etykieta' from the beginning if present
-            if found_etykieta.lower().startswith('etykieta'):
-                found_etykieta = found_etykieta[len('etykieta'):].strip()
+            for i in range(len(page_blocks)):
+                page_blocks[i, 4] = page_blocks[i, 4].astype(str).strip()
+                page_blocks[i, 4] = page_blocks[i, 4].replace('\n', ' ')
                 
-            # Find all new line indications in found_etykieta and replace them with spaces
-            found_etykieta = re.sub(r'\s*\n\s*', ' ', found_etykieta)
+            # Quick look up
             
-            '''
-            # Find all 'Wartości z etykietami' occurrences
-            for m in table_re.finditer(page_text):
-                # Now extract the table-like text that is to the right of the phrase and below the text found on right to the phrase
-                start = m.end()
-                snippet = page_text[start:start + 500]  # grab following text
-                found_table.append(snippet.strip())
-            '''
-            results.append((page_numer, found_q_string or "", found_etykieta or "", tuple(found_table)))
+            qs = np.where(f_vstartswith(page_blocks[:,4], 'q'))[0]
+            types = np.where(f_vcompare(page_blocks[:,4], 'Typ'))[0]
+            questions = np.where(f_vcompare(page_blocks[:,4], 'Etykieta'))[0]
+            tables = np.where(f_vstartswith(page_blocks[:,4], 'Wartości z etykietami'))[0]
+            continued_table_pd = None
             
-        return results
-    
-    def extract_phrase_with_number_and_etykieta(self, phrase: str) -> Tuple[str, str, str, str, int]:
-        """
-        Search the PDF for the first page that contains `phrase`. On that page:
-        - Prefer left-side blocks to find a token that begins with a lowercase "q"
-          immediately followed (possibly with spaces) by digits, e.g. "q12" or "q 12".
-          Return the matched "q..." string and the captured number (as string).
-        - Find the occurrence of the word "Etykieta" (case-insensitive). For the block
-          containing that word, gather text to the right on the same line (blocks with
-          overlapping vertical coordinates). From that concatenated right-side text,
-          attempt to extract a substring like "[...digits...]. ...", possibly spanning
-          multiple lines. Return that substring if found.
-        Returns a tuple: (phrase_matched, q_number, q_found, etykieta_string, page_num).
-        If nothing is found for an item, its value will be an empty string; page_num is -1
-        when no page with the phrase was found.
-        """
-        # Defaults for not-found
-        empty_result = ("", "", "", "", -1)
-
-        # compile helpers
-        phrase_re = re.compile(re.escape(phrase), re.IGNORECASE)
-        # match lowercase 'q' followed by optional spaces and digits, require 'q' at token start
-        q_pattern = re.compile(r'\bq\s*(\d+)\b')
-        etyk_re = re.compile(r'etykieta', re.IGNORECASE)
-
-        for page_num in range(len(self.doc)):
-            page = self.doc.load_page(page_num)
-            page_text = page.get_text()
-            if not phrase_re.search(page_text):
-                continue  # not the page we're looking for
-
-            # Found the page containing the phrase; remember the exact matched phrase text
-            m_phrase = phrase_re.search(page_text)
-            phrase_text = m_phrase.group(0) if m_phrase else phrase
-
-            q_found = ""
-            q_number = ""
-
-            # Prefer searching left-side blocks for 'q...' tokens for speed.
-            try:
-                blocks = page.get_text("blocks")
-                # blocks: list of tuples (x0, y0, x1, y1, "text", ...)
-                page_width = page.rect.width
-                left_threshold = page_width * 0.4
-                # sort blocks by x0 so we scan left-to-right consistently
-                blocks_sorted = sorted(blocks, key=lambda b: b[0])
-                left_match = None
-                for b in blocks_sorted:
-                    x0 = b[0]
-                    block_text = b[4] if len(b) > 4 else ""
-                    if x0 <= left_threshold:
-                        m = q_pattern.search(block_text)
-                        if m:
-                            left_match = m
-                            q_found = m.group(0)
-                            q_number = m.group(1)
-                            break
-                # fallback to whole page if no left-side match
-                if not left_match:
-                    m = q_pattern.search(page_text)
-                    if m:
-                        q_found = m.group(0)
-                        q_number = m.group(1)
-            except Exception:
-                # if blocks extraction fails, search whole page
-                m = q_pattern.search(page_text)
-                if m:
-                    q_found = m.group(0)
-                    q_number = m.group(1)
-
-            # Now find "Etykieta" and try to extract the right-side descriptive string
-            etykieta_text = ""
-            try:
-                blocks = page.get_text("blocks")
-                # find blocks that contain "Etykieta"
-                etyk_blocks = [b for b in blocks if etyk_re.search(b[4] if len(b) > 4 else "")]
-                if etyk_blocks:
-                    # pick the first occurrence
-                    etb = etyk_blocks[0]
-                    ex0, ey0, ex1, ey1 = etb[0], etb[1], etb[2], etb[3]
-                    # collect candidate blocks that lie to the right and vertically overlap
-                    candidates = []
-                    for b in blocks:
-                        bx0, by0, bx1, by1 = b[0], b[1], b[2], b[3]
-                        # vertical overlap
-                        overlap = min(ey1, by1) - max(ey0, by0)
-                        if overlap > 0 and (bx0 >= ex1 - 1):  # to the right (allow tiny tolerance)
-                            candidates.append((bx0, b[4] if len(b) > 4 else ""))
-                    # include the etykieta block text itself as the leftmost element
-                    left_text = etb[4] if len(etb) > 4 else ""
-                    # sort candidates by x0 and concatenate
-                    candidates_sorted = [t for _, t in sorted(candidates, key=lambda x: x[0])]
-                    combined = " ".join([left_text] + candidates_sorted).strip()
-                    # Try to extract pattern like "[something containing numbers]. [some text...]" across lines
-                    # look for bracketed segment containing digits followed by a dot and then some text
-                    brack_pattern = re.compile(r'(\[.*?\d+.*?\]\.\s*[\s\S]+)', re.DOTALL)
-                    mbr = brack_pattern.search(combined)
-                    if mbr:
-                        etykieta_text = mbr.group(1).strip()
+            types = types if len(types) > 0 else np.where(f_vstartswith(page_blocks[:,4], 'Typ'))[0]
+            questions = questions if len(questions) > 0 else np.where(f_vstartswith(page_blocks[:,4], 'Typ'))[0]
+            
+            # Initialize found variables
+            found_q_string = ""
+            found_etykieta = ""
+            found_type = ""
+            found_table = pd.DataFrame()
+            continued_table_pd = pd.DataFrame()
+            
+            def find_closest_right_block(ref_idx: int, blocks: np.ndarray) -> int:
+                ref_x0 = float(blocks[ref_idx, 0])
+                ref_x1 = float(blocks[ref_idx, 2])
+                ref_y0 = float(blocks[ref_idx, 1])
+                ref_y1 = float(blocks[ref_idx, 3])
+                candidates = []
+                for i in range(len(blocks)):
+                    if i == ref_idx:
+                        continue
+                    bx0 = float(blocks[i, 0])
+                    by0 = float(blocks[i, 1])
+                    by1 = float(blocks[i, 3])
+                    # Check if block is to the right and vertically overlaps
+                    if bx0 > ref_x0 and (float(min(ref_y1, by1)) - float(max(ref_y0, by0) ) > 0):
+                        candidates.append((i, bx0 - ref_x1))
+                if not candidates:
+                    return -1
+                # Return index of the closest block
+                candidates.sort(key=lambda x: x[1])
+                return candidates[0][0]
+            
+            def extract_table(page: fitz.Page, ref_idx: int, blocks: np.ndarray) -> pd.DataFrame:
+                if blocks[ref_idx+1,4] == "Wartość Liczebność Procent":
+                    ref_idx += 1  # move to the next block
+                
+                ints = np.vectorize(lambda x: x.isdigit() if isinstance(x, str) else False)(blocks[:,4])
+                seq_of_rows = []
+                
+                i=1
+                while ints[ref_idx+i]:
+                    seq_of_rows += [np.mean([float(blocks[ref_idx+i,1]), float(blocks[ref_idx+i,3])] )]
+                    i += 1
+                
+                # Check if its strictly increasing and if not remove the last element until it is
+                while not all(x<y for x, y in zip(seq_of_rows, seq_of_rows[1:])):
+                    seq_of_rows = seq_of_rows[:-1]
+                
+                if blocks[ref_idx,4] == "Wartość Liczebność Procent":
+                    rect = [blocks[ref_idx-1,2].astype(float), blocks[ref_idx-1,1].astype(float),
+                            blocks[:,2].astype(float).max(), max(seq_of_rows)+10]
+                    table = page.find_tables(clip = rect, strategy= 'text', min_words_vertical=1, snap_tolerance=6)
+                    
+                else: 
+                    rect = [blocks[ref_idx,2].astype(float)-5, blocks[ref_idx,1].astype(float),
+                            blocks[:,2].astype(float).max(), max(seq_of_rows)+10]
+                    table = page.find_tables(clip = rect, strategy= 'text', snap_tolerance=6)
+                    
+                if len(table.tables) == 0 :
+                    return pd.DataFrame()
+                table = table.tables[0].to_pandas()
+                
+                return table
+            
+            def center_of(rect: Tuple) -> Tuple[float, float]:
+                x0, y0, x1, y1 = rect
+                return ((float(x0) + float(x1)) / 2, (float(y0) + float(y1)) / 2)
+                
+            # Check if our page has only one q string
+            if len(qs) == 1:
+                if len(results) > 0:
+                    last_q = results[-1][1]
+                    if last_q in page_blocks[qs,4]:
+                        # Case where we either have only a continued table or some continued labels for the previous q
+                        
+                        found_q_string = page_blocks[qs,4][0]
+                        
+                        if len(questions) > 0:
+                            found_etykieta = page_blocks[find_closest_right_block(questions[0], page_blocks),4]
+                        if len(types) > 0:
+                            found_type = page_blocks[find_closest_right_block(types[0], page_blocks),4]
+                        if len(tables) > 0:
+                            found_table = extract_table(page, tables[0], page_blocks)
+                        
+                        # Same q as before - means we have more labels for previous page -> add to table of the last entry
+                        conitued_table = page.find_tables(strategy="text")
+                        continued_table_pd = conitued_table.tables[0].to_pandas()
+                        # Extract the names of the columns and use them as the new first row
+                        cols = continued_table_pd.columns
+                        continued_table_pd.columns = range(continued_table_pd.shape[1])
+                        continued_table_pd.loc[-1] = cols  # adding a row
+                        continued_table_pd.index = continued_table_pd.index + 1  # shifting index
+                        continued_table_pd = continued_table_pd.sort_index()
                     else:
-                        # fallback: look for first substring that has a number, a dot and some trailing text
-                        fallback_pattern = re.compile(r'([^\n]*\d+[^\n]*\.\s*[\s\S]+)', re.DOTALL)
-                        mfb = fallback_pattern.search(combined)
-                        if mfb:
-                            etykieta_text = mfb.group(1).strip()
-                        else:
-                            # last resort: if combined contains any digits, return the combined right-side text
-                            if re.search(r'\d', combined):
-                                etykieta_text = combined
+                        # Normal case with one q string on the page
+                        found_q_string = page_blocks[qs,4][0]
+                        found_etykieta = page_blocks[find_closest_right_block(questions[0], page_blocks),4]
+                        found_type = page_blocks[find_closest_right_block(types[0], page_blocks),4]
+                        if len(tables) > 0:
+                            found_table = extract_table(page, tables[0], page_blocks)
+                        
+            elif len(qs) == 2:
+                # Old lables and new questions on the same page - take the one with the higher number and add the old labels to old tables
+                found_q_strings = page_blocks[qs,4]
+                found_old_q = qs[0]
+                found_q_string = found_q_strings[1]
+                found_etykieta = page_blocks[find_closest_right_block(questions[0], page_blocks),4]
+                found_type = page_blocks[find_closest_right_block(types[0], page_blocks),4]
+                if len(tables) == 1:
+                    #print(center_of(page_blocks[tables[0], :4])[1])
+                    #print(center_of(page_blocks[qs[1], :4])[1])
+                    if center_of(page_blocks[tables[0], :4])[1] > center_of(page_blocks[qs[1], :4])[1]:
+                        #print(page_blocks[tables[0], 4])
+                        #print(page_blocks[found_old_q, 4])
+                        found_table = extract_table(page, tables[0], page_blocks)
+                        continued_table_pd = extract_table(page, found_old_q, page_blocks)
+                    else:
+                        #print("\n")
+                        #print("--------------------------------------------------")
+                        #print(page_blocks[tables[0], 4])
+                        #print("--------------------------------------------------")
+                        found_table = pd.DataFrame()
+                        continued_table_pd = extract_table(page, tables[0], page_blocks)
+                elif len(tables) > 1:
+                    #print("\n")
+                    #print("--------------------------------------------------")
+                    #print(tables)
+                    #print(page_blocks[tables, 4])
+                    #print("--------------------------------------------------")
+                    found_table = extract_table(page, tables[1], page_blocks)
+                    continued_table_pd = extract_table(page, tables[0], page_blocks)
                 else:
-                    # If no block-based Etykieta found, attempt a page-text based grab after the word
-                    m_ety = etyk_re.search(page_text)
-                    if m_ety:
-                        # take the following 300 chars as candidate and try same patterns
-                        start = m_ety.end()
-                        snippet = page_text[start:start + 800]
-                        brack_pattern = re.compile(r'(\[.*?\d+.*?\]\.\s*[\s\S]+)', re.DOTALL)
-                        mbr = brack_pattern.search(snippet)
-                        if mbr:
-                            etykieta_text = mbr.group(1).strip()
-                        else:
-                            fallback_pattern = re.compile(r'([^\n]*\d+[^\n]*\.\s*[\s\S]+)', re.DOTALL)
-                            mfb = fallback_pattern.search(snippet)
-                            if mfb:
-                                etykieta_text = mfb.group(1).strip()
-            except Exception:
-                # ignore errors and leave etykieta_text empty
-                etykieta_text = etykieta_text or ""
-
-            return (phrase_text, q_number, q_found, etykieta_text, page_num)
-
-        # phrase not found in any page
-        return empty_result
+                    found_table = pd.DataFrame()
+                    continued_table_pd = extract_table(page, found_old_q, page_blocks)
+            elif len(qs) > 2:
+                print(f"[PDFAnalyzer] Warning: more than 2 q-strings found on page {page_numer}, skipping page.")
+                diagnostics['pages_with_multiple_q_strings'].append(page_numer)
+                continue
+            else:
+                print(f"[PDFAnalyzer] Warning: no q-strings found on page {page_numer}, skipping page.")
+                diagnostics['pages_with_no_q_strings'].append(page_numer)
+                continue
+            
+            print(f"Found q-string: {found_q_string}, etykieta: {found_etykieta[:10]}..., type: {found_type}, table size: {found_table.shape}, continued table size: {continued_table_pd.shape} \n")
+            
+            results.append((page_numer, found_q_string, found_etykieta, found_type,
+                            preprocess_pandas(found_table), preprocess_pandas(continued_table_pd)))
+            
+        return results, diagnostics
     
     def close(self):
         """Closes the PDF document."""
@@ -327,16 +458,20 @@ def main():
         '''
         
         analyzer = PDFAnalyzer(pdf_path)
-        extracted_data = analyzer.extract_questions()
+        extracted_data, diagnotics = analyzer.extract_questions()
         results[pdf_id] = extracted_data
+        '''
         for item in extracted_data:
-            page_num, q_string, etyk_text, tables = item
-            print(f"  Found q_string '{q_string}' on page {page_num} with etykieta '{etyk_text}'")
+            page_num, q_string, etyk_text, typ, tables, old_table = item
+            print(f"Found q-string '{q_string}' on page {page_num}")
+            print(f"Type: {typ} Etykieta: {etyk_text}")
+            print(f"Table of size {tables.shape} extracted and old table of size {old_table.shape} extracted.")
+        '''
         analyzer.close()
         
     # Save results as json
-    with open("pdf_analysis_results.json", "w", encoding="utf-8") as f:
-        json.dump(results, f, ensure_ascii=False, indent=4)
+    with open(f"pdf_codebook_{pdf_file}.json", "wb") as f:
+        pickle.dump(results, f, protocol=pickle.HIGHEST_PROTOCOL)
 
 if __name__ == "__main__":
     main()
