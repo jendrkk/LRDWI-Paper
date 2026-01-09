@@ -50,8 +50,7 @@ def CBOS_API_retriver(search_id: int):
     except IndexError:
         print(f"No dataset found for id {search_id}.")
         return None
-        
-    
+
     dataset_url = "https://rds.icm.edu.pl" + url_ending
     
     # Extract the text under a given xpath:
@@ -219,7 +218,16 @@ def facilitator(id: int, file_type: str, output_path: str):
         current_date = current_date.strftime("%m_%Y")
         
         # Determine file extension based on file type
-        file_extension = "pdf" if file_type == "pdf" else "tab"
+        # file_extension = "pdf" if file_type == "pdf" else "tab"
+        
+        if file_type.lower() == "pdf":
+            file_extension = "pdf"
+        elif file_type.lower() == "STATA".lower():
+            file_extension = "tab"
+        elif file_type.lower() == "SPSS".lower():
+            file_extension = "sav"
+        else:
+            raise ValueError(f"Unsupported file type: {file_type}")
         
         # Validate extracted id from dataset name 
         name = out.get("dataset_name", "Unknown Dataset")
@@ -248,6 +256,10 @@ def facilitator(id: int, file_type: str, output_path: str):
             date_of_data = current_date
         # Choose the appropriate download link
         link = choose_download_link(out["download_links"], out["files_to_download"], file_type)
+        
+        if file_type.lower() == "SPSS".lower():
+            link += "?format=original"
+            
         # Download the file
         download_file(link, output_path + f"CBOS_{id}_{date_of_data}.{file_extension}")
         
@@ -257,14 +269,15 @@ def facilitator(id: int, file_type: str, output_path: str):
     print(f"File CBOS_{id}_{date_of_data}.{file_extension} downloaded successfully to {output_path}.")
     print("------------------------------------------------------")
     print("\n")
-    
 
 def main():
     PATH_TAB = "/Users/jedrek/Documents/Studium Volkswirschaftslehre/3. Semester/Long-run dynamics of wealth inequalities/Paper/Data/CBOS numerical/"
+    PATH_SPSS = "/Users/jedrek/Documents/Studium Volkswirschaftslehre/3. Semester/Long-run dynamics of wealth inequalities/Paper/Data/CBOS SPSS/"
     PATH_PDF = "/Users/jedrek/Documents/Studium Volkswirschaftslehre/3. Semester/Long-run dynamics of wealth inequalities/Paper/Data/CBOS pdf/"
-    for id in range(22, 340):  
+    for id in range(211, 340):  
         print(f"Downloading files for id {id}...")
         facilitator(id, "STATA", PATH_TAB)
+        facilitator(id, "SPSS", PATH_SPSS)
         facilitator(id, "pdf", PATH_PDF)
     
 if __name__ == "__main__":
