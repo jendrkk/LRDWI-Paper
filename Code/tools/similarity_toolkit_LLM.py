@@ -237,7 +237,7 @@ def main():
     # Example usage
     # force_download=True, local_files_only=False
     st = SimilarityToolkit()
-    a = "Jak się nazywasz?"
+    a = "Czy pada dziś deszcz?"
     b = "Is it raining today?"
     result = st.similarity(a, b)
     print(result)
