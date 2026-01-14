@@ -1,0 +1,897 @@
+column_name,column_label,spss_file
+q67i8,"Z jakimi problemami, Pana(i) zdaniem, boryka się Kościół katolicki w Polsce?-Niskie dochody niektórych parafii",CBOS_279_08_2013.sav
+q68i8,A czy któreś z tych problemów dotyczą Pana(i) parafii? -Niskie dochody parafii,CBOS_279_08_2013.sav
+q238,"A teraz proszę sobie wyobrazić, że Pana(i) krewny lub znajomy otrzymał dużą sumę pieniędzy i chce się Pana(i) poradzić, jak ją zainwestować. Nie wie, czy kupić obligacje skarbowe czy akcje przedsiębiorstw. Co poradził(a)by Pan(i)?",CBOS_131_04_2001.sav
+q239,"Przypuśćmy, że otrzymał(a)by Pan(i) milion nowych złotych w gotówce. Jaką część tej sumy przeznaczył(a)by Pan(i) na każdy wybrany cel? - Dom/ mieszkanie: remont, modernizację, dokończenie budowy",CBOS_131_04_2001.sav
+q241,"Przypuśćmy, że otrzymał(a)by Pan(i) milion nowych złotych w gotówce. Jaką część tej sumy przeznaczył(a)by Pan(i) na każdy wybrany cel? - Fabrycznie nowy samochód",CBOS_131_04_2001.sav
+q242,"Przypuśćmy, że otrzymał(a)by Pan(i) milion nowych złotych w gotówce. Jaką część tej sumy przeznaczył(a)by Pan(i) na każdy wybrany cel? - Używany samochód",CBOS_131_04_2001.sav
+q137,56. A jak w tym roku w Pana(i) gospodarstwie domowym będą wyglądać przedświąteczne przygotowania? Czy Pan(i) osobiście będzie ... : - sprzątać mieszkanie,CBOS_187_12_2005.sav
+q161,Do której grupy dochodowej można zaliczyć Pana(i) miesięczne dochody netto (szersza treść w kwestionariuszu),CBOS_23_01_1992.sav
+q130,"58. Czy obecnie uważa Pan(i), że dochody Pana(i) rodziny są:",CBOS_48_04_1994.sav
+q131,"59. Czy uważa Pan(i), że całkowite dochody w Pana(i) gospodarstwie domowym są:",CBOS_48_04_1994.sav
+q144,"61. Jeśli sytuacja Pana(i), Pana(i) rodziny pogorszyła się, to na co przede wszystkim musiał(a) Pan(i) ograniczyć wydatki lub z czego zrezygnować? Czy musiał(a) Pan(i) ograniczyć wydatki na: - oszczędności",CBOS_48_04_1994.sav
+q157,"62. Jeśli sytuacja Pana(i), Pana(i) rodziny poprawiła się, to na co zwiększył(a) Pan(i) wydatki? Czy zwiększył(a) Pan(i) swoje wydatki na: - oszczędności",CBOS_48_04_1994.sav
+q161,65. Czy w ciągu ostatniego roku miał(a) Pan(i) jakieś trudności w uiszczaniu opłat za ... : - mieszkanie/dom,CBOS_48_04_1994.sav
+q168,"67. Czy w poprzednim miesiącu, tzn. w marcu, Pan(i) i Pana(i) gospodarstwo domowe było zmuszone, czy też nie, ze względu na sytuację finansową: - sięgać do oszczędności gotówkowych",CBOS_48_04_1994.sav
+q173,"68. Ile, według Pana(i), powinny wynosić miesięczne dochody na jedną osobę w Pana(i) rodzinie, aby można było:  - żyć dostatnio, bez problemów finansowych",CBOS_48_04_1994.sav
+q174,"68. Ile, według Pana(i), powinny wynosić miesięczne dochody na jedną osobę w Pana(i) rodzinie, aby można było:  - żyć na średnim poziomie",CBOS_48_04_1994.sav
+q175,"68. Ile, według Pana(i), powinny wynosić miesięczne dochody na jedną osobę w Pana(i) rodzinie, aby można było:  - zaspokajać jedynie podstawowe potrzeby",CBOS_48_04_1994.sav
+q433,Czy ma(ją) Pan(i)/Państwo jakieś oszczędności? Czy jest(są) to: - Akcje firm notowanych na giełdzie,CBOS_48_04_1994.sav
+q441,Czy ma(ją) Pan(i)/Państwo: - samochód osobowy,CBOS_48_04_1994.sav
+q207,63. Jakimi środkami komunikacji podróżował(a) Pan(i) lub będzie podróżować jadąc na wypoczynek i w jego trakcie? - samochód osobowy,CBOS_186_11_2005.sav
+q422,"Czy, Pana(i) zdaniem, akcje firm notowanych na giełdzie powinny czy też nie powinny być opodatkowane?",CBOS_43_01_1994.sav
+q74,"26. Proszę porównać zarówno dochody swojego gospodarstwa domowego, jak i ceny obecne i sprzed roku. Czy w porównaniu z okresem sprzed roku jest Pan(i) w stanie kupić więcej czy mniej towarów?",CBOS_115_12_1999.sav
+q75,27. A czy dochody Pana(i) gospodarstwa domowego wyrażone w złotówkach są wyższe czy też niższe niż rok temu?,CBOS_115_12_1999.sav
+q97,"29. Jak, Pana(i) zdaniem, wprowadzenie programu oszczędności budżetowych, tzw. planu Hausnera, wpłynie na ... w ciągu następnych trzech lat? - warunki materialne Pana(i) i Pana(i) rodziny",CBOS_162_11_2003.sav
+q98,"29. Jak, Pana(i) zdaniem, wprowadzenie programu oszczędności budżetowych, tzw. planu Hausnera, wpłynie na ... w ciągu następnych trzech lat? - sytuację gospodarczą kraju",CBOS_162_11_2003.sav
+q205,"Proszę powiedzieć do której grupy dochodowej można zaliczyć Pana(i) miesięczne dochody netto. Jeżeli P. nie pracuje, to proszę podać dochód głównego żywiciela rodziny",CBOS_19_08_1991.sav
+q429,"Czy Pan(i) lub współmałżonek posiadacie oszczędności finansowe (lokatę, akcje, obligacje, tytuły uczestnictwa funduszu powierniczego, oszczędności w innej postaci)?",CBOS_150_11_2002.sav
+q109,"Ile, według Pana(i), powinny wynosić miesięczne dochody na jedną osobę w Pana(i)  rodzinie, aby można było:  - Żyć dostatnio, bez problemów finansowych [w NOWYCH zł.]",CBOS_77_10_1996.sav
+q110,"Ile, według Pana(i), powinny wynosić miesięczne dochody na jedną osobę w Pana(i)  rodzinie, aby można było:  - Żyć na średnim poziomie [w NOWYCH zł]",CBOS_77_10_1996.sav
+q111,"Ile, według Pana(i), powinny wynosić miesięczne dochody na jedną osobę w Pana(i)  rodzinie, aby można było:  - Zaspokajać jedynie podstawowe potrzeby [w NOWYCH zł]",CBOS_77_10_1996.sav
+q112,Czy w ciągu ostatniego roku miał(a) Pan(i) jakieś trudności w uiszczaniu opłat za: ... : - Mieszkanie/dom,CBOS_77_10_1996.sav
+q128,"Czy w poprzednim miesiącu, tzn. we wrześniu, Pan(i) i Pana(i) gospodarstwo domowe było  zmuszone, czy też nie, ze względu na sytuację finansową: - Sięgać do oszczędności gotówkowych",CBOS_77_10_1996.sav
+q129,"Czy w poprzednim miesiącu, tzn. we wrześniu, Pan(i) i Pana(i) gospodarstwo domowe było  zmuszone, czy też nie, ze względu na sytuację finansową: - Zaciągać pożyczkę lub kredyt",CBOS_77_10_1996.sav
+q24,"7. Czy ma Pan(i) jakieś oszczędności osobiste lub wspólne z innymi członkami Pana(i) gospodarstwa domowego w formie pieniędzy lub bonów, lokat bankowych, akcji lub obligacji itp.?",CBOS_101_10_1998.sav
+q25,8. Czy w ciągu ostatnich 30 dni oszczędności te zwiększyły się czy zmniejszyły?,CBOS_101_10_1998.sav
+q284,73. Czy dochody i materialny poziom życia Pana(i) i Pana(i) rodziny są obecnie wyższe czy niższe niż rok temu?,CBOS_101_10_1998.sav
+q285,74. A co Pan(i) myśli o przyszłości? Czy za rok dochody i materialny poziom życia Pana(i) i Pana(i) rodziny będą wyższe czy niższe niż obecnie?,CBOS_101_10_1998.sav
+q286,"75. Myśląc nie o sobie, lecz o całym społeczeństwie, czy sądzi Pan(i) że dochody i materialny poziom życia wiekszości Polaków są obecnie wyższe czy niższe niż rok temu?",CBOS_101_10_1998.sav
+q287,76.  A co Pan(i) myśli o przyszłości? Czy za rok dochody i materialny poziom życia większości Polaków będą wyższe czy niższe niż obecnie?,CBOS_101_10_1998.sav
+q152,50. Ile pokoi powinno mieć teraz mieszkanie (lub dom) odpowiednie dla Pana(i) i Pana(i) rodziny?,CBOS_57_02_1995.sav
+q153,51. Czy stara się Pan(i) (lub ma Pan(i) zamiar starać się) zmienić swoje mieszkanie lub dom?,CBOS_57_02_1995.sav
+q154,"52. Ile obecnie płaci Pan(i) łącznie miesięcznie za mieszkanie (czynsz, woda, elektryczność, co, gaz, spłata kredytów, inne opłaty)? (TYS. STARYCH ZŁOTYCH)",CBOS_57_02_1995.sav
+q156,"54. Czy w ciągu ostatniego roku miał(a) Pan(i) jakieś kłopoty w uiszczaniu opłat za mieszkanie, gaz lub elektryczność? - kłopoty z opłatami za mieszkanie",CBOS_57_02_1995.sav
+q418,"Czy Pan(i) i Pana(i) rodzina mieszka samodzielnie, czy dzieli mieszkanie z inną osobą lub rodziną?",CBOS_57_02_1995.sav
+q428,"Czy mieszkanie (dom), w którym Pan(i) obecnie mieszka jest:",CBOS_57_02_1995.sav
+q140,"52. Rząd przewiduje, że w 1995 roku inflacja, czyli spadek wartości pieniądza, wyniesie 17%. Czy, Pana(i) zdaniem, ...  powinny:  - dochody ludności",CBOS_56_01_1995.sav
+q84,"29D. Czy, Pana(i) zdaniem, w tym roku w porównaniu z ubiegłym rokiem - Realne dochody ludzi w Polsce w porównaniu z rokiem ubiegłym będą:",CBOS_106_03_1999.sav
+q115,"Czy w poprzednim miesiącu, tzn. w lutym, Pan(i) i Pana(i) gospodarstwo domowe było zmuszone, czy też nie, ze względu na sytuację finansową: - sięgać do oszczędności gotówkowych",CBOS_106_03_1999.sav
+q126,Czy mają Państwo jakieś oszczędności? Czy jest/są to: - akcje firm notowanych na giełdzie,CBOS_106_03_1999.sav
+q162,Istnieją rozmaite sposoby zabezpieczania oszczędności ubezpieczonych przed ryzykiem. Które z poniższych rozwiązań bardziej by Panu(i) odpowiadało?,CBOS_106_03_1999.sav
+q232,Według którego progu podatkowego rozlicza Pan(i) swoje dochody osobiste za rok 1997,CBOS_95_04_1998.sav
+q64,"15. Czy, Pana(i) zdaniem ….. w wyniku realizacji programu Balcerowicza: - Zarobki i dochody ludności",CBOS_3_03_1990.sav
+q76,"22. Załóżmy, że ma Pan(i) taką sumę oszczędności, którą mógł(a)by Pan(i) gdzieś ulokować, w coś zainwestować. Czy swoje oszczędności przeznaczył(a)by Pan(i) na: - długoterminowe wkłady oszczędnościowe w PKO",CBOS_3_03_1990.sav
+q77,"22. Załóżmy, że ma Pan(i) taką sumę oszczędności, którą mógł(a)by Pan(i) gdzieś ulokować, w coś zainwestować. Czy swoje oszczędności przeznaczył(a)by Pan(i) na: - długoterminowe wkłady oszczędnościowe w innych bankach",CBOS_3_03_1990.sav
+q78,"22. Załóżmy, że ma Pan(i) taką sumę oszczędności, którą mógł(a)by Pan(i) gdzieś ulokować, w coś zainwestować. Czy swoje oszczędności przeznaczył(a)by Pan(i) na: - zakup akcji przedsiębiorstw, sprzedawanych w ramach ich prywatyzacji",CBOS_3_03_1990.sav
+q79,"22. Załóżmy, że ma Pan(i) taką sumę oszczędności, którą mógł(a)by Pan(i) gdzieś ulokować, w coś zainwestować. Czy swoje oszczędności przeznaczył(a)by Pan(i) na: - zakup obligacji NBP",CBOS_3_03_1990.sav
+q80,"22. Załóżmy, że ma Pan(i) taką sumę oszczędności, którą mógł(a)by Pan(i) gdzieś ulokować, w coś zainwestować. Czy swoje oszczędności przeznaczył(a)by Pan(i) na: - zakup towarów, która w przyszłości będzie można korzystnie sprzedać",CBOS_3_03_1990.sav
+q81,"22. Załóżmy, że ma Pan(i) taką sumę oszczędności, którą mógł(a)by Pan(i) gdzieś ulokować, w coś zainwestować. Czy swoje oszczędności przeznaczył(a)by Pan(i) na: - zakup dolarów lub innych walut obcych",CBOS_3_03_1990.sav
+q430,"Czy Pan(i) lub współmałżonek posiadacie oszczędności finansowe (lokatę, akcje, obligacje, tytuły uczestnictwa funduszu powierniczego, oszczędności w innej postaci)?",CBOS_151_12_2002.sav
+q39s9,Czy w minionym roku: - zaciągnął Pan(i) kredyt lub pożyczkę w banku lub innej instytucji finansowej,CBOS_236_01_2010.sav
+q95,"Ile wynoszą Pana(i) miesięczne dochody NETTO (na rękę)? Proszę wziąć pod uwagę Pana(i) dochody z pracy głównej wraz z premiami, nagrodami, dodatkami, dochody z prac dodatkowych, także dorywczych, renty i emerytury, stypendia oraz inne dodatkowe do...",CBOS_236_01_2010.sav
+q97,"M14_D. A czy mógłby(mogłaby) Pan(i) podać przybliżone dochody? Proszę spojrzeć na ekran. Czy mógłby(mogłaby) Pan(i) wskazać, w którym przedziale mieszczą się Pana(i) miesięcznie dochody netto?",CBOS_236_01_2010.sav
+q100,"M15_D. A czy mógłby(mogłaby) Pan(i) podać przybliżone dochody? Proszę spojrzeć na ekran. Czy mógłby(mogłaby) Pan(i) wskazać, w którym przedziale mieszczą się przeciętne miesięczne dochody NETTO przypadające na jedną osobę w Pana(i) gospodarstwie domowy...",CBOS_236_01_2010.sav
+q174,"A jaki to samochód/samochody? Marka, producent - Samochód I",CBOS_68_01_1996.sav
+q175,"A jaki to samochód/samochody? Marka, producent - Samochód II",CBOS_68_01_1996.sav
+q176,A jaki to samochód/samochody? Rok produkcji - Samochód I,CBOS_68_01_1996.sav
+q177,A jaki to samochód/samochody? Rok produkcji - Samochód II,CBOS_68_01_1996.sav
+q178,A jaki to samochód/samochody? Pojemność silnika (w cm3) - Samochód I,CBOS_68_01_1996.sav
+q179,A jaki to samochód/samochody? Pojemność silnika (w cm3) - Samochód II,CBOS_68_01_1996.sav
+q180,A jaki to samochód/samochody? Typ silnika - Samochód I,CBOS_68_01_1996.sav
+q181,A jaki to samochód/samochody? Typ silnika - Samochód II,CBOS_68_01_1996.sav
+q182,"Czy w ciągu najbliższych 12 miesięcy Pan(i) lub ktoś z Pana(i) gospodarstwa domowego zamierza: - budować, kupić dom/mieszkanie",CBOS_68_01_1996.sav
+q183,"Czy w ciągu najbliższych 12 miesięcy Pan(i) lub ktoś z Pana(i) gospodarstwa domowego zamierza: - remontować, modernizować dom/mieszkanie",CBOS_68_01_1996.sav
+q184,"Czy w ciągu najbliższych 12 miesięcy Pan(i) lub ktoś z Pana(i) gospodarstwa domowego zamierza: - kupić, zmienić samochód",CBOS_68_01_1996.sav
+q187,Czy w ciągu najbliższych 12 miesięcy Pan(i) lub ktoś z Pana(i) gospodarstwa domowego zamierza: - umeblować dom/mieszkanie,CBOS_68_01_1996.sav
+q191,"Przypuśćmy, że otrzymał(a)by Pan(i) 1 mld starych zł. w gotówce. Jaką część tej sumy przeznaczył(a)by Pan(i) na każdy wybrany cel? - Dom, mieszkanie dla siebie, dla członków własnego GD",CBOS_68_01_1996.sav
+q95,28. A czy swoje dochody osobiste za rok 2001 rozliczał(a) Pan(i):,CBOS_144_05_2002.sav
+q114,Według którego progu podatkowego rozlicza Pan(i) swoje dochody osobiste za rok 2001?,CBOS_144_05_2002.sav
+q437,"Czy Pan(i) lub współmałżonek posiadacie oszczędności finansowe (lokatę, akcje, obligacje, tytuły uczestnictwa funduszu powierniczego, oszczędności w innej postaci)?",CBOS_144_05_2002.sav
+q88i6,Z czego przede wszystkim utrzymuje się Pan(i) obecnie: Z oszczędności,CBOS_251_04_2011.sav
+q165,"M19_2. A czy mógłby(mogłaby) Pan(i) podać przybliżone dochody? Czy mógłby(mogłaby) Pan(i) wskazać, w którym przedziale mieszczą się PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W PANA(I) GOSPODARST...",CBOS_251_04_2011.sav
+q96i6,Z czego przede wszystkim utrzymuje się Pan(i) obecnie? - Z oszczędności,CBOS_287_04_2014.sav
+P49,A czy swoje dochody osobiste za rok 2005 rozliczał Pan(i),CBOS_192_05_2006.sav
+P57,Według którego progu podatkowego rozlicza Pan(i) swoje dochody osobiste za rok 2005,CBOS_192_05_2006.sav
+P60,"Czy Pan(i) lub ktoś z Pana(i) gospodarstwa domowego spłaca kredyt w euro lub jakiejś innej europejskiej walucie, lub ma oszczędności w euro lub innej europejskiej walucie",CBOS_192_05_2006.sav
+q104,"36. Jak postępuje się w Pana(i) rodzinie w sytuacji, kiedy dochody są za niskie w stosunku do potrzeb? - Staram(y) się jak najmniej wydawać, ograniczam(y) wydatki",CBOS_32_02_1993.sav
+q105,"36. Jak postępuje się w Pana(i) rodzinie w sytuacji, kiedy dochody są za niskie w stosunku do potrzeb? - Staram(y) się jak najmniej wydawać, ograniczam(y) wydatki - Na co przede wszystkim?",CBOS_32_02_1993.sav
+q106,"36. Jak postępuje się w Pana(i) rodzinie w sytuacji, kiedy dochody są za niskie w stosunku do potrzeb? - Rezygnuję(my) całkowicie z wydatków na niektóre cele",CBOS_32_02_1993.sav
+q107,"36. Jak postępuje się w Pana(i) rodzinie w sytuacji, kiedy dochody są za niskie w stosunku do potrzeb? - Rezygnuję(my) całkowicie z wydatków na niektóre cele - Na co przede wszystkim?",CBOS_32_02_1993.sav
+q108,"36. Jak postępuje się w Pana(i) rodzinie w sytuacji, kiedy dochody są za niskie w stosunku do potrzeb? - Sięgam(y) do oszczędności gotówkowych",CBOS_32_02_1993.sav
+q109,"36. Jak postępuje się w Pana(i) rodzinie w sytuacji, kiedy dochody są za niskie w stosunku do potrzeb? - Podejmuję(my) dodatkowe zajęcia zarobkowe",CBOS_32_02_1993.sav
+q110,"36. Jak postępuje się w Pana(i) rodzinie w sytuacji, kiedy dochody są za niskie w stosunku do potrzeb? - Podejmuję(my) dodatkowe zajęcia zarobkowe - Jakie?",CBOS_32_02_1993.sav
+q111,"36. Jak postępuje się w Pana(i) rodzinie w sytuacji, kiedy dochody są za niskie w stosunku do potrzeb? - Zaciągam(y) pożyczki",CBOS_32_02_1993.sav
+q112,"36. Jak postępuje się w Pana(i) rodzinie w sytuacji, kiedy dochody są za niskie w stosunku do potrzeb? - Zwracam(y) się o pomoc do różnych instytucji (np. do PCK, opieki społecznej itp.)",CBOS_32_02_1993.sav
+q113,"36. Jak postępuje się w Pana(i) rodzinie w sytuacji, kiedy dochody są za niskie w stosunku do potrzeb? - Otrzymuję(my) pomoc od rodziny, krewnych",CBOS_32_02_1993.sav
+q61i6,25. Z czego przede wszystkim utrzymuje się Pan(i) obecnie? Proszę wskazać nie więcej niż trzy możliwości: Z oszczędności,CBOS_311_04_2016.sav
+q94,"50. Czy ktoś z Pana(i) rodziny, spoza Pan(i) gospodarstwa domowego, spłaca obecnie jakiś kredyt mieszkaniowy we frankach szwajcarskich?",CBOS_311_04_2016.sav
+q95,51. Czy zna Pan(i) osobiście kogoś – spoza Pana(i) rodziny - kto zaciągnął kredyt we frankach szwajcarskich?,CBOS_311_04_2016.sav
+q144,"Ile wynoszą Pana(i) miesięczne dochody NETTO (na rękę)? Proszę wziąć pod uwagę Pana(i) dochody z pracy głównej wraz z premiami, nagrodami, dodatkami, dochody z prac dodatkowych, także dorywczych, renty i emerytury, stypendia oraz inne dodatkowe do...",CBOS_237_02_2010.sav
+q146,"M14_D. A czy mógłby(mogłaby) Pan(i) podać przybliżone dochody? Proszę spojrzeć na ekran. Czy mógłby(mogłaby) Pan(i) wskazać, w którym przedziale mieszczą się Pana(i) miesięcznie dochody netto?",CBOS_237_02_2010.sav
+q149,"M15_D. A czy mógłby(mogłaby) Pan(i) podać przybliżone dochody? Proszę spojrzeć na ekran. Czy mógłby(mogłaby) Pan(i) wskazać, w którym przedziale mieszczą się przeciętne miesięczne dochody NETTO przypadające na jedną osobę w Pana(i) gospodarstwie domowy...",CBOS_237_02_2010.sav
+q83,W jaki sposób rozliczał(a) Pan(i) swoje dochody osobiste za rok 2012?,CBOS_276_05_2013.sav
+q28,"Ile, według Pana(i), powinny wynosić miesięczne dochody na jedną osobę w Pana(i) rodzinie, aby można było: - żyć dostatnio, bez problemów finansowych",CBOS_27_09_1992.sav
+q29,"Ile, według Pana(i), powinny wynosić miesięczne dochody na jedną osobę w Pana(i) rodzinie, aby można było: - żyć na średnim poziomie",CBOS_27_09_1992.sav
+q30,"Ile, według Pana(i), powinny wynosić miesięczne dochody na jedną osobę w Pana(i) rodzinie, aby można było: - zaspokajać jedynie podstawowe potrzeby",CBOS_27_09_1992.sav
+q429,"Czy Pan(i) lub współmałżonek posiadacie oszczędności finansowe (lokatę, akcje, obligacje, tytuły uczestnictwa funduszu powierniczego, oszczędności w innej postaci)?",CBOS_147_08_2002.sav
+q104,"26. Czy kupił(a)by Pan(i) akcje swojego przedsiębiorstwa, gdyby była taka możliwość?",CBOS_29_11_1992.sav
+q167,"56. W projekcie budżetu przyjęto, że dochody państwa będą większe dlatego, że wzrost gospodarczy będzie wyższy oraz,... Czy uważa Pan(i), że rząd trafnie czy też nietrafnie przewiduje, że - wzrost gospodarczy będzie wyższy",CBOS_149_10_2002.sav
+q168,"56. W projekcie budżetu przyjęto, że dochody państwa będą większe dlatego, że wzrost gospodarczy będzie wyższy oraz,... Czy uważa Pan(i), że rząd trafnie czy też nietrafnie przewiduje, że - wpływy z podatków i opłat będą wyższe",CBOS_149_10_2002.sav
+q171,"Czy ma/mają Pan(i)/Państwo jakieś oszczędności lub inne zasoby materialne, które można spieniężyć w razie potrzeby? - książeczka oszczędnościowa",CBOS_149_10_2002.sav
+q172,"Czy ma/mają Pan(i)/Państwo jakieś oszczędności lub inne zasoby materialne, które można spieniężyć w razie potrzeby? - konto bankowe terminowe w złotówkach",CBOS_149_10_2002.sav
+q173,"Czy ma/mają Pan(i)/Państwo jakieś oszczędności lub inne zasoby materialne, które można spieniężyć w razie potrzeby? - konto bankowe a vista (płatne na każde żądanie) w złotówkach, ROR",CBOS_149_10_2002.sav
+q174,"Czy ma/mają Pan(i)/Państwo jakieś oszczędności lub inne zasoby materialne, które można spieniężyć w razie potrzeby? - bony lokacyjne",CBOS_149_10_2002.sav
+q175,"Czy ma/mają Pan(i)/Państwo jakieś oszczędności lub inne zasoby materialne, które można spieniężyć w razie potrzeby? - walutowe konto bankowe terminowe",CBOS_149_10_2002.sav
+q176,"Czy ma/mają Pan(i)/Państwo jakieś oszczędności lub inne zasoby materialne, które można spieniężyć w razie potrzeby? - walutowe konto bankowe a vista",CBOS_149_10_2002.sav
+q177,"Czy ma/mają Pan(i)/Państwo jakieś oszczędności lub inne zasoby materialne, które można spieniężyć w razie potrzeby? - akcje firm notowanych na giełdzie",CBOS_149_10_2002.sav
+q178,"Czy ma/mają Pan(i)/Państwo jakieś oszczędności lub inne zasoby materialne, które można spieniężyć w razie potrzeby? - obligacje skarbu państwa",CBOS_149_10_2002.sav
+q179,"Czy ma/mają Pan(i)/Państwo jakieś oszczędności lub inne zasoby materialne, które można spieniężyć w razie potrzeby? - jednostki uczestnictwa w funduszu powierniczym",CBOS_149_10_2002.sav
+q180,"Czy ma/mają Pan(i)/Państwo jakieś oszczędności lub inne zasoby materialne, które można spieniężyć w razie potrzeby? - indywidualna polisa ubezpieczenia na życie, np. PZU-Życie,",CBOS_149_10_2002.sav
+q181,"Czy ma/mają Pan(i)/Państwo jakieś oszczędności lub inne zasoby materialne, które można spieniężyć w razie potrzeby? - kosztowności",CBOS_149_10_2002.sav
+q182,"Czy ma/mają Pan(i)/Państwo jakieś oszczędności lub inne zasoby materialne, które można spieniężyć w razie potrzeby? - gotówka (w złotych) w domu",CBOS_149_10_2002.sav
+q183,"Czy ma/mają Pan(i)/Państwo jakieś oszczędności lub inne zasoby materialne, które można spieniężyć w razie potrzeby? - waluty w domu",CBOS_149_10_2002.sav
+q184,"Czy ma/mają Pan(i)/Państwo jakieś oszczędności lub inne zasoby materialne, które można spieniężyć w razie potrzeby? - wartościowe przedmioty, które w razie potrzeby można spieniężyć, np. dzieła sztuki lub inne",CBOS_149_10_2002.sav
+q185,"Czy ma/mają Pan(i)/Państwo jakieś oszczędności lub inne zasoby materialne, które można spieniężyć w razie potrzeby? - pieniądze ulokowane w nieruchomościach, mieszkaniach, które w razie potrzeby można sprzedać",CBOS_149_10_2002.sav
+q186,"Czy ma/mają Pan(i)/Państwo jakieś oszczędności lub inne zasoby materialne, które można spieniężyć w razie potrzeby? - pieniądze ulokowane w ziemi np. działce budowlanej, rekreacyjnej itp., które w razie potrzeby można sprzedać",CBOS_149_10_2002.sav
+q187,"Czy ma/mają Pan(i)/Państwo jakieś oszczędności lub inne zasoby materialne, które można spieniężyć w razie potrzeby? - inne oszczędności",CBOS_149_10_2002.sav
+q429,"Czy Pan(i) lub współmałżonek posiadacie oszczędności finansowe (lokatę, akcje, obligacje, tytuły uczestnictwa funduszu powierniczego, oszczędności w innej postaci)?",CBOS_149_10_2002.sav
+q28i17,"P12A. Jeśli nie zdecydował(a) się Pan(i) jeszcze, na którą partię głosować, proszę powiedzieć, którą czy które partie bierze Pan(i) ewentualnie pod uwagę. - Dom Ojczysty",CBOS_184_09_2005.sav
+q135,"Czy za swoje dzisiejsze dochody jest Pan(i) w stanie kupić więcej, czy mniej towarów niż rok temu?",CBOS_184_09_2005.sav
+q94i6,48. Z czego przede wszystkim utrzymuje się P. obecnie?-Z oszczędności,CBOS_323_04_2017.sav
+q158,Ile wynoszą P. MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ)? - zmienna pomocnicza,CBOS_323_04_2017.sav
+DochOs,MIESIĘCZNE DOCHODY NETTO respondenta,CBOS_323_04_2017.sav
+q162,Ile wynoszą PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W P. GOSPODARSTWIE DOMOWYM? - zmienna pomocnicza,CBOS_323_04_2017.sav
+DochPC,PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W P. GOSPODARSTWIE DOMOWYM,CBOS_323_04_2017.sav
+q528,"Czy Pan(i) lub współmałżonek posiadacie oszczędności finansowe (lokatę, akcje, obligacje, tytuły uczestnictwa funduszu powierniczego, oszczędności w innej postaci)?",CBOS_145_06_2002.sav
+q23,"7. Czy ma Pan(i) jakieś oszczędności osobiste lub wspólne z innymi członkami Pana(i) gospodarstwa domowego w formie pieniędzy lub bonów, lokat bankowych, akcji lub obligacji itp.?",CBOS_98_07_1998.sav
+q24,"8. Czy w ciągu ostatnich 30 dni oszczędności te zwiększyły się, czy zmniejszyły?",CBOS_98_07_1998.sav
+q179,"62. Jak Pan(i) sądzi, czy samochód jest dla większości Polaków:",CBOS_98_07_1998.sav
+q188,66. Czy ma Pan(i): - samochód do swojej dyspozycji,CBOS_98_07_1998.sav
+q264,"Proszę powiedzieć, które z wymienionych dóbr i przedmiotów znajdują się obecnie w posiadaniu Pana(i) lub innych osób wchodzących w skład Pana(i) gospodarstwa domowego? - Akcje przedsiębiorstwa, w którym Pan(i) pracuje",CBOS_164_01_2004.sav
+q265,"Proszę powiedzieć, które z wymienionych dóbr i przedmiotów znajdują się obecnie w posiadaniu Pana(i) lub innych osób wchodzących w skład Pana(i) gospodarstwa domowego? - Inne akcje lub obligacje",CBOS_164_01_2004.sav
+q194,"60. Ile, według Pana(i), powinny wynosić miesięczne dochody na jedną osobę w Pana(i) rodzinie, aby mógł(a) Pan(i) powiedzieć o sobie :  Jestem  spokojny(a), że finansowo dam (damy) sobie radę""?:",CBOS_80_01_1997.sav
+q102,"M14_D. A czy mógłby(mogłaby) Pan(i) podać przybliżone dochody? Proszę spojrzeć na ekran. Czy mógłby(mogłaby) Pan(i) wskazać, w którym przedziale mieszczą się Pana(i) miesięcznie dochody netto? %kr%",CBOS_222_11_2008.sav
+q105,"M15_D. A czy mógłby(mogłaby) Pan(i) podać przybliżone dochody? Proszę spojrzeć na ekran. Czy mógłby(mogłaby) Pan(i) wskazać, w którym przedziale mieszczą się przeciętne miesięczne dochody NETTO przypadające na jedną osobę w Pana(i) gospodarstwie do",CBOS_222_11_2008.sav
+q33s9,Czy w minionym roku: - zaciągnął Pan(i) kredyt lub pożyczkę w banku lub innej in...,CBOS_224_01_2009.sav
+q134,"Ile wynoszą Pana(i) miesięczne dochody NETTO (na rękę)? Proszę wziąć pod uwagę Pana(i) dochody z pracy głównej wraz z premiami, nagrodami, dodatkami, dochody z prac dodatkowych, także dorywczych, renty i emerytury, stypendia oraz inne dodatkowe do...",CBOS_224_01_2009.sav
+q136,"M14_D. A czy mógłby(mogłaby) Pan(i) podać przybliżone dochody? Proszę spojrzeć na ekran. Czy mógłby(mogłaby) Pan(i) wskazać, w którym przedziale mieszczą się Pana(i) miesięcznie dochody netto?",CBOS_224_01_2009.sav
+q139,"M15_D. A czy mógłby(mogłaby) Pan(i) podać przybliżone dochody? Proszę spojrzeć na ekran. Czy mógłby(mogłaby) Pan(i) wskazać, w którym przedziale mieszczą się przeciętne miesięczne dochody NETTO przypadające na jedną osobę w Pana(i) gospodarstwie domowy...",CBOS_224_01_2009.sav
+q118,"Proszę powiedzieć do której grupy dochodowej można zaliczyć Pana(i) miesięczne dochody netto. Jeżeli P. nie pracuje, to proszę podać dochód głównego żywiciela rodziny",CBOS_17_06_1991.sav
+q130,"Proszę powiedzieć, które z wymienionych dóbr i przedmiotów znajdują się obecnie w Pana(i) gospodarstwie domowym. - Dom mieszkalny",CBOS_93_02_1998.sav
+q131,"Proszę powiedzieć, które z wymienionych dóbr i przedmiotów znajdują się obecnie w Pana(i) gospodarstwie domowym. - Mieszkanie własnościowe",CBOS_93_02_1998.sav
+q161,"P37A. A jaki to samochód / samochody?: Marka, producent - SAMOCHÓD I",CBOS_93_02_1998.sav
+q162,"P37A. A jaki to samochód / samochody?: Marka, producent - SAMOCHÓD II",CBOS_93_02_1998.sav
+q163,P37B. A jaki to samochód / samochody?: Rok produkcji - SAMOCHÓD I,CBOS_93_02_1998.sav
+q164,P37B. A jaki to samochód / samochody?: Rok produkcji - SAMOCHÓD II,CBOS_93_02_1998.sav
+q165,P37C. A jaki to samochód / samochody?: Pojemność silnika (w cm3) - SAMOCHÓD I,CBOS_93_02_1998.sav
+q166,P37C. A jaki to samochód / samochody?: Pojemność silnika (w cm3) - SAMOCHÓD II,CBOS_93_02_1998.sav
+q92,"15. Czy, Pana(i) zdaniem ….. w wyniku realizacji programu Balcerowicza: - Zarobki i dochody ludności",CBOS_5_05_1990.sav
+q151,"40. Jak Pan(i) myśli, czy w maju będzie, czy też nie będzie Pan(i) zmuszony(a): - korzystać z wcześniej zgromadzonych oszczędności",CBOS_5_05_1990.sav
+q104,"Ile wynoszą Pana(i) miesięczne dochody NETTO (na rękę)? Proszę wziąć pod uwagę Pana(i) dochody z pracy głównej wraz z premiami, nagrodami, dodatkami, dochody z prac dodatkowych, także dorywczych, renty i emerytury, stypendia oraz inne dodatkowe do...",CBOS_223_12_2008.sav
+q106,"M14_D. A czy mógłby(mogłaby) Pan(i) podać przybliżone dochody? Proszę spojrzeć na ekran. Czy mógłby(mogłaby) Pan(i) wskazać, w którym przedziale mieszczą się Pana(i) miesięcznie dochody netto?",CBOS_223_12_2008.sav
+q109,"M15_D. A czy mógłby(mogłaby) Pan(i) podać przybliżone dochody? Proszę spojrzeć na ekran. Czy mógłby(mogłaby) Pan(i) wskazać, w którym przedziale mieszczą się przeciętne miesięczne dochody NETTO przypadające na jedną osobę w Pana(i) gospodarstwie domowy...",CBOS_223_12_2008.sav
+q110,"M14_D. A czy mógłby(mogłaby) Pan(i) podać przybliżone dochody? Czy mógłby(mogłaby) Pan(i) wskazać, w którym przedziale mieszczą się Pana(i) miesięcznie dochody netto?",CBOS_225_02_2009.sav
+q113,"M15_D. A czy mógłby(mogłaby) Pan(i) podać przybliżone dochody? Czy mógłby(mogłaby) Pan(i) wskazać, w którym przedziale mieszczą się przeciętne miesięczne dochody NETTO przypadające na jedną osobę w Pana(i) gospodarstwie domowy...",CBOS_225_02_2009.sav
+q133i6org,Z czego przede wszystkim utrzymuje się Pan(i) obecnie? Proszę wskazać nie więcej niż trzy możliwości-   Z oszczędności,CBOS_298_03_2015.sav
+q93,"Jak, Pana(i) zdaniem, wprowadzenie programu oszczędności budżetowych, tzw. planu Hausnera, wpłynie na ... w ciągu następnych trzech lat? - warunki materialne Pana(i) i Pana(i) rodziny",CBOS_165_02_2004.sav
+q94,"Jak, Pana(i) zdaniem, wprowadzenie programu oszczędności budżetowych, tzw. planu Hausnera, wpłynie na ... w ciągu następnych trzech lat? - sytuację gospodarczą kraju",CBOS_165_02_2004.sav
+q47,"19. W Polsce może się jeszcze wiele zmienić. A teraz używając tej skali, proszę określić, kiedy Pana(i) zdaniem: - Wzrosną pana(i) rzeczywiste dochody",CBOS_16_05_1991.sav
+q130,"Proszę powiedzieć do której grupy dochodowej można zaliczyć Pana(i) miesięczne dochody netto. Jeżeli P. nie pracuje, to proszę podać dochód głównego żywiciela rodziny",CBOS_16_05_1991.sav
+q53i6,Z czego przede wszystkim utrzymuje się Pan(i) obecnie? -Z oszczędności,CBOS_263_04_2012.sav
+q153,"M19_2. A czy mógłby(mogłaby) Pan(i) podać przybliżone dochody? Czy mógłby(mogłaby) Pan(i) wskazać, w którym przedziale mieszczą się PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W PANA(I) GOSPODARSTWIE DOMOWYM?",CBOS_263_04_2012.sav
+q175,66. Ile mniej więcej wydaje Pan(i) miesięcznie na mieszkanie oraz utrzymanie dzieci korzystających z internatu lub stancji?,CBOS_125_10_2000.sav
+q25,"Czy ma Pan(i) jakieś oszczędności osobiste lub wspólne z innymi członkami Pana(i) gospodarstwa domowego w formie pieniędzy lub bonów, lokat bankowych, akcji lub obligacji itp.?",CBOS_119_04_2000.sav
+q26,Czy w ciągu ostatnich 30 dni oszczędności te zwiększyły się czy zmniejszyły?,CBOS_119_04_2000.sav
+q205,53. Czy zawdzięcza Pan(i) swojej babci lub dziadkowi: - mieszkanie,CBOS_126_11_2000.sav
+q91,"38. Ile Pana(i) zdaniem, powinny wynosić miesięczne dochody Pana(I) rodziny, aby było można - Żyć dostatnio, bez problemów finansowych (w tys zł)",CBOS_15_04_1991.sav
+q92,"38. Ile Pana(i) zdaniem, powinny wynosić miesięczne dochody Pana(I) rodziny, aby było można - Oszczędzając, żyć na średnim poziomie (w tys zł)",CBOS_15_04_1991.sav
+q93,"38. Ile Pana(i) zdaniem, powinny wynosić miesięczne dochody Pana(I) rodziny, aby było można - Zaspokajać jedynie podstawowe potrzeby (w tys zł)",CBOS_15_04_1991.sav
+q108,"Proszę powiedzieć do której grupy dochodowej można zaliczyć Pana(i) miesięczne dochody netto. Jeżeli P. nie pracuje, to proszę podać dochód głównego żywiciela rodziny",CBOS_15_04_1991.sav
+q91,"Rząd przygotowuje rozwiązanie mające pomóc osobom, które spłacają kredyt mieszkaniowy i straciły pracę. Ma ono polegać na tym, że rząd maksymalnie przez rok spłacałby za osobę bezrobotną ratę kredytu lub dopłacał do niej. Byłaby to nieoprocentowana...",CBOS_226_03_2009.sav
+q127,"M14_D. Czy mógłby(mogłaby) Pan(i) wskazać, w którym przedziale mieszczą się Pana(i) przeciętne miesięczne dochody NETTO",CBOS_226_03_2009.sav
+q130,"M15_D Czy mógłby(mogłaby) Pan(i) wskazać, w którym przedziale mieszczą się przeciętne miesięczne dochody NETTO przypadające na jedną osobę w Pana(i) gospodarstwie domowym.",CBOS_226_03_2009.sav
+q200,"Czy w ciągu ostatnich dwunastu miesięcy stosował(a) Pan(i) następujące sposoby oszczędzania...  - Używał(a) Pan(i) z oszczędności słabszych żarówek, niż chciał(a)by",CBOS_166_03_2004.sav
+q203,"Czy wszystkie dochody Pana(i) i mieszkającej razem z Panem(ią) rodziny są wystarczające, czy niewystarczające do zaspokojenia codziennych potrzeb, takich jak mieszkanie, wyżywienie, odzież itp.",CBOS_166_03_2004.sav
+q210,"44. Czy za swoje dzisiejsze dochody jest Pan(i) w stanie kupić więcej, czy mniej towarów niż rok temu?",CBOS_127_12_2000.sav
+q188,"Gdyby okazało się, że w Pana(i) sąsiedztwie planuje się budowę placówki dla psychicznie chorych, to czy wyraził(a)by Pan(i) na to zgodę, by w Pana(i) sąsiedztwie był(a): - dom lub mieszkanie, w którym chorzy psychicznie mieszkają",CBOS_74_07_1996.sav
+q191,"Gdyby okazało się, że w Pana(i) sąsiedztwie planuje się budowę placówki dla psychicznie chorych, to czy wyraził(a)by Pan(i) na to zgodę, by w Pana(i) sąsiedztwie był(a): - dom pomocy społecznej dla chorych psychicznie",CBOS_74_07_1996.sav
+q23,"7. Czy ma Pan(i) jakieś oszczędności osobiste lub wspólne z innymi członkami Pana(i) gospodarstwa domowego w formie pieniędzy lub bonów, lokat bankowych, akcji lub obligacji itp.?",CBOS_99_08_1998.sav
+q24,"8. Czy w ciągu ostatnich 30 dni oszczędności te zwiększyły się, czy zmniejszyły?",CBOS_99_08_1998.sav
+q23,"7. Czy ma Pan(i) jakieś oszczędności osobiste lub wspólne z innymi członkami Pana(i) gospodarstwa domowego w formie pieniędzy lub bonów, lokat bankowych, akcji lub obligacji itp.?",CBOS_100_09_1998.sav
+q24,"8. Czy w ciągu ostatnich 30 dni oszczędności te zwiększyły się, czy zmniejszyły?",CBOS_100_09_1998.sav
+q107,Według którego progu podatkowego rozliczał(a) Pan(i) swoje dochody osobiste za rok 1997?,CBOS_100_09_1998.sav
+q84i6,Z czego przede wszystkim utrzymuje się Pan(i) obecnie? -Z oszczędności,CBOS_275_04_2013.sav
+q107s9,"Czy akceptuje Pan(i), czy też nie akceptuje takiej formy protestów społecznych jak: - happeningi, akcje mające na celu zwrócenie uwagi na jakiś problem społeczny",CBOS_275_04_2013.sav
+q427,"Czy Pan(i) lub współmałżonek posiadacie oszczędności finansowe (lokatę, akcje, obligacje, tytuły uczestnictwa funduszu powierniczego, oszczędności w innej postaci)?",CBOS_146_07_2002.sav
+q44,Czy Pana(i) zdaniem należałoby w Polsce …  : - zapewnić mniej więcej równe dochody wszystkim obywatelom,CBOS_26_07_1992.sav
+q152,"Poniżej są wymienione różne akcje protestacyjne stosowane w świecie.Czy, Pana(i) zdaniem, obywatele powinni mieć prawo stosować takie akcje jak: - zbieranie podpisów pod petycjami i protestami",CBOS_26_07_1992.sav
+q153,"Poniżej są wymienione różne akcje protestacyjne stosowane w świecie.Czy, Pana(i) zdaniem, obywatele powinni mieć prawo stosować takie akcje jak: - rozlepianie plakatów",CBOS_26_07_1992.sav
+q154,"Poniżej są wymienione różne akcje protestacyjne stosowane w świecie.Czy, Pana(i) zdaniem, obywatele powinni mieć prawo stosować takie akcje jak: - bojkot decyzji rządowych",CBOS_26_07_1992.sav
+q155,"Poniżej są wymienione różne akcje protestacyjne stosowane w świecie.Czy, Pana(i) zdaniem, obywatele powinni mieć prawo stosować takie akcje jak: - demonstracje uliczne",CBOS_26_07_1992.sav
+q156,"Poniżej są wymienione różne akcje protestacyjne stosowane w świecie.Czy, Pana(i) zdaniem, obywatele powinni mieć prawo stosować takie akcje jak: - strajki",CBOS_26_07_1992.sav
+q157,"Poniżej są wymienione różne akcje protestacyjne stosowane w świecie.Czy, Pana(i) zdaniem, obywatele powinni mieć prawo stosować takie akcje jak: - blokowanie dróg",CBOS_26_07_1992.sav
+q158,"Poniżej są wymienione różne akcje protestacyjne stosowane w świecie.Czy, Pana(i) zdaniem, obywatele powinni mieć prawo stosować takie akcje jak: - okupowanie budynków publicznych",CBOS_26_07_1992.sav
+q159,"Poniżej są wymienione różne akcje protestacyjne stosowane w świecie.Czy, Pana(i) zdaniem, obywatele powinni mieć prawo stosować takie akcje jak: - stawianie oporu wobec policji lub innych organów porządkowych",CBOS_26_07_1992.sav
+q169,"Gdyby to od Pana(i) zależało, to czy wyraził(a)by Pan(i) zgodę - czy też był(a)by Pan(i) przeciwny(a), aby: - w Pana(i) miejscowości/ dzielnicy znajdował się dom dla chorych na AIDS",CBOS_26_07_1992.sav
+q124,"M19_2. A czy mógłby(mogłaby) Pan(i) podać przybliżone dochody? Czy mógłby(mogłaby) Pan(i) wskazać, w którym przedziale mieszczą się PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W PANA(I) GOSPODARST...",CBOS_253_06_2011.sav
+q173,"Ile, według Pana(i) powinny wynosić miesięczne dochody NETTO (na rękę) wszystkich członków Pana(i) gospodarstwa domowego łącznie aby żyć dostatnio, bez żadnych problemów finansowych",CBOS_304_09_2015.sav
+q179,"Ile, według Pana(i) powinny wynosić miesięczne dochody NETTO (na rękę) wszystkich członków Pana(i) gospodarstwa domowego łącznie aby zaspokajać jedynie podstawowe potrzeby",CBOS_304_09_2015.sav
+q183,Czy dla oszczędności lub z powodu wyższych cen musiał(a) Pan(i) w ciągu ostatnich 30 dni kupować któryś z wymienionych produktów tańszego gatunku niż kupowany poprzednio? - Pieczywo,CBOS_175_12_2004.sav
+q184,"Czy dla oszczędności lub z powodu wyższych cen musiał(a) Pan(i) w ciągu ostatnich 30 dni kupować któryś z wymienionych produktów tańszego gatunku niż kupowany poprzednio? - Makaron, mąka, kasza i inne wyroby mączne",CBOS_175_12_2004.sav
+q185,Czy dla oszczędności lub z powodu wyższych cen musiał(a) Pan(i) w ciągu ostatnich 30 dni kupować któryś z wymienionych produktów tańszego gatunku niż kupowany poprzednio? - Mięso i wędliny,CBOS_175_12_2004.sav
+q186,"Czy dla oszczędności lub z powodu wyższych cen musiał(a) Pan(i) w ciągu ostatnich 30 dni kupować któryś z wymienionych produktów tańszego gatunku niż kupowany poprzednio? - Nabiał (mleko, masło, sery, jajka)",CBOS_175_12_2004.sav
+q187,Czy dla oszczędności lub z powodu wyższych cen musiał(a) Pan(i) w ciągu ostatnich 30 dni kupować któryś z wymienionych produktów tańszego gatunku niż kupowany poprzednio? - Cukier i wyroby cukiernicze,CBOS_175_12_2004.sav
+q188,"Czy dla oszczędności lub z powodu wyższych cen musiał(a) Pan(i) w ciągu ostatnich 30 dni kupować któryś z wymienionych produktów tańszego gatunku niż kupowany poprzednio? - Tłuszcze roślinne (np. margaryna, olej)",CBOS_175_12_2004.sav
+q189,Czy dla oszczędności lub z powodu wyższych cen musiał(a) Pan(i) w ciągu ostatnich 30 dni kupować któryś z wymienionych produktów tańszego gatunku niż kupowany poprzednio? - Świeże warzywa i owoce,CBOS_175_12_2004.sav
+q190,Czy dla oszczędności lub z powodu wyższych cen musiał(a) Pan(i) w ciągu ostatnich 30 dni kupować któryś z wymienionych produktów tańszego gatunku niż kupowany poprzednio? - Przetwory warzywne i owocowe,CBOS_175_12_2004.sav
+q191,"Czy dla oszczędności lub z powodu wyższych cen musiał(a) Pan(i) w ciągu ostatnich 30 dni kupować któryś z wymienionych produktów tańszego gatunku niż kupowany poprzednio? - Napoje alkoholowe (wódka, wino, piwo)",CBOS_175_12_2004.sav
+q192,Czy dla oszczędności lub z powodu wyższych cen musiał(a) Pan(i) w ciągu ostatnich 30 dni kupować któryś z wymienionych produktów tańszego gatunku niż kupowany poprzednio? - Kawa i herbata,CBOS_175_12_2004.sav
+q193,Czy dla oszczędności lub z powodu wyższych cen musiał(a) Pan(i) w ciągu ostatnich 30 dni kupować któryś z wymienionych produktów tańszego gatunku niż kupowany poprzednio? - Benzyna lub olej napędowy,CBOS_175_12_2004.sav
+q194,Czy dla oszczędności lub z powodu wyższych cen musiał(a) Pan(i) w ciągu ostatnich 30 dni kupować któryś z wymienionych produktów tańszego gatunku niż kupowany poprzednio? - Środki higieny,CBOS_175_12_2004.sav
+q195,Czy dla oszczędności lub z powodu wyższych cen musiał(a) Pan(i) w ciągu ostatnich 30 dni kupować któryś z wymienionych produktów tańszego gatunku niż kupowany poprzednio? - Lekarstwa,CBOS_175_12_2004.sav
+q196,"Czy dla oszczędności lub z powodu wyższych cen musiał(a) Pan(i) w ciągu ostatnich 30 dni kupować któryś z wymienionych produktów tańszego gatunku niż kupowany poprzednio? - Gazety, czasopisma, książki",CBOS_175_12_2004.sav
+q197,Czy dla oszczędności lub z powodu wyższych cen musiał(a) Pan(i) w ciągu ostatnich 30 dni kupować któryś z wymienionych produktów tańszego gatunku niż kupowany poprzednio? - Papierosy,CBOS_175_12_2004.sav
+q144,"Jak wyglądał Pana(i) dom rodzinny - dom, w którym spędził(a) Pan(i) największą część swojego dzieciństwa (do 16 roku życia). Czy był to samodzielny budynek czy też mieszkanie w budynku wielorodzinnym?",CBOS_91_12_1997.sav
+q145,A z ilu izb składał się ten dom/mieszkanie? Proszę podać łączną liczbę pokoi wraz z kuchnią.,CBOS_91_12_1997.sav
+q159,Czym był dla Pana(i) przede wszystkim dom rodzinny?,CBOS_91_12_1997.sav
+q142,"Ile wynoszą Pana(i) miesięczne dochody NETTO (na rękę)? Proszę wziąć pod uwagę Pana(i) dochody z pracy głównej wraz z premiami, nagrodami, dodatkami, dochody z prac dodatkowych, także dorywczych, renty i emerytury, stypendia oraz inne dodatkowe do...",CBOS_235_12_2009.sav
+q144,"M14_D. A czy mógłby(mogłaby) Pan(i) podać przybliżone dochody? Proszę spojrzeć na ekran. Czy mógłby(mogłaby) Pan(i) wskazać, w którym przedziale mieszczą się Pana(i) miesięcznie dochody netto?",CBOS_235_12_2009.sav
+q147,"M15_D. A czy mógłby(mogłaby) Pan(i) podać przybliżone dochody? Proszę spojrzeć na ekran. Czy mógłby(mogłaby) Pan(i) wskazać, w którym przedziale mieszczą się przeciętne miesięczne dochody NETTO przypadające na jedną osobę w Pana(i) gospodarstwie domowy...",CBOS_235_12_2009.sav
+q185,Ile wynoszą PANA(I) MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ)?,CBOS_312_05_2016.sav
+q188,A czy mógłby(mogłaby) Pan(i) podać przybliżone dochody MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ)?,CBOS_312_05_2016.sav
+q189,Ile wynoszą PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W PANA(I) GOSPODARSTWIE DOMOWYM?,CBOS_312_05_2016.sav
+q192,A czy mógłby(mogłaby) Pan(i) podać przybliżone PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W PANA(I) GOSPODARSTWIE?,CBOS_312_05_2016.sav
+q74,W jaki sposób rozliczał(a) Pan(i) swoje dochody osobiste za rok 2010?,CBOS_252_05_2011.sav
+q143,"M19_2. A czy mógłby(mogłaby) Pan(i) podać przybliżone dochody? Czy mógłby(mogłaby) Pan(i) wskazać, w którym przedziale mieszczą się PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W PANA(I) GOSPODARST...",CBOS_252_05_2011.sav
+q61,"Z jednej strony gry hazardowe przynoszą państwu dochody z podatków, z drugiej strony wielu obywateli może popadać w uzależnienie od gier hazardowych, tracąc oszczędności i niszcząc rodzinne budżety. Co w tej sytuacji, Pana(i) zdaniem, powinien zrob...",CBOS_234_11_2009.sav
+q80s9,"Z czego utrzymuje się Pan(i) obecnie, niezależnie od tego czy jest to główne czy też dodatkowe źródło utrzymania? Czy jest to:  ...  - dochody z inwestycji, lokat",CBOS_234_11_2009.sav
+q80s10,"Z czego utrzymuje się Pan(i) obecnie, niezależnie od tego czy jest to główne czy też dodatkowe źródło utrzymania? Czy jest to:  ...  - dochody z wynajmu lokalu, domu",CBOS_234_11_2009.sav
+q80s11,"Z czego utrzymuje się Pan(i) obecnie, niezależnie od tego czy jest to główne czy też dodatkowe źródło utrzymania? Czy jest to:  ...  - korzystanie z oszczędności",CBOS_234_11_2009.sav
+q95s9,"Jak Pan(i) sądzi, z czego będzie się Pan(i) utrzymywał(a) na stare lata? Czy będzie to: - dochody z inwestycji, lokat",CBOS_234_11_2009.sav
+q95s10,"Jak Pan(i) sądzi, z czego będzie się Pan(i) utrzymywał(a) na stare lata? Czy będzie to: - dochody z wynajmu lokalu, domu",CBOS_234_11_2009.sav
+q95s11,"Jak Pan(i) sądzi, z czego będzie się Pan(i) utrzymywał(a) na stare lata? Czy będzie to: - korzystanie z oszczędności",CBOS_234_11_2009.sav
+q136,"Ile wynoszą Pana(i) miesięczne dochody NETTO (na rękę)? Proszę wziąć pod uwagę Pana(i) dochody z pracy głównej wraz z premiami, nagrodami, dodatkami, dochody z prac dodatkowych, także dorywczych, renty i emerytury, stypendia oraz inne dodatkowe do...",CBOS_234_11_2009.sav
+q138,"M14_D. A czy mógłby(mogłaby) Pan(i) podać przybliżone dochody? Proszę spojrzeć na ekran. Czy mógłby(mogłaby) Pan(i) wskazać, w którym przedziale mieszczą się Pana(i) miesięcznie dochody netto?",CBOS_234_11_2009.sav
+q141,"M15_D. A czy mógłby(mogłaby) Pan(i) podać przybliżone dochody? Proszę spojrzeć na ekran. Czy mógłby(mogłaby) Pan(i) wskazać, w którym przedziale mieszczą się przeciętne miesięczne dochody NETTO przypadające na jedną osobę w Pana(i) gospodarstwie domowy...",CBOS_234_11_2009.sav
+q164,Ile wynoszą PANA(I) MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ)?,CBOS_313_06_2016.sav
+q167,A czy mógłby(mogłaby) Pan(i) podać przybliżone dochody MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ)?,CBOS_313_06_2016.sav
+q168,Ile wynoszą PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W PANA(I) GOSPODARSTWIE DOMOWYM?,CBOS_313_06_2016.sav
+q171,A czy mógłby(mogłaby) Pan(i) podać przybliżone PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W PANA(I) GOSPODARSTWIE?,CBOS_313_06_2016.sav
+q119,Czy dla oszczędności lub z powodu wyższych cen musiał(a) Pan(i) w ciągu ostatnich 30 dni kupować któryś z wymienionych produktów tańszego gatunku niż kupowany poprzednio? - Pieczywo,CBOS_174_11_2004.sav
+q120,"Czy dla oszczędności lub z powodu wyższych cen musiał(a) Pan(i) w ciągu ostatnich 30 dni kupować któryś z wymienionych produktów tańszego gatunku niż kupowany poprzednio? - Makaron, mąka, kasza i inne wyroby mączne",CBOS_174_11_2004.sav
+q121,Czy dla oszczędności lub z powodu wyższych cen musiał(a) Pan(i) w ciągu ostatnich 30 dni kupować któryś z wymienionych produktów tańszego gatunku niż kupowany poprzednio? - Mięso i wędliny,CBOS_174_11_2004.sav
+q122,"Czy dla oszczędności lub z powodu wyższych cen musiał(a) Pan(i) w ciągu ostatnich 30 dni kupować któryś z wymienionych produktów tańszego gatunku niż kupowany poprzednio? - Nabiał (mleko, masło, sery, jajka)",CBOS_174_11_2004.sav
+q123,Czy dla oszczędności lub z powodu wyższych cen musiał(a) Pan(i) w ciągu ostatnich 30 dni kupować któryś z wymienionych produktów tańszego gatunku niż kupowany poprzednio? - Cukier i wyroby cukiernicze,CBOS_174_11_2004.sav
+q124,"Czy dla oszczędności lub z powodu wyższych cen musiał(a) Pan(i) w ciągu ostatnich 30 dni kupować któryś z wymienionych produktów tańszego gatunku niż kupowany poprzednio? - Tłuszcze roślinne (np. margaryna, olej)",CBOS_174_11_2004.sav
+q125,Czy dla oszczędności lub z powodu wyższych cen musiał(a) Pan(i) w ciągu ostatnich 30 dni kupować któryś z wymienionych produktów tańszego gatunku niż kupowany poprzednio? - Świeże warzywa i owoce,CBOS_174_11_2004.sav
+q126,Czy dla oszczędności lub z powodu wyższych cen musiał(a) Pan(i) w ciągu ostatnich 30 dni kupować któryś z wymienionych produktów tańszego gatunku niż kupowany poprzednio? - Przetwory warzywne i owocowe,CBOS_174_11_2004.sav
+q127,"Czy dla oszczędności lub z powodu wyższych cen musiał(a) Pan(i) w ciągu ostatnich 30 dni kupować któryś z wymienionych produktów tańszego gatunku niż kupowany poprzednio? - Napoje alkoholowe (wódka, wino, piwo)",CBOS_174_11_2004.sav
+q128,Czy dla oszczędności lub z powodu wyższych cen musiał(a) Pan(i) w ciągu ostatnich 30 dni kupować któryś z wymienionych produktów tańszego gatunku niż kupowany poprzednio? - Kawa i herbata,CBOS_174_11_2004.sav
+q129,Czy dla oszczędności lub z powodu wyższych cen musiał(a) Pan(i) w ciągu ostatnich 30 dni kupować któryś z wymienionych produktów tańszego gatunku niż kupowany poprzednio? - Benzyna lub olej napędowy,CBOS_174_11_2004.sav
+q130,Czy dla oszczędności lub z powodu wyższych cen musiał(a) Pan(i) w ciągu ostatnich 30 dni kupować któryś z wymienionych produktów tańszego gatunku niż kupowany poprzednio? - Środki higieny,CBOS_174_11_2004.sav
+q131,Czy dla oszczędności lub z powodu wyższych cen musiał(a) Pan(i) w ciągu ostatnich 30 dni kupować któryś z wymienionych produktów tańszego gatunku niż kupowany poprzednio? - Lekarstwa,CBOS_174_11_2004.sav
+q132,"Czy dla oszczędności lub z powodu wyższych cen musiał(a) Pan(i) w ciągu ostatnich 30 dni kupować któryś z wymienionych produktów tańszego gatunku niż kupowany poprzednio? - Gazety, czasopisma, książki",CBOS_174_11_2004.sav
+q133,Czy dla oszczędności lub z powodu wyższych cen musiał(a) Pan(i) w ciągu ostatnich 30 dni kupować któryś z wymienionych produktów tańszego gatunku niż kupowany poprzednio? - Papierosy,CBOS_174_11_2004.sav
+q94,5U. Podczas niedawnej wizyty w Kijowie premier Ewa Kopacz zaoferowała Ukrainie kredyt do 100 mln euro na wsparcie ukraińskiej gospodarki. Czy zaoferowana pomoc jest Pana(i) zdaniem:,CBOS_297_02_2015.sav
+q98,44. Czy zamierza Pan(i) kupić akcje prywatyzowanych przedsiębiorstw?,CBOS_12_01_1991.sav
+q108,54. Czy ma Pan(i) jakieś oszczędności w dolarach lub innych obcych walutach:,CBOS_12_01_1991.sav
+q114,"53. Gdyby istniała możliwość gromadzenia oszczędności w różnych bankach, to komu najchętniej powierzył(a)by Pan(i) swoje oszczędności:",CBOS_12_01_1991.sav
+q159,"Proszę powiedzieć do której grupy dochodowej można zaliczyć Pana(i) miesięczne dochody netto. Jeżeli P. nie pracuje, to proszę podać dochód głównego żywiciela rodziny",CBOS_12_01_1991.sav
+q106,"43. Czy uważa Pan(i), że obecnie dochody Pana(i) rodziny są:",CBOS_53_10_1994.sav
+q110,"45. Czy w poprzednim miesiącu, tzn. we wrześniu, był(a) Pan(i) i Pana(i) gospodarstwo domowe zmuszony, czy też nie, ze względu na sytuację finansową: - sięgać do oszczędności gotówkowych",CBOS_53_10_1994.sav
+q115,"46. Ile, według Pana(i), powinny wynosić miesięczne dochody na jedną osobę w Pana(i) rodzinie, aby można było: - żyć dostatnio, bez problemów finansowych [tysiące starych złotych]",CBOS_53_10_1994.sav
+q116,"46. Ile, według Pana(i), powinny wynosić miesięczne dochody na jedną osobę w Pana(i) rodzinie, aby można było: - żyć na średnim poziomie [tysiące starych złotych]",CBOS_53_10_1994.sav
+q117,"46. Ile, według Pana(i), powinny wynosić miesięczne dochody na jedną osobę w Pana(i) rodzinie, aby można było: - zaspokajać jedynie podstawowe potrzeby [tysiące starych złotych]",CBOS_53_10_1994.sav
+q125,48. Czy jest (są) to: - Akcje firm notowanych na giełdzie,CBOS_53_10_1994.sav
+q144,57. Czy w ciągu ostatniego roku miał(a) Pan(i) jakieś trudności w uiszczaniu opłat za: ... : - mieszkanie/dom,CBOS_53_10_1994.sav
+q430,Czy mają Państwo ... : - Samochód osobowy,CBOS_53_10_1994.sav
+q114,Czy ceny ...  powinny być ustalane przez państwo czy przez wolny rynek? - opłat za mieszkanie,CBOS_96_05_1998.sav
+q128,"Czy uważa Pan(i), że obecnie dochody Pana(i) rodziny w porównaniu z przeciętnymi dochodami rodzin w Polsce są:",CBOS_96_05_1998.sav
+q134,Czy zgadza się Pan(i) czy też nie zgadza z następującymi stwierdzeniami? - dochody i bogactwo powinny być w większej mierze rozdzielone między pracujących,CBOS_96_05_1998.sav
+q146,"48. Ludzie stosują różne sposoby, żeby poprawić swoją sytuację materialną. A jak Pan(i) postępuje, czy stosuje Pan(i) któryś z następujących sposobów? - Wynajmuję komuś pokój, mieszkanie, dom",CBOS_96_05_1998.sav
+q158,"52. Na co przeznaczył(a) Pan(i) pożyczone pieniądze, kredyt lub co kupił(a) na raty? Czy na:...  - zakup żywności",CBOS_96_05_1998.sav
+q159,"52. Na co przeznaczył(a) Pan(i) pożyczone pieniądze, kredyt lub co kupił(a) na raty? Czy na:...  - zakup ubrania [odzieży], butów",CBOS_96_05_1998.sav
+q160,"52. Na co przeznaczył(a) Pan(i) pożyczone pieniądze, kredyt lub co kupił(a) na raty? Czy na:...  - zakup mebli",CBOS_96_05_1998.sav
+q161,"52. Na co przeznaczył(a) Pan(i) pożyczone pieniądze, kredyt lub co kupił(a) na raty? Czy na:...  - zakup sprzętu gospodarstwa domowego: pralki, lodówki itp.",CBOS_96_05_1998.sav
+q162,"52. Na co przeznaczył(a) Pan(i) pożyczone pieniądze, kredyt lub co kupił(a) na raty? Czy na:...  - opłaty za mieszkanie, dom, gaz, elektryczność, telefon itp.",CBOS_96_05_1998.sav
+q163,"52. Na co przeznaczył(a) Pan(i) pożyczone pieniądze, kredyt lub co kupił(a) na raty? Czy na:...  - wydatki związane z leczeniem",CBOS_96_05_1998.sav
+q164,"52. Na co przeznaczył(a) Pan(i) pożyczone pieniądze, kredyt lub co kupił(a) na raty? Czy na:...  - wydatki związane z nauką szkolną, kształceniem",CBOS_96_05_1998.sav
+q165,"52. Na co przeznaczył(a) Pan(i) pożyczone pieniądze, kredyt lub co kupił(a) na raty? Czy na:...  - wydatki związane z życiem kulturalnym (zakup książek, czasopism, biletów do teatru, na koncert)",CBOS_96_05_1998.sav
+q166,"52. Na co przeznaczył(a) Pan(i) pożyczone pieniądze, kredyt lub co kupił(a) na raty? Czy na:...  - wydatki na rozrywki, przyjemności",CBOS_96_05_1998.sav
+q167,"52. Na co przeznaczył(a) Pan(i) pożyczone pieniądze, kredyt lub co kupił(a) na raty? Czy na:...  - zakup sprzętu telewizyjnego, magnetowidu, kamery",CBOS_96_05_1998.sav
+q168,"52. Na co przeznaczył(a) Pan(i) pożyczone pieniądze, kredyt lub co kupił(a) na raty? Czy na:...  - zakup sprzętu do słuchania muzyki (np.radia, wieży stereo, odtwarzacza kompaktowego)",CBOS_96_05_1998.sav
+q169,"52. Na co przeznaczył(a) Pan(i) pożyczone pieniądze, kredyt lub co kupił(a) na raty? Czy na:...  - zakup sprzętu komputerowego, drukarki",CBOS_96_05_1998.sav
+q170,"52. Na co przeznaczył(a) Pan(i) pożyczone pieniądze, kredyt lub co kupił(a) na raty? Czy na:...  - wyjazd na urlop, wakacje",CBOS_96_05_1998.sav
+q171,"52. Na co przeznaczył(a) Pan(i) pożyczone pieniądze, kredyt lub co kupił(a) na raty? Czy na:...  - na koszty rodzinnych uroczystości i wydarzeń, np. ślubu, chrzcin, pogrzebu itp.",CBOS_96_05_1998.sav
+q172,"52. Na co przeznaczył(a) Pan(i) pożyczone pieniądze, kredyt lub co kupił(a) na raty? Czy na:...  - zakup samochodu",CBOS_96_05_1998.sav
+q173,"52. Na co przeznaczył(a) Pan(i) pożyczone pieniądze, kredyt lub co kupił(a) na raty? Czy na:...  - na inne cele",CBOS_96_05_1998.sav
+q174,"52. Na co przeznaczył(a) Pan(i) pożyczone pieniądze, kredyt lub co kupił(a) na raty? Czy na:...  - na inne cele (jakie).''",CBOS_96_05_1998.sav
+q175,Czy w ciągu ostatniego roku miał(a) Pan(i) jakieś trudności w uiszczaniu opłat za :.  - mieszkanie/dom,CBOS_96_05_1998.sav
+q186,"Czy dochody i materialny poziom życia Pana(i) i Pana(i) rodziny są obecnie lepsze czy gorsze niż ...  - 8 - 10 lat temu, pod koniec lat osiemdziesiątych",CBOS_96_05_1998.sav
+q187,Czy dochody i materialny poziom życia Pana(i) i Pana(i) rodziny są obecnie lepsze czy gorsze niż ...  - 5 lat temu,CBOS_96_05_1998.sav
+q188,Czy dochody i materialny poziom życia Pana(i) i Pana(i) rodziny są obecnie lepsze czy gorsze niż ...  - 3 lata temu,CBOS_96_05_1998.sav
+q189,Czy dochody i materialny poziom życia Pana(i) i Pana(i) rodziny są obecnie lepsze czy gorsze niż ...  - rok temu,CBOS_96_05_1998.sav
+q190,A co myśli Pan(i) o przyszłości? Czy dochody i materialny poziom życia Pana(i) i Pana(i) rodziny będą lepsze  czy gorsze ...  - za rok,CBOS_96_05_1998.sav
+q191,A co myśli Pan(i) o przyszłości? Czy dochody i materialny poziom życia Pana(i) i Pana(i) rodziny będą lepsze  czy gorsze ...  - za 3 lata,CBOS_96_05_1998.sav
+q192,A co myśli Pan(i) o przyszłości? Czy dochody i materialny poziom życia Pana(i) i Pana(i) rodziny będą lepsze  czy gorsze ...  - za 5 lat,CBOS_96_05_1998.sav
+q193,"Myśląc nie o sobie, lecz o całym społeczeństwie, czy sądzi Pan(i), że dochody i materialny poziom życia większości Polaków są obecnie lepsze czy gorsze niż ...  - 8 - 10 lat temu, pod koniec lat osiemdziesiątych",CBOS_96_05_1998.sav
+q194,"Myśląc nie o sobie, lecz o całym społeczeństwie, czy sądzi Pan(i), że dochody i materialny poziom życia większości Polaków są obecnie lepsze czy gorsze niż ...  - 5 lat temu",CBOS_96_05_1998.sav
+q195,"Myśląc nie o sobie, lecz o całym społeczeństwie, czy sądzi Pan(i), że dochody i materialny poziom życia większości Polaków są obecnie lepsze czy gorsze niż ...  - 3 lata temu",CBOS_96_05_1998.sav
+q196,"Myśląc nie o sobie, lecz o całym społeczeństwie, czy sądzi Pan(i), że dochody i materialny poziom życia większości Polaków są obecnie lepsze czy gorsze niż ...  - rok temu",CBOS_96_05_1998.sav
+q197,A co myśli Pan(i) o przyszłości? Czy dochody i materialny poziom życia większości Polaków będą lepsze czy gorsze... - za rok,CBOS_96_05_1998.sav
+q198,A co myśli Pan(i) o przyszłości? Czy dochody i materialny poziom życia większości Polaków będą lepsze czy gorsze... - za 3 lata,CBOS_96_05_1998.sav
+q199,A co myśli Pan(i) o przyszłości? Czy dochody i materialny poziom życia większości Polaków będą lepsze czy gorsze... - za 5 lat,CBOS_96_05_1998.sav
+q430,"Czy Pan(i) lub współmałżonek posiadacie oszczędności finansowe (lokatę, akcje, obligacje, tytuły uczestnictwa funduszu powierniczego, oszczędności w innej postaci)?",CBOS_154_03_2003.sav
+q65,"Czy uważa Pan(i), że obecnie dochody Pana(i) rodziny są:",CBOS_89_10_1997.sav
+q68,"Ile, według Pana(i), powinny wynosić miesięczne dochody na jedną osobę w Pana(i) rodzinie, aby można było: - żyć dostatnio, bez problemów finansowych",CBOS_89_10_1997.sav
+q69,"Ile, według Pana(i), powinny wynosić miesięczne dochody na jedną osobę w Pana(i) rodzinie, aby można było: - żyć na średnim poziomie",CBOS_89_10_1997.sav
+q70,"Ile, według Pana(i), powinny wynosić miesięczne dochody na jedną osobę w Pana(i) rodzinie, aby można było: - zaspokajać jedynie podstawowe potrzeby",CBOS_89_10_1997.sav
+q71,Czy w ciągu ostatniego roku miał(a) Pan(i) jakieś trudności w uiszczaniu opłat za: - mieszkanie/dom,CBOS_89_10_1997.sav
+q82,"Czy w poprzednim miesiącu, tzn. we wrześniu, Pan(i) i Pana(i) gospodarstwo domowe było zmuszone, czy też nie, ze względu na sytuację finansową: - sięgać do oszczędności gotówkowych",CBOS_89_10_1997.sav
+q98,Czy mają Państwo jakieś oszczędności? Czy jest/są to: - akcje firm notowanych na giełdzie,CBOS_89_10_1997.sav
+q106,Czy w tym roku (1997) Pan(i) lub ktoś z Pana(i) gospodarstwa domowego: - zaciągnął kredyt w banku,CBOS_89_10_1997.sav
+q110,"Czy Pan(i) lub ktoś z Pana(i) gospodarstwa domowego w ciągu ostatnich 12 miesięcy ...: - remontował, modernizował dom/mieszkanie",CBOS_89_10_1997.sav
+q121,"Niezależnie od tego, czy obecnie spłaca Pan(i) jakiś kredyt lub raty, czy jeszcze w tym roku zamierza Pan(i): ...  - kupić coś za własną gotówkę",CBOS_89_10_1997.sav
+q122,"Niezależnie od tego, czy obecnie spłaca Pan(i) jakiś kredyt lub raty, czy jeszcze w tym roku zamierza Pan(i): ...  - kupić coś za pieniądze pożyczone od rodziny bądź znajomych",CBOS_89_10_1997.sav
+q123,"Niezależnie od tego, czy obecnie spłaca Pan(i) jakiś kredyt lub raty, czy jeszcze w tym roku zamierza Pan(i): ...  - kupić coś na raty",CBOS_89_10_1997.sav
+q124,"Niezależnie od tego, czy obecnie spłaca Pan(i) jakiś kredyt lub raty, czy jeszcze w tym roku zamierza Pan(i): ...  - wziąć kredyt z banku",CBOS_89_10_1997.sav
+q125,"Niezależnie od tego, czy obecnie spłaca Pan(i) jakiś kredyt lub raty, czy jeszcze w tym roku zamierza Pan(i): ...  - wziąć kredyt z bankowego konta osobistego - ROR",CBOS_89_10_1997.sav
+q126,"Przypuśćmy, że otrzymał(a)by Pan(i) - 100 000 PLN (jeden  miliard starych złotych) w gotówce, to na co, na jaki cel przeznaczył(a)by Pan(i) te pieniądze? - Dom/ mieszkanie: dla siebie, dla członków własnego gospodarstwa",CBOS_89_10_1997.sav
+q128,"Przypuśćmy, że otrzymał(a)by Pan(i) - 100 000 PLN (jeden  miliard starych złotych) w gotówce, to na co, na jaki cel przeznaczył(a)by Pan(i) te pieniądze? - Fabrycznie nowy samochód",CBOS_89_10_1997.sav
+q129,"Przypuśćmy, że otrzymał(a)by Pan(i) - 100 000 PLN (jeden  miliard starych złotych) w gotówce, to na co, na jaki cel przeznaczył(a)by Pan(i) te pieniądze? - Używany samochód",CBOS_89_10_1997.sav
+q130,"26. Jak realizacja programu Balcerowicza wpłynie na różne dziedziny życia społeczno-gospodarczego?  Czy, Pana(i) zdaniem: - Zarobki i dochody ludności",CBOS_1_01_1990.sav
+q195,"44. Jak Pan(i) myśli, czy w styczniu będzie Pan(i) zmuszony (a): - Korzystać z wcześniej zgromadzonych oszczędności",CBOS_1_01_1990.sav
+q263,Ile wynosiły łączne dochody w Pana(i) gospodarstwie domowym w grudniu? [w  tysiącach starych złotych],CBOS_1_01_1990.sav
+q46,22. Czy zamierza Pan(i) kupić akcje prywatyzowanych przedsiębiorstw,CBOS_13_02_1991.sav
+q196,"Proszę powiedzieć do której grupy dochodowej można zaliczyć Pana(i) miesięczne dochody netto. Jeżeli P. nie pracuje, to proszę podać dochód głównego żywiciela rodziny",CBOS_13_02_1991.sav
+q87s11,Czy w minionym roku: - zaciągnął(ęła) Pan(i) kredyt lub pożyczkę w banku lub innej instytucji finansowej,CBOS_296_01_2015.sav
+q24,"Czy ma Pan(i) jakieś oszczędności osobiste lub wspólne z innymi członkami Pana(i) gospodarstwa domowego w formie pieniędzy lub bonów, lokat bankowych, akcji lub obligacji itp.?",CBOS_104_01_1999.sav
+q25,Czy w ciągu ostatnich 30 dni oszczędności te zwiększyły się czy zmniejszyły?,CBOS_104_01_1999.sav
+q136,"Czy uważa Pan(i), że obecnie dochody Pana(i) rodziny w porównaniu z przeciętnymi dochodami rodzin w Polsce są:",CBOS_104_01_1999.sav
+q139,"Ile, według Pana(i), powinny wynosić miesięczne dochody na jedną osobę w Pana(i) rodzinie, aby mógł(a) Pan(i) powiedzieć o sobie:  Jestem  spokojny(a), że finansowo dam (damy) sobie radę""?:",CBOS_104_01_1999.sav
+q25,"Czy ma Pan(i) jakieś oszczędności osobiste lub wspólne z innymi członkami Pana(i) gospodarstwa domowego w formie pieniędzy lub bonów, lokat bankowych, akcji lub obligacji itp.?",CBOS_102_11_1998.sav
+q26,Czy w ciągu ostatnich 30 dni oszczędności te zwiększyły się czy zmniejszyły?,CBOS_102_11_1998.sav
+q63,"24. Ile Pana(i) zdaniem, powinny wynosić miesięczne dochody Pana(i) rodziny, aby było można było: - Żyć dostatnio, bez problemów finansowych (tys. zł)",CBOS_18_07_1991.sav
+q64,"24. Ile Pana(i) zdaniem, powinny wynosić miesięczne dochody Pana(i) rodziny, aby było można było: - Oszczędzając, żyć na średnim poziomie (tys. zł)",CBOS_18_07_1991.sav
+q65,"24. Ile Pana(i) zdaniem, powinny wynosić miesięczne dochody Pana(i) rodziny, aby było można było: - Zaspokajać jedynie podstawowe potrzeby (tys. zł)",CBOS_18_07_1991.sav
+q97,38. Jakiej wartości akcyzę otrzyma każdy obywatel w ramach powszechnej prywatyzacji. Proszę powiedzieć przynajmniej orientacyjnie w jakiej wysokości będą akcje rozdane ludziom:,CBOS_18_07_1991.sav
+q124,"Proszę powiedzieć do której grupy dochodowej można zaliczyć Pana(i) miesięczne dochody netto. Jeżeli P. nie pracuje, to proszę podać dochód głównego żywiciela rodziny",CBOS_18_07_1991.sav
+q254,"Czy w poprzednim miesiącu, tzn. we wrześniu, Pan(i) i Pana(i) gospodarstwo domowe było zmuszone, czy też nie, ze względu na sytuację finansową: - sięgać do oszczędności gotówkowych",CBOS_161_10_2003.sav
+q259,"Czy ma/mają Pan(i)/Państwo jakieś oszczędności lub inne zasoby materialne, które można spieniężyć w razie potrzeby? - książeczka oszczędnościowa",CBOS_161_10_2003.sav
+q260,"Czy ma/mają Pan(i)/Państwo jakieś oszczędności lub inne zasoby materialne, które można spieniężyć w razie potrzeby? - konto bankowe terminowe w złotówkach",CBOS_161_10_2003.sav
+q261,"Czy ma/mają Pan(i)/Państwo jakieś oszczędności lub inne zasoby materialne, które można spieniężyć w razie potrzeby? - konto bankowe a vista (płatne na każde żądanie)  w złotówkach, ROR",CBOS_161_10_2003.sav
+q262,"Czy ma/mają Pan(i)/Państwo jakieś oszczędności lub inne zasoby materialne, które można spieniężyć w razie potrzeby? - bony lokacyjne",CBOS_161_10_2003.sav
+q263,"Czy ma/mają Pan(i)/Państwo jakieś oszczędności lub inne zasoby materialne, które można spieniężyć w razie potrzeby? - walutowe konto bankowe terminowe",CBOS_161_10_2003.sav
+q264,"Czy ma/mają Pan(i)/Państwo jakieś oszczędności lub inne zasoby materialne, które można spieniężyć w razie potrzeby? - walutowe konto bankowe a vista",CBOS_161_10_2003.sav
+q265,"Czy ma/mają Pan(i)/Państwo jakieś oszczędności lub inne zasoby materialne, które można spieniężyć w razie potrzeby? - akcje firm notowanych na giełdzie",CBOS_161_10_2003.sav
+q266,"Czy ma/mają Pan(i)/Państwo jakieś oszczędności lub inne zasoby materialne, które można spieniężyć w razie potrzeby? - obligacje skarbu państwa",CBOS_161_10_2003.sav
+q267,"Czy ma/mają Pan(i)/Państwo jakieś oszczędności lub inne zasoby materialne, które można spieniężyć w razie potrzeby? - jednostki uczestnictwa w funduszu powierniczym",CBOS_161_10_2003.sav
+q268,"Czy ma/mają Pan(i)/Państwo jakieś oszczędności lub inne zasoby materialne, które można spieniężyć w razie potrzeby? - indywidualna polisa ubezpieczenia na życie, np. PZU-Życie, Amplico Life, Commercial Union",CBOS_161_10_2003.sav
+q269,"Czy ma/mają Pan(i)/Państwo jakieś oszczędności lub inne zasoby materialne, które można spieniężyć w razie potrzeby? - kosztowności",CBOS_161_10_2003.sav
+q270,"Czy ma/mają Pan(i)/Państwo jakieś oszczędności lub inne zasoby materialne, które można spieniężyć w razie potrzeby? - gotówka (w złotych) w domu",CBOS_161_10_2003.sav
+q271,"Czy ma/mają Pan(i)/Państwo jakieś oszczędności lub inne zasoby materialne, które można spieniężyć w razie potrzeby? - waluty w domu",CBOS_161_10_2003.sav
+q272,"Czy ma/mają Pan(i)/Państwo jakieś oszczędności lub inne zasoby materialne, które można spieniężyć w razie potrzeby? - wartościowe przedmioty, które w razie potrzeby można  spieniężyć, np. dzieła sztuki lub inne",CBOS_161_10_2003.sav
+q273,"Czy ma/mają Pan(i)/Państwo jakieś oszczędności lub inne zasoby materialne, które można spieniężyć w razie potrzeby? - pieniądze ulokowane w nieruchomościach, mieszkaniach, które w razie potrzeby można sprzedać",CBOS_161_10_2003.sav
+q274,"Czy ma/mają Pan(i)/Państwo jakieś oszczędności lub inne zasoby materialne, które można spieniężyć w razie potrzeby? - pieniądze ulokowane w ziemi, np. działce budowlanej, rekreacyjnej itp., które w razie potrzeby można sprzedać",CBOS_161_10_2003.sav
+q275,"Czy ma/mają Pan(i)/Państwo jakieś oszczędności lub inne zasoby materialne, które można spieniężyć w razie potrzeby? - inne oszczędności",CBOS_161_10_2003.sav
+q276,"Czy ma/mają Pan(i)/Państwo jakieś oszczędności lub inne zasoby materialne, które można spieniężyć w razie potrzeby? - inne, jakie?",CBOS_161_10_2003.sav
+q127,38. Czy w ciągu ostatniego roku miał(a) Pan(i) jakieś trudności w uiszczaniu opłat za: ... : - mieszkanie/dom,CBOS_42_12_1993.sav
+q74s10,Czy ma Pan(i) w swoim gospodarstwie domowym następujące dobra i przedmioty: - Samochód osobowy,CBOS_238_03_2010.sav
+q78,"Jak Pan(i) sądzi, gdyby była potrzeba przeznaczenia wszystkich Państwa oszczędności na bieżące utrzymanie i wydatki, jak długo byliby Państwo w stanie żyć ze zgromadzonych zasobów finansowych, nie obniżając dotychczasowego poziomu życia?",CBOS_238_03_2010.sav
+q92i6,Z czego przede wszystkim utrzymuje się Pan(i) obecnie? - Z oszczędności,CBOS_238_03_2010.sav
+q120,"Ile wynoszą Pana(i) miesięczne dochody NETTO (na rękę)? Proszę wziąć pod uwagę Pana(i) dochody z pracy głównej wraz z premiami, nagrodami, dodatkami, dochody z prac dodatkowych, także dorywczych, renty i emerytury, stypendia oraz inne dodatkowe do...",CBOS_238_03_2010.sav
+q122,"M14_D. A czy mógłby(mogłaby) Pan(i) podać przybliżone dochody? Proszę spojrzeć na ekran. Czy mógłby(mogłaby) Pan(i) wskazać, w którym przedziale mieszczą się Pana(i) miesięcznie dochody netto?",CBOS_238_03_2010.sav
+q125,"M15_D. A czy mógłby(mogłaby) Pan(i) podać przybliżone dochody? Proszę spojrzeć na ekran. Czy mógłby(mogłaby) Pan(i) wskazać, w którym przedziale mieszczą się przeciętne miesięczne dochody NETTO przypadające na jedną osobę w Pana(i) gospodarstwie domowy...",CBOS_238_03_2010.sav
+q77s11,Czy w minionym roku: - zaciągnął(ęła) Pan(i) kredyt lub pożyczkę w banku lub innej instytucji finansowej,CBOS_272_01_2013.sav
+q429,"Czy Pan(i) lub współmałżonek posiadacie oszczędności finansowe (lokatę, akcje, obligacje, tytuły uczestnictwa funduszu powierniczego, oszczędności w innej postaci)?",CBOS_148_09_2002.sav
+q154,Według którego progu podatkowego rozlicza Pan(i) swoje dochody osobiste za rok 2000?,CBOS_132_05_2001.sav
+q126,Czy dla oszczędności lub z powodu wyższych cen musiał(a) Pan(i) w ciągu ostatnich 30 dni kupować któryś z wymienionych produktów tańszego gatunku ...? - Pieczywo,CBOS_178_03_2005.sav
+q127,"Czy dla oszczędności lub z powodu wyższych cen musiał(a) Pan(i) w ciągu ostatnich 30 dni kupować któryś z wymienionych produktów tańszego gatunku ...? - Makaron, mąka, kasza i inne wyroby mączne",CBOS_178_03_2005.sav
+q128,Czy dla oszczędności lub z powodu wyższych cen musiał(a) Pan(i) w ciągu ostatnich 30 dni kupować któryś z wymienionych produktów tańszego gatunku ...? - Mięso i wędliny,CBOS_178_03_2005.sav
+q129,"Czy dla oszczędności lub z powodu wyższych cen musiał(a) Pan(i) w ciągu ostatnich 30 dni kupować któryś z wymienionych produktów tańszego gatunku ...? - Nabiał (mleko, masło, sery, jajka)",CBOS_178_03_2005.sav
+q130,Czy dla oszczędności lub z powodu wyższych cen musiał(a) Pan(i) w ciągu ostatnich 30 dni kupować któryś z wymienionych produktów tańszego gatunku ...? - Cukier i wyroby cukiernicze,CBOS_178_03_2005.sav
+q131,"Czy dla oszczędności lub z powodu wyższych cen musiał(a) Pan(i) w ciągu ostatnich 30 dni kupować któryś z wymienionych produktów tańszego gatunku ...? - Tłuszcze roślinne (np. margaryna, olej, oliwa)",CBOS_178_03_2005.sav
+q132,Czy dla oszczędności lub z powodu wyższych cen musiał(a) Pan(i) w ciągu ostatnich 30 dni kupować któryś z wymienionych produktów tańszego gatunku ...? - Świeże warzywa i owoce,CBOS_178_03_2005.sav
+q133,Czy dla oszczędności lub z powodu wyższych cen musiał(a) Pan(i) w ciągu ostatnich 30 dni kupować któryś z wymienionych produktów tańszego gatunku ...? - Przetwory warzywne i owocowe,CBOS_178_03_2005.sav
+q134,"Czy dla oszczędności lub z powodu wyższych cen musiał(a) Pan(i) w ciągu ostatnich 30 dni kupować któryś z wymienionych produktów tańszego gatunku ...? - Napoje alkoholowe (wódka, wino, piwo)",CBOS_178_03_2005.sav
+q135,Czy dla oszczędności lub z powodu wyższych cen musiał(a) Pan(i) w ciągu ostatnich 30 dni kupować któryś z wymienionych produktów tańszego gatunku ...? - Kawa i herbata,CBOS_178_03_2005.sav
+q136,Czy dla oszczędności lub z powodu wyższych cen musiał(a) Pan(i) w ciągu ostatnich 30 dni kupować któryś z wymienionych produktów tańszego gatunku ...? - Benzyna lub olej napędowy,CBOS_178_03_2005.sav
+q137,"Czy dla oszczędności lub z powodu wyższych cen musiał(a) Pan(i) w ciągu ostatnich 30 dni kupować któryś z wymienionych produktów tańszego gatunku ...? - Środki higieny (mydło, środki higieny osobistej, proszki i płyny do prania i czyszcz",CBOS_178_03_2005.sav
+q138,Czy dla oszczędności lub z powodu wyższych cen musiał(a) Pan(i) w ciągu ostatnich 30 dni kupować któryś z wymienionych produktów tańszego gatunku ...? - Lekarstwa,CBOS_178_03_2005.sav
+q139,"Czy dla oszczędności lub z powodu wyższych cen musiał(a) Pan(i) w ciągu ostatnich 30 dni kupować któryś z wymienionych produktów tańszego gatunku ...? - Gazety, czasopisma, książki",CBOS_178_03_2005.sav
+q140,Czy dla oszczędności lub z powodu wyższych cen musiał(a) Pan(i) w ciągu ostatnich 30 dni kupować któryś z wymienionych produktów tańszego gatunku ...? - Papierosy,CBOS_178_03_2005.sav
+q167i6,Z czego przede wszystkim utrzymuje się Pan(i) obecnie? - Z oszczędności,CBOS_178_03_2005.sav
+q209,"Czy wszystkie dochody Pana(i) i mieszkającej razem z Panem(ią) rodziny (lub wszystkie Pana(i) dochody, jeśli mieszka Pan(i) sam(a)) są wystarczające, czy niewystarczające do zaspokojenia codziennych potrzeb, takich jak mieszkanie, wyżywienie, o",CBOS_178_03_2005.sav
+L11q62,23.11. Czy w minionym roku zaciągnął(ęła) P. kredyt lub pożyczkę w banku lub innej instytucji finansowej?,CBOS_320_01_2017.sav
+DochOs,MIESIĘCZNE DOCHODY NETTO respondenta,CBOS_320_01_2017.sav
+DochPC,PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W P. GOSPODARSTWIE DOMOWYM,CBOS_320_01_2017.sav
+q102,"M14_D. A czy mógłby(mogłaby) Pan(i) podać przybliżone dochody? Proszę spojrzeć na ekran. Czy mógłby(mogłaby) Pan(i) wskazać, w którym przedziale mieszczą się Pana(i) miesięcznie dochody netto? %kr%",CBOS_221_10_2008.sav.sav
+q105,"M15_D. A czy mógłby(mogłaby) Pan(i) podać przybliżone dochody? Proszę spojrzeć na ekran. Czy mógłby(mogłaby) Pan(i) wskazać, w którym przedziale mieszczą się przeciętne miesięczne dochody NETTO przypadające na jedną osobę w Pana(i) gospodarstwie do",CBOS_221_10_2008.sav.sav
+q120,"Jak Pan(i) sądzi, czy zamrożenie progów podatkowych do końca 2004 roku będzie korzystne, czy też będzie niekorzystne dla: - ludzi osiągających wysokie dochody",CBOS_138_11_2001.sav
+q121,"Jak Pan(i) sądzi, czy zamrożenie progów podatkowych do końca 2004 roku będzie korzystne, czy też będzie niekorzystne dla: - ludzi osiągających przeciętne dochody",CBOS_138_11_2001.sav
+q122,"Jak Pan(i) sądzi, czy zamrożenie progów podatkowych do końca 2004 roku będzie korzystne, czy też będzie niekorzystne dla: - ludzi osiągających niskie dochody",CBOS_138_11_2001.sav
+q125,"A jak Pan(i) sądzi, czy wprowadzenie opodatkowania odsetek od oszczędności ulokowanych w banku oraz zysków z papierów wartościowych będzie korzystne, czy też niekorzystne dla: - ludzi takich, jak Pan(i)",CBOS_138_11_2001.sav
+q126,"A jak Pan(i) sądzi, czy wprowadzenie opodatkowania odsetek od oszczędności ulokowanych w banku oraz zysków z papierów wartościowych będzie korzystne, czy też niekorzystne dla: - ludzi osiągających wysokie dochody",CBOS_138_11_2001.sav
+q127,"A jak Pan(i) sądzi, czy wprowadzenie opodatkowania odsetek od oszczędności ulokowanych w banku oraz zysków z papierów wartościowych będzie korzystne, czy też niekorzystne dla: - ludzi osiągających przeciętne dochody",CBOS_138_11_2001.sav
+q128,"A jak Pan(i) sądzi, czy wprowadzenie opodatkowania odsetek od oszczędności ulokowanych w banku oraz zysków z papierów wartościowych będzie korzystne, czy też niekorzystne dla: - ludzi osiągających niskie dochody",CBOS_138_11_2001.sav
+q129,"A jak Pan(i) sądzi, czy wprowadzenie opodatkowania odsetek od oszczędności ulokowanych w banku oraz zysków z papierów wartościowych będzie korzystne, czy też niekorzystne dla: - budżetu państwa",CBOS_138_11_2001.sav
+q130,"A jak Pan(i) sądzi, czy wprowadzenie opodatkowania odsetek od oszczędności ulokowanych w banku oraz zysków z papierów wartościowych będzie korzystne, czy też niekorzystne dla: - gospodarki kraju",CBOS_138_11_2001.sav
+q100,"Czy ma Pan(i) jakieś oszczędności osobiste lub wspólne z innymi członkami Pana(i) gospodarstwa domowego w formie pieniędzy lub bonów, lokat bankowych, akcji lub obligacji itp.?",CBOS_136_09_2001.sav
+q101,Czy w ciągu ostatnich 30 dni oszczędności te zwiększyły się czy zmniejszyły?,CBOS_136_09_2001.sav
+q428,Wróćmy jeszcze raz do Pana(i) sytuacji materialnej. Czy mógł(a)by Pan(i) powiedzieć jakie są Pana(i) własne dochody miesięczne? - brutto:,CBOS_136_09_2001.sav
+q429,Wróćmy jeszcze raz do Pana(i) sytuacji materialnej. Czy mógł(a)by Pan(i) powiedzieć jakie są Pana(i) własne dochody miesięczne? - netto:,CBOS_136_09_2001.sav
+q126,38a. Czy kupując akcje kierował(ała)by się Pan(i):,CBOS_9_10_1990.sav
+q127,"38b. Proszę powiedzieć, z jakich powodów nie jest Pan(i) zainteresowany(a) kupieniem akcji? - Nie mam wystarczających oszczędności",CBOS_9_10_1990.sav
+q129,"38b. Proszę powiedzieć, z jakich powodów nie jest Pan(i) zainteresowany(a) kupieniem akcji? - Akcje polskich przedsiębiorstw bardzo długo nie będą przynosić zysków",CBOS_9_10_1990.sav
+q132,"38b. Proszę powiedzieć, z jakich powodów nie jest Pan(i) zainteresowany(a) kupieniem akcji? - Nie umiałbym ocenić sytuacji przedsiębiorstwa sprzedającego akcje",CBOS_9_10_1990.sav
+q133,"38b. Proszę powiedzieć, z jakich powodów nie jest Pan(i) zainteresowany(a) kupieniem akcji? - Akcje są dla ludzi posiadających dużo pieniędzy",CBOS_9_10_1990.sav
+q192,Do której grupy dochodowej można zaliczyć miesięczne dochody netto głównego żywiciela rodziny?,CBOS_9_10_1990.sav
+q195,Czy ma Pan(i): - samochód,CBOS_9_10_1990.sav
+q207,Od jak dawna? - samochód,CBOS_9_10_1990.sav
+q219,"O każdym z tych dóbr proszę powiedzieć, czy ma Pan(i) je zamiar kupić czy też nie? - samochód",CBOS_9_10_1990.sav
+q427,Wróćmy jeszcze raz do Pana(i) sytuacji materialnej. Czy mógł(a)by Pan(i) powiedzieć jakie są Pana(i) własne dochody miesięczne? - brutto:,CBOS_134_07_2001.sav
+q428,Wróćmy jeszcze raz do Pana(i) sytuacji materialnej. Czy mógł(a)by Pan(i) powiedzieć jakie są Pana(i) własne dochody miesięczne? - netto:,CBOS_134_07_2001.sav
+q96i6,"Jak Pan(i) sądzi, dla kogo dzisiaj jest ważne powstanie w getcie warszawskim? -Z oszczędności",CBOS_274_03_2013.sav
+q75s11,Czy w minionym roku: - zaciągnął(ęła) Pan(i) kredyt lub pożyczkę w banku lub innej instytucji finansowej,CBOS_284_01_2014.sav
+q113,Ile wynoszą PANA(I) MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ)? ...,CBOS_284_01_2014.sav
+q116,Ile wynoszą PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W PANA(I) GOSPODARSTWIE DOMOWYM? ...,CBOS_284_01_2014.sav
+q118,"M19_2. A czy mógłby(mogłaby) Pan(i) podać przybliżone dochody? Czy mógłby(mogłaby) Pan(i) wskazać, w którym przedziale mieszczą się PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W PANA(I) GOSPODARST...",CBOS_284_01_2014.sav
+q127,"Ile wynoszą Pana(i) miesięczne dochody NETTO (na rękę)? Proszę wziąć pod uwagę Pana(i) dochody z pracy głównej wraz z premiami, nagrodami, dodatkami, dochody z prac dodatkowych, także dorywczych, renty i emerytury, stypendia oraz inne dodatkowe do...",CBOS_231_08_2009.sav
+q129,"M14_D. A czy mógłby(mogłaby) Pan(i) podać przybliżone dochody? Proszę spojrzeć na ekran. Czy mógłby(mogłaby) Pan(i) wskazać, w którym przedziale mieszczą się Pana(i) miesięcznie dochody netto?",CBOS_231_08_2009.sav
+q132,"M15_D. A czy mógłby(mogłaby) Pan(i) podać przybliżone dochody? Proszę spojrzeć na ekran. Czy mógłby(mogłaby) Pan(i) wskazać, w którym przedziale mieszczą się przeciętne miesięczne dochody NETTO przypadające na jedną osobę w Pana(i) gospodarstwie domowy...",CBOS_231_08_2009.sav
+P63,"Czy uważa Pan(i), że uczniom z najbiedniejszych rodzin (których dochody nie przekraczają 504 zł na osobę i upoważniają do zasiłku rodzinnego), szkoły powinny bezpłatnie wypożyczać podręczniki do nauki, czy raczej nie?",CBOS_197_10_2006.sav
+q96,"Czy dla oszczędności lub z powodu wyższych cen musiał(a) Pan(i) (musieli Państwo) w ciągu ostatnich 30 dni kupować któryś z wymienionych produktów tańszego gatunku, niż kupowany poprzednio? - Pieczywo",CBOS_171_08_2004.sav
+q97,"Czy dla oszczędności lub z powodu wyższych cen musiał(a) Pan(i) (musieli Państwo) w ciągu ostatnich 30 dni kupować któryś z wymienionych produktów tańszego gatunku, niż kupowany poprzednio? - Makaron, mąka, kasza",CBOS_171_08_2004.sav
+q98,"Czy dla oszczędności lub z powodu wyższych cen musiał(a) Pan(i) (musieli Państwo) w ciągu ostatnich 30 dni kupować któryś z wymienionych produktów tańszego gatunku, niż kupowany poprzednio? - Mięso i wędliny",CBOS_171_08_2004.sav
+q99,"Czy dla oszczędności lub z powodu wyższych cen musiał(a) Pan(i) (musieli Państwo) w ciągu ostatnich 30 dni kupować któryś z wymienionych produktów tańszego gatunku, niż kupowany poprzednio? - Nabiał (mleko, masło, sery, jajka)",CBOS_171_08_2004.sav
+q100,"Czy dla oszczędności lub z powodu wyższych cen musiał(a) Pan(i) (musieli Państwo) w ciągu ostatnich 30 dni kupować któryś z wymienionych produktów tańszego gatunku, niż kupowany poprzednio? - Cukier i wyroby cukiernicze",CBOS_171_08_2004.sav
+q101,"Czy dla oszczędności lub z powodu wyższych cen musiał(a) Pan(i) (musieli Państwo) w ciągu ostatnich 30 dni kupować któryś z wymienionych produktów tańszego gatunku, niż kupowany poprzednio? - Tłuszcze roślinne (np. margaryna, olej)",CBOS_171_08_2004.sav
+q102,"Czy dla oszczędności lub z powodu wyższych cen musiał(a) Pan(i) (musieli Państwo) w ciągu ostatnich 30 dni kupować któryś z wymienionych produktów tańszego gatunku, niż kupowany poprzednio? - Świeże warzywa i owoce",CBOS_171_08_2004.sav
+q103,"Czy dla oszczędności lub z powodu wyższych cen musiał(a) Pan(i) (musieli Państwo) w ciągu ostatnich 30 dni kupować któryś z wymienionych produktów tańszego gatunku, niż kupowany poprzednio? - Przetwory warzywne i owocowe",CBOS_171_08_2004.sav
+q104,"Czy dla oszczędności lub z powodu wyższych cen musiał(a) Pan(i) (musieli Państwo) w ciągu ostatnich 30 dni kupować któryś z wymienionych produktów tańszego gatunku, niż kupowany poprzednio? - Napoje alkoholowe (wódka, wino, piwo)",CBOS_171_08_2004.sav
+q105,"Czy dla oszczędności lub z powodu wyższych cen musiał(a) Pan(i) (musieli Państwo) w ciągu ostatnich 30 dni kupować któryś z wymienionych produktów tańszego gatunku, niż kupowany poprzednio? - Kawa i herbata",CBOS_171_08_2004.sav
+q106,"Czy dla oszczędności lub z powodu wyższych cen musiał(a) Pan(i) (musieli Państwo) w ciągu ostatnich 30 dni kupować któryś z wymienionych produktów tańszego gatunku, niż kupowany poprzednio? - Benzyna lub olej napędowy",CBOS_171_08_2004.sav
+q107,"Czy dla oszczędności lub z powodu wyższych cen musiał(a) Pan(i) (musieli Państwo) w ciągu ostatnich 30 dni kupować któryś z wymienionych produktów tańszego gatunku, niż kupowany poprzednio? - Środki higieny",CBOS_171_08_2004.sav
+q108,"Czy dla oszczędności lub z powodu wyższych cen musiał(a) Pan(i) (musieli Państwo) w ciągu ostatnich 30 dni kupować któryś z wymienionych produktów tańszego gatunku, niż kupowany poprzednio? - Lekarstwa",CBOS_171_08_2004.sav
+q109,"Czy dla oszczędności lub z powodu wyższych cen musiał(a) Pan(i) (musieli Państwo) w ciągu ostatnich 30 dni kupować któryś z wymienionych produktów tańszego gatunku, niż kupowany poprzednio? - Gazety, czasopisma, książki",CBOS_171_08_2004.sav
+q110,"Czy dla oszczędności lub z powodu wyższych cen musiał(a) Pan(i) (musieli Państwo) w ciągu ostatnich 30 dni kupować któryś z wymienionych produktów tańszego gatunku, niż kupowany poprzednio? - Papierosy",CBOS_171_08_2004.sav
+q133,Ile wynoszą P. MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ)? Zmienna pomocnicza,CBOS_321_02_2017.sav
+DochOs,MIESIĘCZNE DOCHODY NETTO respondenta,CBOS_321_02_2017.sav
+q136,Ile wynoszą PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W P. GOSPODARSTWIE DOMOWYM?,CBOS_321_02_2017.sav
+q137,Ile wynoszą PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W P. GOSPODARSTWIE DOMOWYM? Zmienna pomocnicza,CBOS_321_02_2017.sav
+q139,"Czy mógłby(mogłaby) P. wskazać, w którym przedziale mieszczą się PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W P. GOSPODARSTWIE DOMOWYM?",CBOS_321_02_2017.sav
+DochPC,PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W P. GOSPODARSTWIE DOMOWYM,CBOS_321_02_2017.sav
+q62,"15. Czy, Pana(i) zdaniem ….. w wyniku realizacji programu Balcerowicza: - Zarobki i dochody ludności",CBOS_4_04_1990.sav
+q134,53. A czy w ogóle posiada Pan(i) już jakieś akcje lub obligacje? - Akcje,CBOS_4_04_1990.sav
+q138,"54. Czy, Pana(i) zdaniem, ….. zapewniają korzystną, czy niekorzystną lokatę pieniędzy, oszczędności? - akcje przedsiębiorstw",CBOS_4_04_1990.sav
+q144,"57. Czy, kupując akcje jakiegoś przedsiębiorstwa, liczył(a)by Pan(i) przede wszystkim na:",CBOS_4_04_1990.sav
+P79,"Czy wszystkie dochody Pana[i] i mieszkającej razem z Panem rodziny są wystarczające, czy niewystarczające do zaspokojenia codziennych potrzeb, takich jak mieszkanie, wyżywienie, odzież itp.",CBOS_190_03_2006.sav
+q80,"Czy za swoje dzisiejsze dochody jest Pan(i) w stanie kupić więcej, czy mniej towarów niż rok temu?",CBOS_139_12_2001.sav
+q134,M3b. Ile wynoszą P. MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ)? - zmienna pomocnicza,CBOS_328_09_2017.sav
+DochOs,MIESIĘCZNE DOCHODY NETTO respondenta,CBOS_328_09_2017.sav
+q138,M5b. Ile wynoszą PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W P. GOSPODARSTWIE DOMOWYM? - zmienna pomocnicza,CBOS_328_09_2017.sav
+DochPC,PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W P. GOSPODARSTWIE DOMOWYM,CBOS_328_09_2017.sav
+q78s11,Czy w minionym roku: - zaciągnął(ęła)  Pan(i) kredyt lub pożyczkę w banku lub innej instytucji finansowej,CBOS_260_01_2012.sav
+q225,Które z dóbr umieszczonych na tej karcie ma Pan(i) w swoim gospodarstwie domowym? - Samochód,CBOS_33_03_1993.sav
+q236,A czy zamierza Pan(i) lub Pana(i) rodzina kupić ... ? - Samochód,CBOS_33_03_1993.sav
+q222,68. Czy w Pana(i) gospodarstwie domowym użytkowany jest - samochód(y) osobowy(e),CBOS_153_02_2003.sav
+q430,"Czy Pan(i) lub współmałżonek posiadacie oszczędności finansowe (lokatę, akcje, obligacje, tytuły uczestnictwa funduszu powierniczego, oszczędności w innej postaci)?",CBOS_153_02_2003.sav
+q165,"Czy uważa Pan(i), że obecnie dochody Pana(i) rodziny są:",CBOS_66_11_1995.sav
+q168,"Ile, według Pana(i), powinny wynosić miesięczne dochody na jedną osobę w Pana(i) rodzinie, aby można było [W TYS. STARYCH ZŁ]: - żyć dostatnio, bez problemów finansowych",CBOS_66_11_1995.sav
+q169,"Ile, według Pana(i), powinny wynosić miesięczne dochody na jedną osobę w Pana(i) rodzinie, aby można było [W TYS. STARYCH ZŁ]: - żyć na średnim poziomie",CBOS_66_11_1995.sav
+q170,"Ile, według Pana(i), powinny wynosić miesięczne dochody na jedną osobę w Pana(i) rodzinie, aby można było [W TYS. STARYCH ZŁ]: - zaspokajać jedynie podstawowe potrzeby",CBOS_66_11_1995.sav
+q173,Czy w ciągu ostatniego roku miał(a) Pan(i) jakieś trudności w uiszczaniu opłat za: ... : - mieszkanie/dom,CBOS_66_11_1995.sav
+q184,"Czy w poprzednim miesiącu, tzn. w październiku, Pan(i) i Pana(i) gospodarstwo domowe było zmuszone, czy też nie, ze względu na sytuację finansową: - sięgać do oszczędności gotówkowych",CBOS_66_11_1995.sav
+q427,Czy mają Państwo jakieś oszczędności? Czy jest/są to: - Akcje firm notowanych na giełdzie,CBOS_66_11_1995.sav
+q435,Czy ma(ją) Pan(i)/Państwo ...: - samochód osobowy,CBOS_66_11_1995.sav
+q436,Czy ma(ją) Pan(i)/Państwo [WIEK SPRZĘTU]: - samochód osobowy,CBOS_66_11_1995.sav
+q136,51. Proszę powiedzieć na co wystarczają w Pana(i) gospodarstwie domowym miesięcznie dochody (łącznie z dodatkowymi zarobkami)?,CBOS_21_10_1991.sav
+q146,"54. Jak Pan(i) ocenia obecną wysokość … : - Czynszu, który Pan(i) płaci za mieszkanie",CBOS_21_10_1991.sav
+q166,"Proszę powiedzieć do której grupy dochodowej można zaliczyć Pana(i) miesięczne dochody netto. Jeżeli P. nie pracuje, to proszę podać dochód głównego żywiciela rodziny",CBOS_21_10_1991.sav
+q197,"Czy uważa Pan(i), że obecnie dochody Pana(i) rodziny w porównaniu z przeciętnymi dochodami rodzin w Polsce są:",CBOS_121_06_2000.sav
+q208,"67. Czy, Pana(i) zdaniem, obecnie w Polsce jest łatwo czy też trudno na drodze sądowej ...  - odzyskać dług od osoby prywatnej",CBOS_109_06_1999.sav
+q430,"Czy Pan(i) lub współmałżonek posiadacie oszczędności finansowe (lokatę, akcje, obligacje, tytuły uczestnictwa    funduszu powierniczego, oszczędności w innej  postaci)?",CBOS_152_01_2003.sav
+q94,25. Czy w wyniku realizowanego od roku rządowego planu stabilizacji gospodarczej zwanego planem Balcerowicza: - Zarobki i dochody ludności,CBOS_14_03_1991.sav
+q209,"Proszę powiedzieć do której grupy dochodowej można zaliczyć Pana(i) miesięczne dochody netto. Jeżeli P. nie pracuje, to proszę podać dochód głównego żywiciela rodziny",CBOS_14_03_1991.sav
+q118,"Ile wynoszą Pana(i) miesięczne dochody NETTO (na rękę)? Proszę wziąć pod uwagę Pana(i) dochody z pracy głównej wraz z premiami, nagrodami, dodatkami, dochody z prac dodatkowych, także dorywczych, renty i emerytury, stypendia oraz inne dodatkowe do...",CBOS_227_04_2009.sav
+q120,"M14_D. A czy mógłby(mogłaby) Pan(i) podać przybliżone dochody? Proszę spojrzeć na ekran. Czy mógłby(mogłaby) Pan(i) wskazać, w którym przedziale mieszczą się Pana(i) miesięcznie dochody netto?",CBOS_227_04_2009.sav
+q123,"M15_D. A czy mógłby(mogłaby) Pan(i) podać przybliżone dochody? Proszę spojrzeć na ekran. Czy mógłby(mogłaby) Pan(i) wskazać, w którym przedziale mieszczą się przeciętne miesięczne dochody NETTO przypadające na jedną osobę w Pana(i) gospodarstwie domowy...",CBOS_227_04_2009.sav
+q133,"Jak, Pana(i) zdaniem, powinien postąpić rząd, gdyby akcje dużego polskiego przedsiębiorstwa chcieli kupić ...  - Amerykanie",CBOS_25_05_1992.sav
+q134,"Jak, Pana(i) zdaniem, powinien postąpić rząd, gdyby akcje dużego polskiego przedsiębiorstwa chcieli kupić ...  - Niemcy",CBOS_25_05_1992.sav
+q135,"Jak, Pana(i) zdaniem, powinien postąpić rząd, gdyby akcje dużego polskiego przedsiębiorstwa chcieli kupić ...  - Francuzi",CBOS_25_05_1992.sav
+q136,"Jak, Pana(i) zdaniem, powinien postąpić rząd, gdyby akcje dużego polskiego przedsiębiorstwa chcieli kupić ...  - Rosjanie",CBOS_25_05_1992.sav
+q137,"Jak, Pana(i) zdaniem, powinien postąpić rząd, gdyby akcje dużego polskiego przedsiębiorstwa chcieli kupić ...  - Żydzi",CBOS_25_05_1992.sav
+q138,"Jak, Pana(i) zdaniem, powinien postąpić rząd, gdyby akcje dużego polskiego przedsiębiorstwa chcieli kupić ...  - Anglicy",CBOS_25_05_1992.sav
+q139,"Jak, Pana(i) zdaniem, powinien postąpić rząd, gdyby akcje dużego polskiego przedsiębiorstwa chcieli kupić ...  - Japończycy",CBOS_25_05_1992.sav
+q24,Czy w ciągu ostatnich 30 dni oszczędności te zwiększyły się czy zmniejszyły?,CBOS_120_05_2000.sav
+q204,Według którego progu podatkowego rozlicza Pan(i) swoje dochody osobiste za rok 1999?,CBOS_120_05_2000.sav
+q58i2,"A jeśli mógłby(mogłaby) Pan(i) tę kwotę tylko zainwestować, to co najprawdopodobniej by Pan(i) z nią zrobił(a)? -Kupił(a) akcje firm notowanych na Giełdzie Papierów Wartościowych",CBOS_268_09_2012.sav
+q62,"K7A. A czy, w Pana(i) ocenie, w dzisiejszych czasach w Polsce korzystne ulokowanie oszczędności lub inwestowanie w większym stopniu zależy:",CBOS_268_09_2012.sav
+q63,"K7B. A czy, w Pana(i) ocenie, w dzisiejszych czasach w Polsce korzystne ulokowanie oszczędności lub inwestowanie w większym stopniu zależy:",CBOS_268_09_2012.sav
+q132,"Jak Pan(i) sądzi, co decyduje o tym, że związek dwojga ludzi jest udany? Które z wymienionych czynników są ważne, raczej ważne czy też niezbyt ważne dla udanego małżeństwa, związku? - mieszkanie osobno bez teściów",CBOS_167_04_2004.sav
+q272,"Czy zgadza się Pan(i), czy też nie zgadza z każdym z poniższych stwierdzeń: ...  - Mieszkanie osoby, która wyszła z więzienia po odbyciu kary za pedofilię, powinno być w specjalny sposób oznakowane",CBOS_167_04_2004.sav
+q130,"M19_2. A czy mógłby(mogłaby) Pan(i) podać przybliżone dochody? Czy mógłby(mogłaby) Pan(i) wskazać, w którym przedziale mieszczą się PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W PANA(I) GOSPODARST...",CBOS_256_09_2011.sav
+q182,"M19_2. A czy mógłby(mogłaby) Pan(i) podać przybliżone dochody? Czy mógłby(mogłaby) Pan(i) wskazać, w którym przedziale mieszczą się PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W PANA(I) GOSPODARST...",CBOS_258_11_2011.sav
+q93,"27C. Czy w poprzednim miesiącu, tzn. w październiku, Pan(i) i gospodarstwo domowe było zmuszone, czy też nie, ze względu na sytuację finansową: - sięgać do oszczędności gotówkowych",CBOS_41_11_1993.sav
+q105,"34. Ile, według Pana(i), powinny wynosić miesięczne dochody na jedną osobę w Pana(i) rodzinie, aby można było (w tys zł): - żyć dostatnio, bez problemów finansowych",CBOS_41_11_1993.sav
+q106,"34. Ile, według Pana(i), powinny wynosić miesięczne dochody na jedną osobę w Pana(i) rodzinie, aby można było (w tys zł): - żyć na średnim poziomie",CBOS_41_11_1993.sav
+q107,"34. Ile, według Pana(i), powinny wynosić miesięczne dochody na jedną osobę w Pana(i) rodzinie, aby można było (w tys zł): - zaspokajać jedynie podstawowe potrzeby",CBOS_41_11_1993.sav
+q167,"M19_2. A czy mógłby(mogłaby) Pan(i) podać przybliżone dochody? Czy mógłby(mogłaby) Pan(i) wskazać, w którym przedziale mieszczą się PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W PANA(I) GOSPODARST...",CBOS_254_07_2011.sav
+q80,"16. Jak realizacja planu Balcerowicza wpłynie na różne dziedziny życia społeczno-gospodarczego. Czy, Pana(i) zdaniem ….. - Zarobki i dochody ludności",CBOS_2_02_1990.sav
+q94,"25. Ile, Pana(i) zdaniem, powinny wynosić dochody Pana(i) rodziny, aby można było: - żyć dostatnio, bez problemów finansowych [tysiące starych złotych]",CBOS_2_02_1990.sav
+q95,"25. Ile, Pana(i) zdaniem, powinny wynosić dochody Pana(i) rodziny, aby można było: - oszczędzając, żyć na średnim poziomie [tysiące starych złotych]",CBOS_2_02_1990.sav
+q96,"25. Ile, Pana(i) zdaniem, powinny wynosić dochody Pana(i) rodziny, aby można było: - zaspokajać jedynie podstawowe potrzeby [tysiące starych złotych]",CBOS_2_02_1990.sav
+q108,"31. Jak Pan(i) myśli, czy w lutym będzie Pan(i) zmuszony(a): - korzystać z wcześniej zgromadzonych oszczędności",CBOS_2_02_1990.sav
+q123,37. Czy dodatkowe dochody można obecnie uzyskać:,CBOS_2_02_1990.sav
+q132,"44. Jak Pan(i) uważa, kto ma tyle pieniędzy, żeby wykupić od państwa akcje przedsiębiorstw? Czy: - prywatni przedsiębiorcy, właściciele kantorów walutowych, firm polonijnych",CBOS_2_02_1990.sav
+q133,"44. Jak Pan(i) uważa, kto ma tyle pieniędzy, żeby wykupić od państwa akcje przedsiębiorstw? Czy: - rzemieślnicy, taksówkarze",CBOS_2_02_1990.sav
+q134,"44. Jak Pan(i) uważa, kto ma tyle pieniędzy, żeby wykupić od państwa akcje przedsiębiorstw? Czy: - lekarze",CBOS_2_02_1990.sav
+q135,"44. Jak Pan(i) uważa, kto ma tyle pieniędzy, żeby wykupić od państwa akcje przedsiębiorstw? Czy: - naukowcy",CBOS_2_02_1990.sav
+q136,"44. Jak Pan(i) uważa, kto ma tyle pieniędzy, żeby wykupić od państwa akcje przedsiębiorstw? Czy: - dyrektorzy i kadra kierownicza przedsiębiorstw państwowych",CBOS_2_02_1990.sav
+q137,"44. Jak Pan(i) uważa, kto ma tyle pieniędzy, żeby wykupić od państwa akcje przedsiębiorstw? Czy: - oficerowie WP",CBOS_2_02_1990.sav
+q138,"44. Jak Pan(i) uważa, kto ma tyle pieniędzy, żeby wykupić od państwa akcje przedsiębiorstw? Czy: - milicjanci",CBOS_2_02_1990.sav
+q139,"44. Jak Pan(i) uważa, kto ma tyle pieniędzy, żeby wykupić od państwa akcje przedsiębiorstw? Czy: - byli pracownicy aparatu partyjnego",CBOS_2_02_1990.sav
+q140,"44. Jak Pan(i) uważa, kto ma tyle pieniędzy, żeby wykupić od państwa akcje przedsiębiorstw? Czy: - rolnicy z dużych gospodarstw",CBOS_2_02_1990.sav
+q141,"44. Jak Pan(i) uważa, kto ma tyle pieniędzy, żeby wykupić od państwa akcje przedsiębiorstw? Czy: - robotnicy – specjaliści",CBOS_2_02_1990.sav
+q142,"44. Jak Pan(i) uważa, kto ma tyle pieniędzy, żeby wykupić od państwa akcje przedsiębiorstw? Czy: - inne grupy",CBOS_2_02_1990.sav
+q143,"45. Jedną z proponowanych formy prywatyzacji jest publiczny przetarg, na którym sprzedawane będą akcje przedsiębiorstw. Czy był(a)by Pan(i) skłonny(a) przeznaczyć całość lub część swoich oszczędności na zakup tych akcji?",CBOS_2_02_1990.sav
+q125,Ile wynoszą PANA(I) MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ)?,CBOS_319_12_2016.sav
+q128,A czy mógłby(mogłaby) Pan(i) podać przybliżone dochody MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ)?,CBOS_319_12_2016.sav
+q129,Ile wynoszą PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W PANA(I) GOSPODARSTWIE DOMOWYM?,CBOS_319_12_2016.sav
+q132,A czy mógłby(mogłaby) Pan(i) podać przybliżone PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W PANA(I) GOSPODARSTWIE?,CBOS_319_12_2016.sav
+q163,Ile wynoszą P. MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ)? - zmienna pomocnicza,CBOS_326_07_2017.sav
+q167,Ile wynoszą PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W P. GOSPODARSTWIE DOMOWYM? - zmienna pomocnicza,CBOS_326_07_2017.sav
+q87,"Ostatnio, w związku z kryzysem pogarsza się sytuacja finansowa i budżetowa wielu krajów Unii Europejskiej. Czy, Pana(i) zdaniem, w Polsce także konieczne są oszczędności i tzw. „zaciskanie pasa” jeśli chodzi o wydatki budżetowe, czy też nie ma jesz...",CBOS_259_12_2011.sav
+q88s1,"Premier Donald Tusk przedstawił plan oszczędności budżetowych. Proszę powiedzieć, które z poniższych propozycji zmian uważa Pan(... - Likwidacja ulgi podatkowej na dziecko dla rodzin zarabiających ponad 85 tys. złotych rocznie, a jednocześnie podwyższ.",CBOS_259_12_2011.sav
+q88s2,"Premier Donald Tusk przedstawił plan oszczędności budżetowych. Proszę powiedzieć, które z poniższych propozycji zmian uważa Pan(... - Likwidacja tzw. becikowego dla rodzin, których roczny dochód przekracza 85 tys. złotych",CBOS_259_12_2011.sav
+q88s3,"Premier Donald Tusk przedstawił plan oszczędności budżetowych. Proszę powiedzieć, które z poniższych propozycji zmian uważa Pan(... - Likwidacja ulgi podatkowej na Internet",CBOS_259_12_2011.sav
+q88s4,"Premier Donald Tusk przedstawił plan oszczędności budżetowych. Proszę powiedzieć, które z poniższych propozycji zmian uważa Pan(... - Zwiększenie składki rentowej w części płaconej przez pracodawców",CBOS_259_12_2011.sav
+q88s5,"Premier Donald Tusk przedstawił plan oszczędności budżetowych. Proszę powiedzieć, które z poniższych propozycji zmian uważa Pan(... - Czasowa zmiana zasad rewaloryzacji rent i emerytur - zamiast wzrostu procentowego, wzrost o konkretną kwotę",CBOS_259_12_2011.sav
+q88s6,"Premier Donald Tusk przedstawił plan oszczędności budżetowych. Proszę powiedzieć, które z poniższych propozycji zmian uważa Pan(... - Likwidacja ulgi podatkowej dla twórców zarabiających rocznie z tytułu tej działalności ponad 85 tys. złotych",CBOS_259_12_2011.sav
+q88s7,"Premier Donald Tusk przedstawił plan oszczędności budżetowych. Proszę powiedzieć, które z poniższych propozycji zmian uważa Pan(... - Zwiększenie podatków od kopalin wydobywanych w Polsce – miedzi, srebra i - w przyszłości - gazu łupkowego",CBOS_259_12_2011.sav
+q88s8,"Premier Donald Tusk przedstawił plan oszczędności budżetowych. Proszę powiedzieć, które z poniższych propozycji zmian uważa Pan(... - Likwidacja Funduszu Kościelnego i objęcie księży powszechnym systemem ubezpieczeń",CBOS_259_12_2011.sav
+q88s9,"Premier Donald Tusk przedstawił plan oszczędności budżetowych. Proszę powiedzieć, które z poniższych propozycji zmian uważa Pan(... - Wprowadzenie odpłatności za korzystnie ze służby zdrowia przez rolników mających większe gospodarstwa niż 6 hektarów",CBOS_259_12_2011.sav
+q88s10,"Premier Donald Tusk przedstawił plan oszczędności budżetowych. Proszę powiedzieć, które z poniższych propozycji zmian uważa Pan(... - Obowiązek prowadzenia rachunkowości w rolnictwie oraz zastąpienie w przyszłości podatku rolnego podatkiem dochodowym",CBOS_259_12_2011.sav
+q88s11,"Premier Donald Tusk przedstawił plan oszczędności budżetowych. Proszę powiedzieć, które z poniższych propozycji zmian uważa Pan(... - Likwidacja lub ograniczenie przywilejów emerytalnych niektórych grup zawodowych m.in. służb mundurowych i górników",CBOS_259_12_2011.sav
+q88s12,"Premier Donald Tusk przedstawił plan oszczędności budżetowych. Proszę powiedzieć, które z poniższych propozycji zmian uważa Pan(... - Podwyższenie wieku, w którym mężczyźni będą mogli przechodzić na emeryturę z 65 do 67 lat",CBOS_259_12_2011.sav
+q88s13,"Premier Donald Tusk przedstawił plan oszczędności budżetowych. Proszę powiedzieć, które z poniższych propozycji zmian uważa Pan(... - Podwyższenie wieku, w którym kobiety będą mogły przechodzić na emeryturę z 60 do 67 lat",CBOS_259_12_2011.sav
+q93,Czy w Pana(i) odczuciu oszczędności proponowane przez premiera Donalda Tuska:,CBOS_259_12_2011.sav
+q151,"M19_2. A czy mógłby(mogłaby) Pan(i) podać przybliżone dochody? Czy mógłby(mogłaby) Pan(i) wskazać, w którym przedziale mieszczą się PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W PANA(I) GOSPODARST...",CBOS_259_12_2011.sav
+q68i6,Z czego przede wszystkim utrzymuje się Pan(i) obecnie? - Z oszczędności,CBOS_239_04_2010.sav
+q127,Ile wynoszą PANA(I) MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ)?,CBOS_314_07_2016.sav
+q130,A czy mógłby(mogłaby) Pan(i) podać przybliżone dochody MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ)?,CBOS_314_07_2016.sav
+q131,Ile wynoszą PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W PANA(I) GOSPODARSTWIE DOMOWYM?,CBOS_314_07_2016.sav
+q134,A czy mógłby(mogłaby) Pan(i) podać przybliżone PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W PANA(I) GOSPODARSTWIE?,CBOS_314_07_2016.sav
+q153i5,"Z czego utrzymuje się Pan(i) obecnie, niezależnie od tego, czy jest to główne czy też dodatkowe źródło utrzymania? Proszę wskazać wszystkie źródła Pana(i) utrzymania: korzystanie z oszczędności",CBOS_314_07_2016.sav
+q153i12,"Z czego utrzymuje się Pan(i) obecnie, niezależnie od tego, czy jest to główne czy też dodatkowe źródło utrzymania? Proszę wskazać wszystkie źródła Pana(i) utrzymania: dochody z inwestycji, lokat",CBOS_314_07_2016.sav
+q153i13,"Z czego utrzymuje się Pan(i) obecnie, niezależnie od tego, czy jest to główne czy też dodatkowe źródło utrzymania? Proszę wskazać wszystkie źródła Pana(i) utrzymania: dochody z wynajmu lokalu, domu",CBOS_314_07_2016.sav
+q129,"Ile wynoszą Pana(i) miesięczne dochody NETTO (na rękę)? Proszę wziąć pod uwagę Pana(i) dochody z pracy głównej wraz z premiami, nagrodami, dodatkami, dochody z prac dodatkowych, także dorywczych, renty i emerytury, stypendia oraz inne dodatkowe do...",CBOS_233_10_2009.sav
+q131,"M14_D. A czy mógłby(mogłaby) Pan(i) podać przybliżone dochody? Proszę spojrzeć na ekran. Czy mógłby(mogłaby) Pan(i) wskazać, w którym przedziale mieszczą się Pana(i) miesięcznie dochody netto?",CBOS_233_10_2009.sav
+q134,"M15_D. A czy mógłby(mogłaby) Pan(i) podać przybliżone dochody? Proszę spojrzeć na ekran. Czy mógłby(mogłaby) Pan(i) wskazać, w którym przedziale mieszczą się przeciętne miesięczne dochody NETTO przypadające na jedną osobę w Pana(i) gospodarstwie domowy...",CBOS_233_10_2009.sav
+q147,Ile wynoszą PANA(I) MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ)?,CBOS_318_11_2016.sav
+q150,A czy mógłby(mogłaby) Pan(i) podać przybliżone dochody MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ)?,CBOS_318_11_2016.sav
+q151,Ile wynoszą PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W PANA(I) GOSPODARSTWIE DOMOWYM?,CBOS_318_11_2016.sav
+q154,A czy mógłby(mogłaby) Pan(i) podać przybliżone PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W PANA(I) GOSPODARSTWIE?,CBOS_318_11_2016.sav
+q152,Ile wynoszą PANA(I) MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ)?,CBOS_316_09_2016.sav
+q155,A czy mógłby(mogłaby) Pan(i) podać przybliżone dochody MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ)?,CBOS_316_09_2016.sav
+q156,Ile wynoszą PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W PANA(I) GOSPODARSTWIE DOMOWYM?,CBOS_316_09_2016.sav
+q159,A czy mógłby(mogłaby) Pan(i) podać przybliżone PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W PANA(I) GOSPODARSTWIE?,CBOS_316_09_2016.sav
+q23,"Czy dochody i materialny poziom życia Pana(i) i Pana(i) rodziny są obecnie lepsze czy gorsze...  - niż 10 lat temu, pod koniec lat 80-tych?",CBOS_110_07_1999.sav
+q24,Czy dochody i materialny poziom życia Pana(i) i Pana(i) rodziny są obecnie lepsze czy gorsze...  - niż 5 lat temu?,CBOS_110_07_1999.sav
+q25,Czy dochody i materialny poziom życia Pana(i) i Pana(i) rodziny są obecnie lepsze czy gorsze...  - niż 2 lata temu?,CBOS_110_07_1999.sav
+q26,Czy dochody i materialny poziom życia Pana(i) i Pana(i) rodziny są obecnie lepsze czy gorsze...  - niż rok temu?,CBOS_110_07_1999.sav
+q27,"Myśląc nie o sobie, lecz o całym społeczeństwie, czy sądzi Pan(i), że dochody i materialny poziom życia większości Polaków są obecnie lepsze czy gorsze ...  - niż 10 lat temu, pod koniec lat 80-tych?",CBOS_110_07_1999.sav
+q28,"Myśląc nie o sobie, lecz o całym społeczeństwie, czy sądzi Pan(i), że dochody i materialny poziom życia większości Polaków są obecnie lepsze czy gorsze ...  - niż 5 lat temu?",CBOS_110_07_1999.sav
+q29,"Myśląc nie o sobie, lecz o całym społeczeństwie, czy sądzi Pan(i), że dochody i materialny poziom życia większości Polaków są obecnie lepsze czy gorsze ...  - niż 2 lata temu?",CBOS_110_07_1999.sav
+q30,"Myśląc nie o sobie, lecz o całym społeczeństwie, czy sądzi Pan(i), że dochody i materialny poziom życia większości Polaków są obecnie lepsze czy gorsze ...  - niż rok temu?",CBOS_110_07_1999.sav
+q119,Czy dla oszczędności lub z powodu wyższych cen musiał(a) Pan(i) w ciągu ostatnich 30 dni kupować któryś z wymienionych produktów tańszego gatunku niż kupowany poprzednio? - Pieczywo,CBOS_173_10_2004.sav
+q120,"Czy dla oszczędności lub z powodu wyższych cen musiał(a) Pan(i) w ciągu ostatnich 30 dni kupować któryś z wymienionych produktów tańszego gatunku niż kupowany poprzednio? - Makaron, mąka, kasza i inne wyroby mączne",CBOS_173_10_2004.sav
+q121,Czy dla oszczędności lub z powodu wyższych cen musiał(a) Pan(i) w ciągu ostatnich 30 dni kupować któryś z wymienionych produktów tańszego gatunku niż kupowany poprzednio? - Mięso i wędliny,CBOS_173_10_2004.sav
+q122,"Czy dla oszczędności lub z powodu wyższych cen musiał(a) Pan(i) w ciągu ostatnich 30 dni kupować któryś z wymienionych produktów tańszego gatunku niż kupowany poprzednio? - Nabiał (mleko, masło, sery, jajka)",CBOS_173_10_2004.sav
+q123,Czy dla oszczędności lub z powodu wyższych cen musiał(a) Pan(i) w ciągu ostatnich 30 dni kupować któryś z wymienionych produktów tańszego gatunku niż kupowany poprzednio? - Cukier i wyroby cukiernicze,CBOS_173_10_2004.sav
+q124,"Czy dla oszczędności lub z powodu wyższych cen musiał(a) Pan(i) w ciągu ostatnich 30 dni kupować któryś z wymienionych produktów tańszego gatunku niż kupowany poprzednio? - Tłuszcze roślinne (np. margaryna, olej)",CBOS_173_10_2004.sav
+q125,Czy dla oszczędności lub z powodu wyższych cen musiał(a) Pan(i) w ciągu ostatnich 30 dni kupować któryś z wymienionych produktów tańszego gatunku niż kupowany poprzednio? - Świeże warzywa i owoce,CBOS_173_10_2004.sav
+q126,Czy dla oszczędności lub z powodu wyższych cen musiał(a) Pan(i) w ciągu ostatnich 30 dni kupować któryś z wymienionych produktów tańszego gatunku niż kupowany poprzednio? - Przetwory warzywne i owocowe,CBOS_173_10_2004.sav
+q127,"Czy dla oszczędności lub z powodu wyższych cen musiał(a) Pan(i) w ciągu ostatnich 30 dni kupować któryś z wymienionych produktów tańszego gatunku niż kupowany poprzednio? - Napoje alkoholowe (wódka, wino, piwo)",CBOS_173_10_2004.sav
+q128,Czy dla oszczędności lub z powodu wyższych cen musiał(a) Pan(i) w ciągu ostatnich 30 dni kupować któryś z wymienionych produktów tańszego gatunku niż kupowany poprzednio? - Kawa i herbata,CBOS_173_10_2004.sav
+q129,Czy dla oszczędności lub z powodu wyższych cen musiał(a) Pan(i) w ciągu ostatnich 30 dni kupować któryś z wymienionych produktów tańszego gatunku niż kupowany poprzednio? - Benzyna lub olej napędowy,CBOS_173_10_2004.sav
+q130,Czy dla oszczędności lub z powodu wyższych cen musiał(a) Pan(i) w ciągu ostatnich 30 dni kupować któryś z wymienionych produktów tańszego gatunku niż kupowany poprzednio? - Środki higieny,CBOS_173_10_2004.sav
+q131,Czy dla oszczędności lub z powodu wyższych cen musiał(a) Pan(i) w ciągu ostatnich 30 dni kupować któryś z wymienionych produktów tańszego gatunku niż kupowany poprzednio? - Lekarstwa,CBOS_173_10_2004.sav
+q132,"Czy dla oszczędności lub z powodu wyższych cen musiał(a) Pan(i) w ciągu ostatnich 30 dni kupować któryś z wymienionych produktów tańszego gatunku niż kupowany poprzednio? - Gazety, czasopisma, książki",CBOS_173_10_2004.sav
+q133,Czy dla oszczędności lub z powodu wyższych cen musiał(a) Pan(i) w ciągu ostatnich 30 dni kupować któryś z wymienionych produktów tańszego gatunku niż kupowany poprzednio? - Papierosy,CBOS_173_10_2004.sav
+q55i2,"Gdzie przede wszystkim, Pana(i) zdaniem, rząd powinien starać się uzyskać pieniądze na pomoc dla osób dotkniętych skutkami powodzi? - Zaciągając kredyt zagraniczny",CBOS_241_06_2010.sav
+q39i6,"Ostatnio dużo mówi się o stanie budżetu państwa. Skąd, Pana(i) zdaniem, budżet państwa uzyskuje najwięcej pieniędzy? - Dochody jednostek budżetowych",CBOS_243_08_2010.sav
+q86,"LM6P. Czy uważa Pan(i), że obecnie dochody Pana(i) rodziny w porównaniu z przeciętnymi dochodami rodzin w Polsce są:",CBOS_243_08_2010.sav
+q131,"55C. Czy w poprzednim miesiącu, tzn. w kwietniu, Pan(i) i Pana(i) gospodarstwo domowe było zmuszone, czy też nie, ze względu na sytuację finansową - sięgać do oszczędności gotówkowych",CBOS_35_05_1993.sav
+q137,56. Czy w ciągu ostatniego roku miał(a) Pan(i) jakieś trudności w uiszczaniu opłat za: ... : - mieszkanie/dom,CBOS_35_05_1993.sav
+P22_9,Czy w minionym roku zaciągnął Pan(i) kredyt lub pożyczkę w banku lub innej instytucji finansowej,CBOS_212_01_2008.sav
+M18,Ile wynoszą Pana(i) miesięczne dochody NETTO (na rękę)? Proszę wziąć pod uwagę Pana(i) dochody z pracy głównej wraz,CBOS_212_01_2008.sav
+q109,W jaki sposób rozliczał(a) Pan(i) swoje dochody osobiste za rok 2009?,CBOS_240_05_2010.sav
+q172,"M14_2. A czy mógłby(mogłaby) Pan(i) podać przybliżone dochody? Czy mógłby(mogłaby) Pan(i) wskazać, w którym przedziale mieszczą się PANA(I) MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ)?",CBOS_240_05_2010.sav
+q175,"M16_2. A czy mógłby(mogłaby) Pan(i) podać przybliżone dochody? Czy mógłby(mogłaby) Pan(i) wskazać, w którym przedziale mieszczą się PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W PANA(I) GOSPODARSTWIE DOMOWYM.",CBOS_240_05_2010.sav
+P32_10,"A czy, niezależnie od swojej obecnej sytuacji finansowej, stara się Pan(i) na co dzień oszczędzać w ten sposób, że: 10) sam(a) wykonuje Pan(i) drobne naprawy w domu, remontuje mieszkanie, dom itp.",CBOS_201_02_2007.sav
+P38,"Czy Pana(i) gospodarstwo domowe ma jakieś oszczędności lub inne zasoby materialne, które można spieniężyć w razie potrzeby?",CBOS_201_02_2007.sav
+P39,"Jaka jest w przybliżeniu łączna wartość posiadanych przez Pana(i) gospodarstwo domowe oszczędności lub zasobów materialnych, które można spieniężyć w razie potrzeby? Proszę podać w przybliżeniu kwotę w złotych.",CBOS_201_02_2007.sav
+q73,"Ile wynoszą Pana(i) miesięczne dochody NETTO (na rękę)? Proszę wziąć pod uwagę Pana(i) dochody z pracy głównej wraz z premiami, nagrodami, dodatkami, dochody z prac dodatkowych, także dorywczych, renty i emerytury, stypendia oraz inne dodatkowe do...",CBOS_220_09_2008.sav.sav
+q25,"Czy ma Pan(i) jakieś oszczędności osobiste lub wspólne z innymi członkami Pana(i) gospodarstwa domowego w formie pieniędzy lub bonów, lokat bankowych, akcji lub obligacji itp.?",CBOS_117_02_2000.sav
+q26,Czy w ciągu ostatnich 30 dni oszczędności te zwiększyły się czy zmniejszyły?,CBOS_117_02_2000.sav
+L11q60,22.11. Czy w minionym roku zaciągnął(ęła) Pan(i) kredyt lub pożyczkę w banku lub innej instytucji finansowej?,CBOS_308_01_2016.sav
+q119,Ile wynoszą PANA(I) MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ)? ANKIETER: Poniżej wpisać podaną przez respondenta kwotę,CBOS_308_01_2016.sav
+q122,Ile wynoszą PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W PANA(I) GOSPODARSTWIE DOMOWYM?,CBOS_308_01_2016.sav
+q165,Według którego progu podatkowego rozlicza Pan(i) swoje dochody osobiste za rok 1998?,CBOS_107_04_1999.sav
+q431,"Czy Pan(i) i Pana(i) rodzina mieszka samodzielnie, czy dzieli mieszkanie z inną osobą lub rodziną?",CBOS_107_04_1999.sav
+q44s9,"Czy akceptuje Pan(i), czy też nie akceptuje takiej formy protestów społecznych jak: - happeningi, akcje mające na celu zwrócenie uwagi na jakiś problem społeczny",CBOS_265_06_2012.sav
+q87s9,"Z czego utrzymuje się Pan(i) obecnie, niezależnie od tego czy jest to główne czy też dodatkowe źródło utrzymania? Czy jest to: - dochody z inwestycji, lokat",CBOS_265_06_2012.sav
+q87s10,"Z czego utrzymuje się Pan(i) obecnie, niezależnie od tego czy jest to główne czy też dodatkowe źródło utrzymania? Czy jest to: - dochody z wynajmu lokalu, domu",CBOS_265_06_2012.sav
+q87s11,"Z czego utrzymuje się Pan(i) obecnie, niezależnie od tego czy jest to główne czy też dodatkowe źródło utrzymania? Czy jest to: - korzystanie z oszczędności",CBOS_265_06_2012.sav
+q99,Czy samochód jest do Pana(i) dyspozycji w razie potrzeby?,CBOS_265_06_2012.sav
+q82,W jaki sposób rozliczał(a) Pan(i) swoje dochody osobiste za rok 2008?,CBOS_228_05_2009.sav
+q106,"Ile wynoszą Pana(i) miesięczne dochody NETTO (na rękę)? Proszę wziąć pod uwagę Pana(i) dochody z pracy głównej wraz z premiami, nagrodami, dodatkami, dochody z prac dodatkowych, także dorywczych, renty i emerytury, stypendia oraz inne dodatkowe do...",CBOS_228_05_2009.sav
+q108,"M14_D. A czy mógłby(mogłaby) Pan(i) podać przybliżone dochody? Proszę spojrzeć na ekran. Czy mógłby(mogłaby) Pan(i) wskazać, w którym przedziale mieszczą się Pana(i) miesięcznie dochody netto?",CBOS_228_05_2009.sav
+q111,"M15_D. A czy mógłby(mogłaby) Pan(i) podać przybliżone dochody? Proszę spojrzeć na ekran. Czy mógłby(mogłaby) Pan(i) wskazać, w którym przedziale mieszczą się przeciętne miesięczne dochody NETTO przypadające na jedną osobę w Pana(i) gospodarstwie domowy...",CBOS_228_05_2009.sav
+q87,"M16_2. A czy mógłby(mogłaby) Pan(i) podać przybliżone dochody? Czy mógłby(mogłaby) Pan(i) wskazać, w którym przedziale mieszczą się PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W PANA(I) GOSPODARST...",CBOS_249_02_2011.sav
+q78s5,Z jakich produktów bankowych Pan(i) korzysta? Czy ma Pan(i): - zaciągnięty(ą) kredyt lub pożyczkę,CBOS_267_08_2012.sav
+q47s1,"Ludzie postępują w różny sposób. Przedstawię Panu(i) przykłady zachowań spotykanych w życiu społecznym i prywatnym. Proszę powie... - Ktoś prowadzi samochód na lekkim rauszu, po niewielkiej ilości alkoholu",CBOS_269_10_2012.sav
+q47s6,Ludzie postępują w różny sposób. Przedstawię Panu(i) przykłady zachowań spotykanych w życiu społecznym i prywatnym. Proszę powie... - Ktoś nie płaci czynszu za mieszkanie,CBOS_269_10_2012.sav
+q105,Czy zgadza się Pan(i) czy też nie zgadza z następującymi stwierdzeniami? - Dochody i bogactwo powinny być w większej mierze rozdzielone,CBOS_156_05_2003.sav
+q134,A czy swoje dochody osobiste za rok 2002 rozliczał(a) Pan(i):,CBOS_156_05_2003.sav
+q151,Według którego progu podatkowego rozlicza Pan(i) swoje dochody osobiste za rok 2002?,CBOS_156_05_2003.sav
+q117,"Czy uważa Pan(i), że obecnie dochody Pana(i) rodziny są:",CBOS_71_04_1996.sav
+q120,"Ile, według Pana(i), powinny wynosić miesięczne dochody na jedną osobę w Pana(i) rodzinie, aby można było:  żyć dostatnio, bez problemów finansowych - w tys. starych zł",CBOS_71_04_1996.sav
+q121,"Ile, według Pana(i), powinny wynosić miesięczne dochody na jedną osobę w Pana(i) rodzinie, aby można było: żyć na średnim poziomie - w tys. starych zł",CBOS_71_04_1996.sav
+q122,"Ile, według Pana(i), powinny wynosić miesięczne dochody na jedną osobę w Pana(i) rodzinie, aby można było: zaspokajać jedynie podstawowe potrzeby - w tys. starych zł",CBOS_71_04_1996.sav
+q125,Czy w ciągu ostatniego roku miał(a) Pan(i) jakieś trudności w uiszczaniu opłat za: ... : - mieszkanie/dom,CBOS_71_04_1996.sav
+q136,"Czy w poprzednim miesiącu, tzn. w marcu, Pan(i) i Pana(i) gospodarstwo domowe było zmuszone, czy też nie, ze względu na sytuację finansową: - sięgać do oszczędności gotówkowych",CBOS_71_04_1996.sav
+P40I,Czy z powodu wzrostu cen niektórych produktów w ciągu ostatnich trzech miesięcy ... I) uszczuplił(a) Pan(i) (uszuplili Państwo) swoje oszczędności,CBOS_219_08_2008.sav
+P64A,"Kiedy kupuje Pan(i) wymienione niżej urządzenia, to jak ważne jest dla Pana(i), aby były one energooszczędne lub oszczędnie zużywały paliwo? A) Samochód",CBOS_219_08_2008.sav
+q24,"Czy ma Pan(i) jakieś oszczędności osobiste lub wspólne z innymi członkami Pana(i) gospodarstwa domowego w formie pieniędzy lub bonów, lokat bankowych, akcji lub obligacji itp.?",CBOS_116_01_2000.sav
+q25,Czy w ciągu ostatnich 30 dni oszczędności te zwiększyły się czy zmniejszyły?,CBOS_116_01_2000.sav
+q219,"Proszę powiedzieć do której grupy dochodowej można zaliczyć Pana(i) miesięczne dochody netto. Jeżeli P. nie pracuje, to proszę podać dochód głównego żywiciela rodziny",CBOS_20_09_1991.sav
+q106,"45. Proszę powiedzieć, jaki to dom - jaki budynek? Czy jest to:",CBOS_157_06_2003.sav
+q165,"NM6P. Czy uważa Pan(i), że obecnie dochody Pana(i) rodziny w porównaniu z przeciętnymi dochodami rodzin w Polsce są:",CBOS_242_07_2010.sav
+q51s9,Czy w minionym roku: - zaciągnął Pan(i) kredyt lub pożyczkę w banku lub innej instytucji finansowej,CBOS_248_01_2011.sav
+q116,"M16_2. A czy mógłby(mogłaby) Pan(i) podać przybliżone dochody? Czy mógłby(mogłaby) Pan(i) wskazać, w którym przedziale mieszczą się PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W PANA(I) GOSPODARST...",CBOS_248_01_2011.sav
+q139,"Ile wynoszą Pana(i) miesięczne dochody NETTO (na rękę)? Proszę wziąć pod uwagę Pana(i) dochody z pracy głównej wraz z premiami, nagrodami, dodatkami, dochody z prac dodatkowych, także dorywczych, renty i emerytury, stypendia oraz inne dodatkowe do...",CBOS_229_06_2009.sav
+q141,"M14_D. A czy mógłby(mogłaby) Pan(i) podać przybliżone dochody? Proszę spojrzeć na ekran. Czy mógłby(mogłaby) Pan(i) wskazać, w którym przedziale mieszczą się Pana(i) miesięcznie dochody netto?",CBOS_229_06_2009.sav
+q144,"M15_D. A czy mógłby(mogłaby) Pan(i) podać przybliżone dochody? Proszę spojrzeć na ekran. Czy mógłby(mogłaby) Pan(i) wskazać, w którym przedziale mieszczą się przeciętne miesięczne dochody NETTO przypadające na jedną osobę w Pana(i) gospodarstwie domowy...",CBOS_229_06_2009.sav
+q54,W jaki sposób rozliczał(a) Pan(i) swoje dochody osobiste za rok 2011?,CBOS_264_05_2012.sav
+P52,"Ile średnio wynoszą w ZŁOTYCH Pana(i) miesięczne dochody uzyskiwane obecnie w Pana(i) głównej pracy? Proszę podać kwotę NETTO, a więc sumę pieniędzy uzyskiwanych „na rękę”.",CBOS_198_11_2006.sav
+P73_A,"Czy ma/mają Pan(i)/Państwo jakieś oszczędności lub inne zasoby materialne, które można spieniężyć w razie potrzeby? A) książeczka oszczędnościowa",CBOS_198_11_2006.sav
+P73_B,"Czy ma/mają Pan(i)/Państwo jakieś oszczędności lub inne zasoby materialne, które można spieniężyć w razie potrzeby? B) konto bankowe terminowe w złotówkach",CBOS_198_11_2006.sav
+P73_C,"Czy ma/mają Pan(i)/Państwo jakieś oszczędności lub inne zasoby materialne, które można spieniężyć w razie potrzeby? C) konto bankowe a vista (płatne na każde żądanie) w złotówkach, ROR",CBOS_198_11_2006.sav
+P73_D,"Czy ma/mają Pan(i)/Państwo jakieś oszczędności lub inne zasoby materialne, które można spieniężyć w razie potrzeby? D) bony lokacyjne",CBOS_198_11_2006.sav
+P73_E,"Czy ma/mają Pan(i)/Państwo jakieś oszczędności lub inne zasoby materialne, które można spieniężyć w razie potrzeby? E) walutowe konto bankowe terminowe",CBOS_198_11_2006.sav
+P73_F,"Czy ma/mają Pan(i)/Państwo jakieś oszczędności lub inne zasoby materialne, które można spieniężyć w razie potrzeby? F) walutowe konto bankowe a vista",CBOS_198_11_2006.sav
+P73_G,"Czy ma/mają Pan(i)/Państwo jakieś oszczędności lub inne zasoby materialne, które można spieniężyć w razie potrzeby? G) akcje firm notowanych na giełdzie",CBOS_198_11_2006.sav
+P73_H,"Czy ma/mają Pan(i)/Państwo jakieś oszczędności lub inne zasoby materialne, które można spieniężyć w razie potrzeby? H) obligacje skarbu państwa",CBOS_198_11_2006.sav
+P73_I,"Czy ma/mają Pan(i)/Państwo jakieś oszczędności lub inne zasoby materialne, które można spieniężyć w razie potrzeby? I) jednostki uczestnictwa w funduszu powierniczym",CBOS_198_11_2006.sav
+P73_J,"Czy ma/mają Pan(i)/Państwo jakieś oszczędności lub inne zasoby materialne, które można spieniężyć w razie potrzeby? J) indywidualna polisa ubezpieczenia na życie, np. PZU-Życie, Amplico Life, Commercial Union",CBOS_198_11_2006.sav
+P73_K,"Czy ma/mają Pan(i)/Państwo jakieś oszczędności lub inne zasoby materialne, które można spieniężyć w razie potrzeby? K) kosztowności",CBOS_198_11_2006.sav
+P73_L,"Czy ma/mają Pan(i)/Państwo jakieś oszczędności lub inne zasoby materialne, które można spieniężyć w razie potrzeby? L) gotówka (w złotych) w domu",CBOS_198_11_2006.sav
+P73_M,"Czy ma/mają Pan(i)/Państwo jakieś oszczędności lub inne zasoby materialne, które można spieniężyć w razie potrzeby? M) waluty w domu",CBOS_198_11_2006.sav
+P73_N,"Czy ma/mają Pan(i)/Państwo jakieś oszczędności lub inne zasoby materialne, które można spieniężyć w razie potrzeby? N) wartościowe przedmioty, które w razie potrzeby można spieniężyć, np. dzieła sztuki lub inne",CBOS_198_11_2006.sav
+P73_O,"Czy ma/mają Pan(i)/Państwo jakieś oszczędności lub inne zasoby materialne, które można spieniężyć w razie potrzeby? O) pieniądze ulokowane w nieruchomościach, mieszkaniach, które w razie potrzeby można sprzedać",CBOS_198_11_2006.sav
+P73_P,"Czy ma/mają Pan(i)/Państwo jakieś oszczędności lub inne zasoby materialne, które można spieniężyć w razie potrzeby? P) pieniądze ulokowane w ziemi, np. działce budowlanej, rekreacyjnej itp., które w razie potrzeby można sprzedać",CBOS_198_11_2006.sav
+P73_R,"Czy ma/mają Pan(i)/Państwo jakieś oszczędności lub inne zasoby materialne, które można spieniężyć w razie potrzeby? R) inne oszczędności (jakie?...)",CBOS_198_11_2006.sav
+P73_R_j,"Czy ma/mają Pan(i)/Państwo jakieś oszczędności lub inne zasoby materialne, które można spieniężyć w razie potrzeby? R) jakie?",CBOS_198_11_2006.sav
+P74_C,"Czy w poprzednim miesiącu, tzn. w październiku, Pan(i) i Pana(i) gospodarstwo domowe było zmuszone, czy też nie, ze względu na sytuację finansową: C) sięgać do oszczędności gotówkowych",CBOS_198_11_2006.sav
+P31_K,Czy zawdzięcza Pan(i) swojej babci lub dziadkowi: ... K) mieszkanie,CBOS_211_12_2007.sav
+P33,A może ma Pan(i) mieszkanie w mieście?,CBOS_194_07_2006.sav
+P40,"A może ma Pan(i) dom letniskowy, działkę na wsi lub w pobliżu wsi?",CBOS_194_07_2006.sav
+q110,"39. W ubiegłym roku  sprywatyzowano bank PKO BP, sprzedając akcje wielu indywidualnym obywatelom . Czy jest to, Pana (i) zdaniem, właściwy sposób prywatyzowania ważnych dla gospodarki przedsiębiorstw państwowych, czy też nie?",CBOS_176_01_2005.sav
+q85s9,"38. Jak Pan(i) sądzi, z czego będzie się Pan(i) utrzymywał(a) na stare lata? Czy będzie to: - dochody z inwestycji, lokat",CBOS_315_08_2016.sav
+q85s10,"38. Jak Pan(i) sądzi, z czego będzie się Pan(i) utrzymywał(a) na stare lata? Czy będzie to: - dochody z wynajmu lokalu, domu",CBOS_315_08_2016.sav
+q85s11,"38. Jak Pan(i) sądzi, z czego będzie się Pan(i) utrzymywał(a) na stare lata? Czy będzie to: - korzystanie z oszczędności",CBOS_315_08_2016.sav
+q133,Ile wynoszą PANA(I) MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ)?,CBOS_315_08_2016.sav
+q136,A czy mógłby(mogłaby) Pan(i) podać przybliżone dochody MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ)?,CBOS_315_08_2016.sav
+q137,Ile wynoszą PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W PANA(I) GOSPODARSTWIE DOMOWYM?,CBOS_315_08_2016.sav
+q140,A czy mógłby(mogłaby) Pan(i) podać przybliżone PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W PANA(I) GOSPODARSTWIE?,CBOS_315_08_2016.sav
+q158i5,"Z czego utrzymuje się Pan(i) obecnie, niezależnie od tego, czy jest to główne czy też dodatkowe źródło utrzymania? Proszę wskazać wszystkie źródła Pana(i) utrzymania: korzystanie z oszczędności",CBOS_315_08_2016.sav
+q158i12,"Z czego utrzymuje się Pan(i) obecnie, niezależnie od tego, czy jest to główne czy też dodatkowe źródło utrzymania? Proszę wskazać wszystkie źródła Pana(i) utrzymania: dochody z inwestycji, lokat",CBOS_315_08_2016.sav
+q158i13,"Z czego utrzymuje się Pan(i) obecnie, niezależnie od tego, czy jest to główne czy też dodatkowe źródło utrzymania? Proszę wskazać wszystkie źródła Pana(i) utrzymania: dochody z wynajmu lokalu, domu",CBOS_315_08_2016.sav
+q127,"Czy uważa Pan(i), że obecnie dochody Pana(i) rodziny są:",CBOS_143_04_2002.sav
+q128,"Ile, według Pana(i), powinny wynosić miesięczne dochody na jedną osobę w Pana(i) rodzinie, aby można było (w zł) : - żyć dostatnio, bez problemów finansowych.",CBOS_143_04_2002.sav
+q129,"Ile, według Pana(i), powinny wynosić miesięczne dochody na jedną osobę w Pana(i) rodzinie, aby można było (w zł) : - żyć na średnim poziomie.",CBOS_143_04_2002.sav
+q130,"Ile, według Pana(i), powinny wynosić miesięczne dochody na jedną osobę w Pana(i) rodzinie, aby można było (w zł) : - zaspokajać jedynie podstawowe potrzeby.",CBOS_143_04_2002.sav
+q138,Czy w ciągu ostatniego roku miał(a) Pan(i) jakieś trudności w uiszczaniu opłat za: ...  - mieszkanie/dom,CBOS_143_04_2002.sav
+q170i6,Z czego przede wszystkim utrzymuje się Pan(i) obecnie? Proszę wskazać nie więcej niż trzy możliwości. -Z oszczędności,CBOS_143_04_2002.sav
+q452,"Czy Pan(i) lub współmałżonek posiadacie oszczędności finansowe (lokatę, akcje, obligacje, tytuły uczestnictwa funduszu powierniczego, oszczędności w innej postaci)?",CBOS_143_04_2002.sav
+q72,"28. Czy uważa Pan(i), że obecnie dochody Pana(i) rodziny w porównaniu z przeciętnymi dochodami rodzin w Polsce są:",CBOS_325_06_2017.sav
+q83s9,"34. Jak opisał(a)by Pan(i) osobę ubogą, biedną? Czy, Pana(i) zdaniem, osoba uboga, biedna to ktoś, kto: - nie ma oszczędności",CBOS_325_06_2017.sav
+q165,Ile wynoszą P. MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ)? - zmienna pomocnicza,CBOS_325_06_2017.sav
+q169,Ile wynoszą PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W P. GOSPODARSTWIE DOMOWYM? - zmienna pomocnicza,CBOS_325_06_2017.sav
+q180,A czy swoje dochody osobiste za rok 2004 rozliczał(a) Pan(i):,CBOS_180_05_2005.sav
+q197,Według którego progu podatkowego rozlicza Pan(i) swoje dochody osobiste za rok 2004?,CBOS_180_05_2005.sav
+q136,M3b. Ile wynoszą P. MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ)? - zmienna pomocnicza,CBOS_329_10_2017.sav
+q139,Ile wynoszą PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W PANA(I) GOSPODARSTWIE DOMOWYM?,CBOS_329_10_2017.sav
+q140,M5b. Ile wynoszą PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W P. GOSPODARSTWIE DOMOWYM? - zmienna pomocnicza,CBOS_329_10_2017.sav
+q94,"43. Jak Pan(i) sądzi, gdyby była potrzeba przeznaczenia wszystkich Państwa oszczędności na bieżące utrzymanie i wydatki, jak długo byliby Państwo w stanie żyć ze zgromadzonych zasobów finansowych, nie obniżając dotychczasowego poziomu życia?",CBOS_327_08_2017.sav
+L20q100,47.20 Czy ma Pan(i) w swoim gospodarstwie domowym takie dobra i przedmioty jak:mieszkanie lub dom (na własność),CBOS_327_08_2017.sav
+q138,Ile wynoszą P. MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ)? - zmienna pomocnicza,CBOS_327_08_2017.sav
+q142,Ile wynoszą PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W P. GOSPODARSTWIE DOMOWYM? - zmienna pomocnicza,CBOS_327_08_2017.sav
+q181,"M19_2. A czy mógłby(mogłaby) Pan(i) podać przybliżone dochody? Czy mógłby(mogłaby) Pan(i) wskazać, w którym przedziale mieszczą się PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W PANA(I) GOSPODARST...",CBOS_255_08_2011.sav
+q143,Ile mniej więcej wydaje Pan(i) miesięcznie na mieszkanie oraz utrzymanie dzieci korzystających z internatu lub stancji?,CBOS_137_10_2001.sav
+q153,"Czy ma/mają Pan(i)/Państwo jakieś oszczędności lub inne zasoby materialne, które można spieniężyć w razie potrzeby? Czy jest(są) to: - książeczka oszczędnościowa",CBOS_137_10_2001.sav
+q154,"Czy ma/mają Pan(i)/Państwo jakieś oszczędności lub inne zasoby materialne, które można spieniężyć w razie potrzeby? Czy jest(są) to: - konto bankowe terminowe w złotówkach",CBOS_137_10_2001.sav
+q155,"Czy ma/mają Pan(i)/Państwo jakieś oszczędności lub inne zasoby materialne, które można spieniężyć w razie potrzeby? Czy jest(są) to: - konto bankowe a vista w złotówkach, ROR",CBOS_137_10_2001.sav
+q156,"Czy ma/mają Pan(i)/Państwo jakieś oszczędności lub inne zasoby materialne, które można spieniężyć w razie potrzeby? Czy jest(są) to: - bony lokacyjne",CBOS_137_10_2001.sav
+q157,"Czy ma/mają Pan(i)/Państwo jakieś oszczędności lub inne zasoby materialne, które można spieniężyć w razie potrzeby? Czy jest(są) to: - walutowe konto bankowe terminowe",CBOS_137_10_2001.sav
+q158,"Czy ma/mają Pan(i)/Państwo jakieś oszczędności lub inne zasoby materialne, które można spieniężyć w razie potrzeby? Czy jest(są) to: - walutowe konto bankowe a vista",CBOS_137_10_2001.sav
+q159,"Czy ma/mają Pan(i)/Państwo jakieś oszczędności lub inne zasoby materialne, które można spieniężyć w razie potrzeby? Czy jest(są) to: - akcje firm notowanych na giełdzie",CBOS_137_10_2001.sav
+q160,"Czy ma/mają Pan(i)/Państwo jakieś oszczędności lub inne zasoby materialne, które można spieniężyć w razie potrzeby? Czy jest(są) to: - obligacje skarbu państwa",CBOS_137_10_2001.sav
+q161,"Czy ma/mają Pan(i)/Państwo jakieś oszczędności lub inne zasoby materialne, które można spieniężyć w razie potrzeby? Czy jest(są) to: - jednostki uczestnictwa w funduszu powierniczym",CBOS_137_10_2001.sav
+q162,"Czy ma/mają Pan(i)/Państwo jakieś oszczędności lub inne zasoby materialne, które można spieniężyć w razie potrzeby? Czy jest(są) to: - indywidualna polisa ubezpieczenia na życie",CBOS_137_10_2001.sav
+q163,"Czy ma/mają Pan(i)/Państwo jakieś oszczędności lub inne zasoby materialne, które można spieniężyć w razie potrzeby? Czy jest(są) to: - kosztowności",CBOS_137_10_2001.sav
+q164,"Czy ma/mają Pan(i)/Państwo jakieś oszczędności lub inne zasoby materialne, które można spieniężyć w razie potrzeby? Czy jest(są) to: - gotówka (w złotych) w domu",CBOS_137_10_2001.sav
+q165,"Czy ma/mają Pan(i)/Państwo jakieś oszczędności lub inne zasoby materialne, które można spieniężyć w razie potrzeby? Czy jest(są) to: - waluty w domu",CBOS_137_10_2001.sav
+q166,"Czy ma/mają Pan(i)/Państwo jakieś oszczędności lub inne zasoby materialne, które można spieniężyć w razie potrzeby? Czy jest(są) to: - wartościowe przedmioty np. dzieła sztuki lub inne",CBOS_137_10_2001.sav
+q167,"Czy ma/mają Pan(i)/Państwo jakieś oszczędności lub inne zasoby materialne, które można spieniężyć w razie potrzeby? Czy jest(są) to: - pieniądze ulokowane w nieruchomościach",CBOS_137_10_2001.sav
+q168,"Czy ma/mają Pan(i)/Państwo jakieś oszczędności lub inne zasoby materialne, które można spieniężyć w razie potrzeby? Czy jest(są) to: - pieniądze ulokowane w ziemi np. działce budowlanej",CBOS_137_10_2001.sav
+q169,"Czy ma/mają Pan(i)/Państwo jakieś oszczędności lub inne zasoby materialne, które można spieniężyć w razie potrzeby? Czy jest(są) to: - inne oszczędności (jakie?",CBOS_137_10_2001.sav
+q194,"A czy, niezależnie od swojej obecnej sytuacji finansowej, stara się Pan(i) na co dzień oszczędzać w ten sposób, że: - sam wykonuje Pan(i) drobne naprawy w domu, remontuje mieszkanie",CBOS_137_10_2001.sav
+q198,"Czy w ciągu ostatnich 6 miesięcy zaciągnął(ęła) Pan(i) jakąś pożyczkę, kredyt lub kupił coś na raty? - Zaciągnąłe(a)m pożyczkę od rodziny, znajomych",CBOS_137_10_2001.sav
+q199,"Czy w ciągu ostatnich 6 miesięcy zaciągnął(ęła) Pan(i) jakąś pożyczkę, kredyt lub kupił coś na raty? - Wziąłe(a)m pożyczkę, kredyt z zakładu pracy",CBOS_137_10_2001.sav
+q200,"Czy w ciągu ostatnich 6 miesięcy zaciągnął(ęła) Pan(i) jakąś pożyczkę, kredyt lub kupił coś na raty? - Zaciągnąłe(a)m kredyt w banku",CBOS_137_10_2001.sav
+q201,"Czy w ciągu ostatnich 6 miesięcy zaciągnął(ęła) Pan(i) jakąś pożyczkę, kredyt lub kupił coś na raty? - Wziąłe(a)m pożyczkę, kredyt z firmy nie będącej bankiem",CBOS_137_10_2001.sav
+q202,"Czy w ciągu ostatnich 6 miesięcy zaciągnął(ęła) Pan(i) jakąś pożyczkę, kredyt lub kupił coś na raty? - Kupiłem coś na raty",CBOS_137_10_2001.sav
+q204,"Na co przeznaczył(a) Pan(i) pożyczone pieniądze, kredyt lub co kupił(a) na raty? Czy na:...  - zakup żywności",CBOS_137_10_2001.sav
+q205,"Na co przeznaczył(a) Pan(i) pożyczone pieniądze, kredyt lub co kupił(a) na raty? Czy na:...  - zakup ubrania [odzieży], butów",CBOS_137_10_2001.sav
+q206,"Na co przeznaczył(a) Pan(i) pożyczone pieniądze, kredyt lub co kupił(a) na raty? Czy na:...  - zakup mebli",CBOS_137_10_2001.sav
+q207,"Na co przeznaczył(a) Pan(i) pożyczone pieniądze, kredyt lub co kupił(a) na raty? Czy na:...  - zakup sprzętu gospodarstwa domowego: pralki, lodówki itp.",CBOS_137_10_2001.sav
+q208,"Na co przeznaczył(a) Pan(i) pożyczone pieniądze, kredyt lub co kupił(a) na raty? Czy na:...  - opłaty za mieszkanie, dom, gaz, elektryczność, telefon itp.",CBOS_137_10_2001.sav
+q209,"Na co przeznaczył(a) Pan(i) pożyczone pieniądze, kredyt lub co kupił(a) na raty? Czy na:...  - wydatki związane z leczeniem",CBOS_137_10_2001.sav
+q210,"Na co przeznaczył(a) Pan(i) pożyczone pieniądze, kredyt lub co kupił(a) na raty? Czy na:...  - wydatki związane z nauką szkolną, kształceniem",CBOS_137_10_2001.sav
+q211,"Na co przeznaczył(a) Pan(i) pożyczone pieniądze, kredyt lub co kupił(a) na raty? Czy na:...  - wydatki związane z życiem kulturalnym (zakup książek, czasopism, biletów do teatru, na koncert)",CBOS_137_10_2001.sav
+q212,"Na co przeznaczył(a) Pan(i) pożyczone pieniądze, kredyt lub co kupił(a) na raty? Czy na:...  - wydatki na rozrywki, przyjemności",CBOS_137_10_2001.sav
+q213,"Na co przeznaczył(a) Pan(i) pożyczone pieniądze, kredyt lub co kupił(a) na raty? Czy na:...  - zakup sprzętu telewizyjnego, magnetowidu, kamery",CBOS_137_10_2001.sav
+q214,"Na co przeznaczył(a) Pan(i) pożyczone pieniądze, kredyt lub co kupił(a) na raty? Czy na:...  - zakup sprzętu do słuchania muzyki",CBOS_137_10_2001.sav
+q215,"Na co przeznaczył(a) Pan(i) pożyczone pieniądze, kredyt lub co kupił(a) na raty? Czy na:...  - zakup sprzętu komputerowego, drukarki",CBOS_137_10_2001.sav
+q216,"Na co przeznaczył(a) Pan(i) pożyczone pieniądze, kredyt lub co kupił(a) na raty? Czy na:...  - wyjazd na urlop, wakacje",CBOS_137_10_2001.sav
+q217,"Na co przeznaczył(a) Pan(i) pożyczone pieniądze, kredyt lub co kupił(a) na raty? Czy na:...  - koszty rodzinnych uroczystości i wydarzeń",CBOS_137_10_2001.sav
+q218,"Na co przeznaczył(a) Pan(i) pożyczone pieniądze, kredyt lub co kupił(a) na raty? Czy na:...  - zakup samochodu",CBOS_137_10_2001.sav
+q219,"Na co przeznaczył(a) Pan(i) pożyczone pieniądze, kredyt lub co kupił(a) na raty? Czy na:...  - zakup mieszkania, domu",CBOS_137_10_2001.sav
+q220,"Na co przeznaczył(a) Pan(i) pożyczone pieniądze, kredyt lub co kupił(a) na raty? Czy na:...  - zakup działki budowlanej, rekreacyjnej",CBOS_137_10_2001.sav
+q221,"Na co przeznaczył(a) Pan(i) pożyczone pieniądze, kredyt lub co kupił(a) na raty? Czy na:...  - na inne cele",CBOS_137_10_2001.sav
+q222,"Na co przeznaczył(a) Pan(i) pożyczone pieniądze, kredyt lub co kupił(a) na raty? Czy na:... na inne cele, jakie?",CBOS_137_10_2001.sav
+q224,"Jak Pan(i) sądzi, czy w tym miesiącu, tzn. w październiku dochody uzyskane w Pana(i) gospodarstwie domowym, wystarczą czy też nie wystarczą na bieżące potrzeby Pana(i) rodziny?",CBOS_137_10_2001.sav
+q103,"32. Czy, Pana(i) zdaniem, ….. w wyniku realizacji programu Balcerowicza: - Zarobki i dochody ludności",CBOS_8_09_1990.sav
+q123,37. Proszę każde z poniższych stwierdzeń ocenić na skali: - Akcje prywatyzowanych przedsiębiorstw państwowych powinny być sprzedawane zawsze najpierw ich pracownikom,CBOS_8_09_1990.sav
+q166,Ile wynoszą P. MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ)? - zmienna pomocnicza,CBOS_324_05_2017.sav
+DochOs,MIESIĘCZNE DOCHODY NETTO respondenta,CBOS_324_05_2017.sav
+q170,Ile wynoszą PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W P. GOSPODARSTWIE DOMOWYM? - zmienna pomocnicza,CBOS_324_05_2017.sav
+DochPC,PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W P. GOSPODARSTWIE DOMOWYM,CBOS_324_05_2017.sav
+q111i6org,63. Z czego przede wszystkim utrzymuje się Pan(i) obecnie? Proszę wskazać nie więcej niż trzy możliwości - Z oszczędności,CBOS_299_04_2015.sav
+P45D,"A co Pan(i) robi w tym celu? Czy: D) inwestuje Pan(i) na własną rękę w papiery wartościowe (akcje, obligacje)",CBOS_209_10_2007.sav
+P45E,A co Pan(i) robi w tym celu? Czy: E) inwestuje Pan(i) na własną rękę w nieruchomości lub przedmioty wartościowe,CBOS_209_10_2007.sav
+P46_4,"Jak Pan(i) sądzi, z czego będzie się Pan(i) utrzymywał(a), gdy osiągnie Pan(i) wiek emerytalny? Czy będzie/jest to: 04) korzystanie z oszczędności",CBOS_209_10_2007.sav
+P46_6,"Jak Pan(i) sądzi, z czego będzie się Pan(i) utrzymywał(a), gdy osiągnie Pan(i) wiek emerytalny? Czy będzie/jest to: 06) dochód z tego, co Pan(i) posiada (np. dochody z inwestycji, lokat, wynajmu lokalu, domu)",CBOS_209_10_2007.sav
+P30_D,Czy zgadza się Pan(i) czy też nie zgadza z następującymi stwierdzeniami? … D) Dochody i bogactwo powinny być bardziej równomiernie rozdzielone pomiędzy pracujących,CBOS_205_06_2007.sav
+P51_A_28,"Które z dóbr i przedmiotów znajdują się w posiadaniu Pana(i) gosp. domowego, a które z nich chcieliby Państwo mieć? 28) Samochód osobowy",CBOS_205_06_2007.sav
+P51_B_22,"[Jeśli respondent posiada dane dobro] Proszę powiedzieć, ile sztuk?  22) Dom mieszkalny",CBOS_205_06_2007.sav
+P51_B_28,"[Jeśli respondent posiada dane dobro] Proszę powiedzieć, ile sztuk?  28) Samochód osobowy",CBOS_205_06_2007.sav
+P51_B_29,"[Jeśli respondent posiada dane dobro] Proszę powiedzieć, ile sztuk?  29) Mieszkanie własnościowe, stanowiące własność",CBOS_205_06_2007.sav
+q127,M3b. Ile wynoszą P. MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ)? - zmienna pomocnicza,CBOS_331_12_2017.sav
+q130,Ile wynoszą PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W PANA(I) GOSPODARSTWIE DOMOWYM?,CBOS_331_12_2017.sav
+q131,M5b. Ile wynoszą PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W P. GOSPODARSTWIE DOMOWYM? - zmienna pomocnicza,CBOS_331_12_2017.sav
+P36,W jaki sposób rozliczał(a) Pan(i) swoje dochody osobiste za rok 2007?,CBOS_216_05_2008.sav
+P42,Według którego progu podatkowego rozliczał(a) Pan(i)/rozliczali Państwo swoje dochody osobiste za rok 2007? Czy:,CBOS_216_05_2008.sav
+q162,"46. Ile, według Pana(i), powinny wynosić miesięczne dochody na jedną osobę w Pana(i) rodzinie, aby można było (w tys. zł): - żyć dostatnio, bez problemów finansowych",CBOS_31_01_1993.sav
+q163,"46. Ile, według Pana(i), powinny wynosić miesięczne dochody na jedną osobę w Pana(i) rodzinie, aby można było (w tys. zł): - żyć na średnim poziomie",CBOS_31_01_1993.sav
+q164,"46. Ile, według Pana(i), powinny wynosić miesięczne dochody na jedną osobę w Pana(i) rodzinie, aby można było (w tys. zł): - zaspokajać jedynie podstawowe potrzeby",CBOS_31_01_1993.sav
+q167,48. Czy w ciągu ostatniego roku miał(a) Pan(i) jakieś trudności w uiszczaniu opłat za: ... : - mieszkanie/dom,CBOS_31_01_1993.sav
+q64s9,"Jak opisał(a)by Pan(i) osobę ubogą, biedną? Czy, Pana(i) zdaniem, osoba uboga, biedna to ktoś, kto:  ...  ? - nie ma oszczędności",CBOS_262_03_2012.sav
+q78i6,Z czego przede wszystkim utrzymuje się Pan(i) obecnie? -Z oszczędności,CBOS_262_03_2012.sav
+q56,Czy zamierza Pan(i) kupić akcje któregoś z prywatyzowanych przedsiębiorstw?,CBOS_11_12_1990.sav
+q217,Do której grupy dochodowej można zaliczyć miesięczne dochody netto głównego żywiciela rodziny?,CBOS_11_12_1990.sav
+q102,"31. Ile, według Pan(i), powinny wynosić miesięczne dochody Pana(i) rodziny, aby można było (w tys. zł) : - Żyć dostatnio, bez problemów finansowych",CBOS_22_11_1991.sav
+q103,"31. Ile, według Pan(i), powinny wynosić miesięczne dochody Pana(i) rodziny, aby można było (w tys. zł) : - Żyć na średnim poziomie",CBOS_22_11_1991.sav
+q104,"31. Ile, według Pan(i), powinny wynosić miesięczne dochody Pana(i) rodziny, aby można było (w tys. zł) : - Zaspakajać jedynie podstawowe potrzeby",CBOS_22_11_1991.sav
+q157,"Proszę powiedzieć do której grupy dochodowej można zaliczyć Pana(i) miesięczne dochody netto. Jeżeli P. nie pracuje, to proszę podać dochód głównego żywiciela rodziny",CBOS_22_11_1991.sav
+q422,Czy mają Państwo ... : - Samochód osobowy,CBOS_65_10_1995.sav
+q442,Czy mają Państwo ... : - Mieszkanie lub dom do wynajmowania,CBOS_65_10_1995.sav
+P39,A czy swoje dochody osobiste za rok 2006 rozliczał(a) Pan(i):,CBOS_204_05_2007.sav
+P45,Według którego progu podatkowego rozlicza Pan(i) swoje dochody osobiste za rok 2006?,CBOS_204_05_2007.sav
+q168,"49. Gdyby akcje dużego, polskiego przedsiębiorstwa chcieli kupić ….., to jaką ich część rząd powinien udostępnić do sprzedaży? - Amerykanie",CBOS_10_11_1990.sav
+q169,"49. Gdyby akcje dużego, polskiego przedsiębiorstwa chcieli kupić ….., to jaką ich część rząd powinien udostępnić do sprzedaży? - Niemcy",CBOS_10_11_1990.sav
+q170,"49. Gdyby akcje dużego, polskiego przedsiębiorstwa chcieli kupić ….., to jaką ich część rząd powinien udostępnić do sprzedaży? - Francuzi",CBOS_10_11_1990.sav
+q171,"49. Gdyby akcje dużego, polskiego przedsiębiorstwa chcieli kupić ….., to jaką ich część rząd powinien udostępnić do sprzedaży? - Rosjanie",CBOS_10_11_1990.sav
+q172,"49. Gdyby akcje dużego, polskiego przedsiębiorstwa chcieli kupić ….., to jaką ich część rząd powinien udostępnić do sprzedaży? - Żydzi",CBOS_10_11_1990.sav
+q173,"49. Gdyby akcje dużego, polskiego przedsiębiorstwa chcieli kupić ….., to jaką ich część rząd powinien udostępnić do sprzedaży? - Anglicy",CBOS_10_11_1990.sav
+q174,"49. Gdyby akcje dużego, polskiego przedsiębiorstwa chcieli kupić ….., to jaką ich część rząd powinien udostępnić do sprzedaży? - Japończycy",CBOS_10_11_1990.sav
+q176,50a. Czy kupując akcje kierował(ała)by się Pan(i):,CBOS_10_11_1990.sav
+q177,"50b. Proszę powiedzieć, z jakich powodów nie jest Pan(i) zainteresowany(a) kupieniem akcji? - Nie mam wystarczających oszczędności",CBOS_10_11_1990.sav
+q179,"50b. Proszę powiedzieć, z jakich powodów nie jest Pan(i) zainteresowany(a) kupieniem akcji? - Akcje polskich przedsiębiorstw bardzo długo nie będą przynosić zysków",CBOS_10_11_1990.sav
+q182,"50b. Proszę powiedzieć, z jakich powodów nie jest Pan(i) zainteresowany(a) kupieniem akcji? - Nie umiałbym ocenić sytuacji przedsiębiorstwa sprzedającego akcje",CBOS_10_11_1990.sav
+q183,"50b. Proszę powiedzieć, z jakich powodów nie jest Pan(i) zainteresowany(a) kupieniem akcji? - Akcje są dla ludzi posiadających dużo pieniędzy",CBOS_10_11_1990.sav
+q201,Do której grupy dochodowej można zaliczyć miesięczne dochody netto głównego żywiciela rodziny?,CBOS_10_11_1990.sav
+q145,M3b. Ile wynoszą P. MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ)? - zmienna pomocnicza,CBOS_330_11_2017.sav
+q148,Ile wynoszą PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W PANA(I) GOSPODARSTWIE DOMOWYM?,CBOS_330_11_2017.sav
+q82i6,45. Z czego przede wszystkim utrzymuje się Pan(i) obecnie: Z oszczędności,CBOS_310_03_2016.sav
+q94,"Z powodu kryzysu sytuacja budżetu państwa jest trudna. Czy, Pana(i) zdaniem, rząd Donalda Tuska szukając oszczędności powinien ograniczać wydatki na siły zbrojne:",CBOS_232_09_2009.sav
+q118,"Ile wynoszą Pana(i) miesięczne dochody NETTO (na rękę)? Proszę wziąć pod uwagę Pana(i) dochody z pracy głównej wraz z premiami, nagrodami, dodatkami, dochody z prac dodatkowych, także dorywczych, renty i emerytury, stypendia oraz inne dodatkowe do...",CBOS_232_09_2009.sav
+q120,"M14_D. A czy mógłby(mogłaby) Pan(i) podać przybliżone dochody? Proszę spojrzeć na ekran. Czy mógłby(mogłaby) Pan(i) wskazać, w którym przedziale mieszczą się Pana(i) miesięcznie dochody netto?",CBOS_232_09_2009.sav
+q123,"M15_D. A czy mógłby(mogłaby) Pan(i) podać przybliżone dochody? Proszę spojrzeć na ekran. Czy mógłby(mogłaby) Pan(i) wskazać, w którym przedziale mieszczą się przeciętne miesięczne dochody NETTO przypadające na jedną osobę w Pana(i) gospodarstwie domowy...",CBOS_232_09_2009.sav
+q122,Czy dla oszczędności lub z powodu wyższych cen musiał(a) Pan(i) w ciągu ostatnich 30 dni kupować któryś z wymienionych produktów tańszego gatunku? - Pieczywo,CBOS_170_07_2004.sav
+q123,"Czy dla oszczędności lub z powodu wyższych cen musiał(a) Pan(i) w ciągu ostatnich 30 dni kupować któryś z wymienionych produktów tańszego gatunku? - Makaron, mąka, kasza i inne wyroby mączne",CBOS_170_07_2004.sav
+q124,Czy dla oszczędności lub z powodu wyższych cen musiał(a) Pan(i) w ciągu ostatnich 30 dni kupować któryś z wymienionych produktów tańszego gatunku? - Mięso i wędliny,CBOS_170_07_2004.sav
+q125,"Czy dla oszczędności lub z powodu wyższych cen musiał(a) Pan(i) w ciągu ostatnich 30 dni kupować któryś z wymienionych produktów tańszego gatunku? - Nabiał (mleko, masło, sery, jajka)",CBOS_170_07_2004.sav
+q126,Czy dla oszczędności lub z powodu wyższych cen musiał(a) Pan(i) w ciągu ostatnich 30 dni kupować któryś z wymienionych produktów tańszego gatunku? - Cukier i wyroby cukiernicze,CBOS_170_07_2004.sav
+q127,"Czy dla oszczędności lub z powodu wyższych cen musiał(a) Pan(i) w ciągu ostatnich 30 dni kupować któryś z wymienionych produktów tańszego gatunku? - Tłuszcze roślinne (np. margaryna, olej, oliwa)",CBOS_170_07_2004.sav
+q128,Czy dla oszczędności lub z powodu wyższych cen musiał(a) Pan(i) w ciągu ostatnich 30 dni kupować któryś z wymienionych produktów tańszego gatunku? - Świeże warzywa i owoce,CBOS_170_07_2004.sav
+q129,Czy dla oszczędności lub z powodu wyższych cen musiał(a) Pan(i) w ciągu ostatnich 30 dni kupować któryś z wymienionych produktów tańszego gatunku? - Przetwory warzywne i owocowe,CBOS_170_07_2004.sav
+q130,"Czy dla oszczędności lub z powodu wyższych cen musiał(a) Pan(i) w ciągu ostatnich 30 dni kupować któryś z wymienionych produktów tańszego gatunku? - Napoje alkoholowe (wódka, wino, piwo)",CBOS_170_07_2004.sav
+q131,Czy dla oszczędności lub z powodu wyższych cen musiał(a) Pan(i) w ciągu ostatnich 30 dni kupować któryś z wymienionych produktów tańszego gatunku? - Kawa i herbata,CBOS_170_07_2004.sav
+q132,Czy dla oszczędności lub z powodu wyższych cen musiał(a) Pan(i) w ciągu ostatnich 30 dni kupować któryś z wymienionych produktów tańszego gatunku? - Benzyna lub olej napędowy,CBOS_170_07_2004.sav
+q133,Czy dla oszczędności lub z powodu wyższych cen musiał(a) Pan(i) w ciągu ostatnich 30 dni kupować któryś z wymienionych produktów tańszego gatunku? - Środki higieny,CBOS_170_07_2004.sav
+q134,Czy dla oszczędności lub z powodu wyższych cen musiał(a) Pan(i) w ciągu ostatnich 30 dni kupować któryś z wymienionych produktów tańszego gatunku? - Lekarstwa,CBOS_170_07_2004.sav
+q135,"Czy dla oszczędności lub z powodu wyższych cen musiał(a) Pan(i) w ciągu ostatnich 30 dni kupować któryś z wymienionych produktów tańszego gatunku? - Gazety, czasopisma, książki",CBOS_170_07_2004.sav
+q136,Czy dla oszczędności lub z powodu wyższych cen musiał(a) Pan(i) w ciągu ostatnich 30 dni kupować któryś z wymienionych produktów tańszego gatunku? - Papierosy,CBOS_170_07_2004.sav
+q109,"32. Ile, według Pana(i), powinny wynosić miesięczne dochody na jedną osobę w Pana(i)  rodzinie, aby można było: - zapewnić utrzymanie na podstawowym poziomie",CBOS_113_10_1999.sav
+q110,"32. Ile, według Pana(i), powinny wynosić miesięczne dochody na jedną osobę w Pana(i)  rodzinie, aby można było: - zapewnić właściwy, ""przyzwoity"" poziom życia",CBOS_113_10_1999.sav
+q111,Czy w ciągu ostatniego roku miał(a) Pan(i) jakieś trudności w uiszczaniu opłat za :.  - mieszkanie/dom,CBOS_113_10_1999.sav
+q115,"Czy ma/mają  Pan(i)/Państwo jakieś oszczędności (lub inne zasoby materialne, które można spieniężyć w razie potrzeby)? - książeczka oszczędnościowa",CBOS_113_10_1999.sav
+q116,"Czy ma/mają  Pan(i)/Państwo jakieś oszczędności (lub inne zasoby materialne, które można spieniężyć w razie potrzeby)? - konto bankowe terminowe w złotówkach",CBOS_113_10_1999.sav
+q117,"Czy ma/mają  Pan(i)/Państwo jakieś oszczędności (lub inne zasoby materialne, które można spieniężyć w razie potrzeby)? - konto bankowe a vista (płatne na każde żądanie) w złotówkach",CBOS_113_10_1999.sav
+q118,"Czy ma/mają  Pan(i)/Państwo jakieś oszczędności (lub inne zasoby materialne, które można spieniężyć w razie potrzeby)? - bony lokacyjne",CBOS_113_10_1999.sav
+q119,"Czy ma/mają  Pan(i)/Państwo jakieś oszczędności (lub inne zasoby materialne, które można spieniężyć w razie potrzeby)? - walutowe konto bankowe terminowe",CBOS_113_10_1999.sav
+q120,"Czy ma/mają  Pan(i)/Państwo jakieś oszczędności (lub inne zasoby materialne, które można spieniężyć w razie potrzeby)? - walutowe konto bankowe a vista",CBOS_113_10_1999.sav
+q121,"Czy ma/mają  Pan(i)/Państwo jakieś oszczędności (lub inne zasoby materialne, które można spieniężyć w razie potrzeby)? - akcje firm notowanych na giełdzie",CBOS_113_10_1999.sav
+q123,"Czy ma/mają  Pan(i)/Państwo jakieś oszczędności (lub inne zasoby materialne, które można spieniężyć w razie potrzeby)? - jednostki uczestnictwa w funduszu powierniczym",CBOS_113_10_1999.sav
+q124,"Czy ma/mają  Pan(i)/Państwo jakieś oszczędności (lub inne zasoby materialne, które można spieniężyć w razie potrzeby)? - indywidualna polisa ubezpieczenia na życie, np. PZU-Życie, Amplico Life, Commercial Union",CBOS_113_10_1999.sav
+q125,"Czy ma/mają  Pan(i)/Państwo jakieś oszczędności (lub inne zasoby materialne, które można spieniężyć w razie potrzeby)? - kosztowności",CBOS_113_10_1999.sav
+q127,"Czy ma/mają  Pan(i)/Państwo jakieś oszczędności (lub inne zasoby materialne, które można spieniężyć w razie potrzeby)? - waluty w domu",CBOS_113_10_1999.sav
+q128,"Czy ma/mają  Pan(i)/Państwo jakieś oszczędności (lub inne zasoby materialne, które można spieniężyć w razie potrzeby)? - wartościowe przedmioty, które w razie potrzeby można spieniężyć, np. dzieła sztuki lub inne",CBOS_113_10_1999.sav
+q129,"Czy ma/mają  Pan(i)/Państwo jakieś oszczędności (lub inne zasoby materialne, które można spieniężyć w razie potrzeby)? - pieniądze ulokowane w nieruchomościach, mieszkaniach, które w razie potrzeby można sprzedać",CBOS_113_10_1999.sav
+q130,"Czy ma/mają  Pan(i)/Państwo jakieś oszczędności (lub inne zasoby materialne, które można spieniężyć w razie potrzeby)? - pieniądze ulokowane w ziemi (działce budowlanej, rekreacyjnej itp.), które w razie potrzeby można sprzedać",CBOS_113_10_1999.sav
+q131,"Czy ma/mają  Pan(i)/Państwo jakieś oszczędności (lub inne zasoby materialne, które można spieniężyć w razie potrzeby)? - inne oszczędności",CBOS_113_10_1999.sav
+q136,"Czy w ciągu ostatnich 6 miesięcy zaciągnął(ęła) Pan(i) jakąś pożyczkę, kredyt lub kupił coś na raty? - Zaciągnąłe(a)m pożyczkę od rodziny, przyjaciół, znajomych, sąsiadów",CBOS_113_10_1999.sav
+q137,"Czy w ciągu ostatnich 6 miesięcy zaciągnął(ęła) Pan(i) jakąś pożyczkę, kredyt lub kupił coś na raty? - Wziąłe(a)m pożyczkę, kredyt z zakładu pracy",CBOS_113_10_1999.sav
+q138,"Czy w ciągu ostatnich 6 miesięcy zaciągnął(ęła) Pan(i) jakąś pożyczkę, kredyt lub kupił coś na raty? - Zaciągnąłe(a)m kredyt w banku",CBOS_113_10_1999.sav
+q139,"Czy w ciągu ostatnich 6 miesięcy zaciągnął(ęła) Pan(i) jakąś pożyczkę, kredyt lub kupił coś na raty? - Kupiłem coś na raty",CBOS_113_10_1999.sav
+q141,"41. Na co przeznaczył(a) Pan(i) pożyczone pieniądze, kredyt lub co kupił(a) na raty? Czy na:...  - zakup żywności",CBOS_113_10_1999.sav
+q142,"41. Na co przeznaczył(a) Pan(i) pożyczone pieniądze, kredyt lub co kupił(a) na raty? Czy na:...  - zakup ubrania [odzieży], butów",CBOS_113_10_1999.sav
+q143,"41. Na co przeznaczył(a) Pan(i) pożyczone pieniądze, kredyt lub co kupił(a) na raty? Czy na:...  - zakup mebli",CBOS_113_10_1999.sav
+q144,"41. Na co przeznaczył(a) Pan(i) pożyczone pieniądze, kredyt lub co kupił(a) na raty? Czy na:...  - zakup sprzętu gospodarstwa domowego: pralki, lodówki itp.",CBOS_113_10_1999.sav
+q145,"41. Na co przeznaczył(a) Pan(i) pożyczone pieniądze, kredyt lub co kupił(a) na raty? Czy na:...  - opłaty za mieszkanie, dom, gaz, elektryczność, telefon itp.",CBOS_113_10_1999.sav
+q146,"41. Na co przeznaczył(a) Pan(i) pożyczone pieniądze, kredyt lub co kupił(a) na raty? Czy na:...  - wydatki związane z leczeniem",CBOS_113_10_1999.sav
+q147,"41. Na co przeznaczył(a) Pan(i) pożyczone pieniądze, kredyt lub co kupił(a) na raty? Czy na:...  - wydatki związane z nauką szkolną, kształceniem",CBOS_113_10_1999.sav
+q148,"41. Na co przeznaczył(a) Pan(i) pożyczone pieniądze, kredyt lub co kupił(a) na raty? Czy na:...  - wydatki związane z życiem kulturalnym (zakup książek, czasopism, biletów do teatru, na koncert)",CBOS_113_10_1999.sav
+q149,"41. Na co przeznaczył(a) Pan(i) pożyczone pieniądze, kredyt lub co kupił(a) na raty? Czy na:...  - wydatki na rozrywki, przyjemności",CBOS_113_10_1999.sav
+q150,"41. Na co przeznaczył(a) Pan(i) pożyczone pieniądze, kredyt lub co kupił(a) na raty? Czy na:...  - zakup sprzętu telewizyjnego, magnetowidu, kamery",CBOS_113_10_1999.sav
+q151,"41. Na co przeznaczył(a) Pan(i) pożyczone pieniądze, kredyt lub co kupił(a) na raty? Czy na:...  - zakup sprzętu do słuchania muzyki (np.radia, wieży stereo, odtwarzacza kompaktowego)",CBOS_113_10_1999.sav
+q152,"41. Na co przeznaczył(a) Pan(i) pożyczone pieniądze, kredyt lub co kupił(a) na raty? Czy na:...  - zakup sprzętu komputerowego, drukarki",CBOS_113_10_1999.sav
+q153,"41. Na co przeznaczył(a) Pan(i) pożyczone pieniądze, kredyt lub co kupił(a) na raty? Czy na:...  - wyjazd na urlop, wakacje",CBOS_113_10_1999.sav
+q154,"41. Na co przeznaczył(a) Pan(i) pożyczone pieniądze, kredyt lub co kupił(a) na raty? Czy na:...  - na koszty rodzinnych uroczystości i wydarzeń, np. ślubu, chrzcin, pogrzebu itp.",CBOS_113_10_1999.sav
+q155,"41. Na co przeznaczył(a) Pan(i) pożyczone pieniądze, kredyt lub co kupił(a) na raty? Czy na:...  - zakup samochodu",CBOS_113_10_1999.sav
+q156,"41. Na co przeznaczył(a) Pan(i) pożyczone pieniądze, kredyt lub co kupił(a) na raty? Czy na:...  - zakup mieszkania, domu",CBOS_113_10_1999.sav
+q157,"41. Na co przeznaczył(a) Pan(i) pożyczone pieniądze, kredyt lub co kupił(a) na raty? Czy na:...  - zakup działki budowlanej, rekreacyjnej",CBOS_113_10_1999.sav
+q158,"41. Na co przeznaczył(a) Pan(i) pożyczone pieniądze, kredyt lub co kupił(a) na raty? Czy na:...  - na inne cele",CBOS_113_10_1999.sav
+q159,"41. Na co przeznaczył(a) Pan(i) pożyczone pieniądze, kredyt lub co kupił(a) na raty? Czy na: - na inne cele (jakie?)",CBOS_113_10_1999.sav
+q95i6,50. Z czego przede wszystkim utrzymuje się P. obecnie? -Z oszczędności,CBOS_322_03_2017.sav
+q138,Ile wynoszą P. MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ)? - zmienna pomocnicza,CBOS_322_03_2017.sav
+DochOs,MIESIĘCZNE DOCHODY NETTO respondenta,CBOS_322_03_2017.sav
+q142,Ile wynoszą PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W P. GOSPODARSTWIE DOMOWYM? - zmienna pomocnicza,CBOS_322_03_2017.sav
+DochPC,PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W P. GOSPODARSTWIE DOMOWYM,CBOS_322_03_2017.sav
+q110,"Ile wynoszą Pana(i) miesięczne dochody NETTO (na rękę)? Proszę wziąć pod uwagę Pana(i) dochody z pracy głównej wraz z premiami, nagrodami, dodatkami, dochody z prac dodatkowych, także dorywczych, renty i emerytury, stypendia oraz inne dodatkowe do...",CBOS_230_07_2009.sav
+q112,"M14_D. A czy mógłby(mogłaby) Pan(i) podać przybliżone dochody? Proszę spojrzeć na ekran. Czy mógłby(mogłaby) Pan(i) wskazać, w którym przedziale mieszczą się Pana(i) miesięcznie dochody netto?",CBOS_230_07_2009.sav
+q115,"M15_D. A czy mógłby(mogłaby) Pan(i) podać przybliżone dochody? Proszę spojrzeć na ekran. Czy mógłby(mogłaby) Pan(i) wskazać, w którym przedziale mieszczą się przeciętne miesięczne dochody NETTO przypadające na jedną osobę w Pana(i) gospodarstwie domowy...",CBOS_230_07_2009.sav
+q128,"Czy dla oszczędności lub z powodu wyższych cen musiał(a) Pan(i) (musieli Państwo) w ciągu ostatnich 30 dni kupować któryś z wymienionych produktów tańszego gatunku, niż kupowany poprzednio? - Pieczywo",CBOS_172_09_2004.sav
+q129,"Czy dla oszczędności lub z powodu wyższych cen musiał(a) Pan(i) (musieli Państwo) w ciągu ostatnich 30 dni kupować któryś z wymienionych produktów tańszego gatunku, niż kupowany poprzednio? - Makaron, mąka, kasza i inne wyroby mączne",CBOS_172_09_2004.sav
+q130,"Czy dla oszczędności lub z powodu wyższych cen musiał(a) Pan(i) (musieli Państwo) w ciągu ostatnich 30 dni kupować któryś z wymienionych produktów tańszego gatunku, niż kupowany poprzednio? - Mięso i wędliny",CBOS_172_09_2004.sav
+q131,"Czy dla oszczędności lub z powodu wyższych cen musiał(a) Pan(i) (musieli Państwo) w ciągu ostatnich 30 dni kupować któryś z wymienionych produktów tańszego gatunku, niż kupowany poprzednio? - Nabiał (mleko, masło, sery, jajka)",CBOS_172_09_2004.sav
+q132,"Czy dla oszczędności lub z powodu wyższych cen musiał(a) Pan(i) (musieli Państwo) w ciągu ostatnich 30 dni kupować któryś z wymienionych produktów tańszego gatunku, niż kupowany poprzednio? - Cukier i wyroby cukiernicze",CBOS_172_09_2004.sav
+q133,"Czy dla oszczędności lub z powodu wyższych cen musiał(a) Pan(i) (musieli Państwo) w ciągu ostatnich 30 dni kupować któryś z wymienionych produktów tańszego gatunku, niż kupowany poprzednio? - Tłuszcze roślinne (np. margaryna, olej)",CBOS_172_09_2004.sav
+q134,"Czy dla oszczędności lub z powodu wyższych cen musiał(a) Pan(i) (musieli Państwo) w ciągu ostatnich 30 dni kupować któryś z wymienionych produktów tańszego gatunku, niż kupowany poprzednio? - Świeże warzywa i owoce",CBOS_172_09_2004.sav
+q135,"Czy dla oszczędności lub z powodu wyższych cen musiał(a) Pan(i) (musieli Państwo) w ciągu ostatnich 30 dni kupować któryś z wymienionych produktów tańszego gatunku, niż kupowany poprzednio? - Przetwory warzywne i owocowe",CBOS_172_09_2004.sav
+q136,"Czy dla oszczędności lub z powodu wyższych cen musiał(a) Pan(i) (musieli Państwo) w ciągu ostatnich 30 dni kupować któryś z wymienionych produktów tańszego gatunku, niż kupowany poprzednio? - Napoje alkoholowe (wódka, wino, piwo)",CBOS_172_09_2004.sav
+q137,"Czy dla oszczędności lub z powodu wyższych cen musiał(a) Pan(i) (musieli Państwo) w ciągu ostatnich 30 dni kupować któryś z wymienionych produktów tańszego gatunku, niż kupowany poprzednio? - Kawa i herbata",CBOS_172_09_2004.sav
+q138,"Czy dla oszczędności lub z powodu wyższych cen musiał(a) Pan(i) (musieli Państwo) w ciągu ostatnich 30 dni kupować któryś z wymienionych produktów tańszego gatunku, niż kupowany poprzednio? - Benzyna lub olej napędowy",CBOS_172_09_2004.sav
+q139,"Czy dla oszczędności lub z powodu wyższych cen musiał(a) Pan(i) (musieli Państwo) w ciągu ostatnich 30 dni kupować któryś z wymienionych produktów tańszego gatunku, niż kupowany poprzednio? - Środki higieny",CBOS_172_09_2004.sav
+q140,"Czy dla oszczędności lub z powodu wyższych cen musiał(a) Pan(i) (musieli Państwo) w ciągu ostatnich 30 dni kupować któryś z wymienionych produktów tańszego gatunku, niż kupowany poprzednio? - Lekarstwa",CBOS_172_09_2004.sav
+q141,"Czy dla oszczędności lub z powodu wyższych cen musiał(a) Pan(i) (musieli Państwo) w ciągu ostatnich 30 dni kupować któryś z wymienionych produktów tańszego gatunku, niż kupowany poprzednio? - Gazety, czasopisma, książki",CBOS_172_09_2004.sav
+q142,"Czy dla oszczędności lub z powodu wyższych cen musiał(a) Pan(i) (musieli Państwo) w ciągu ostatnich 30 dni kupować któryś z wymienionych produktów tańszego gatunku, niż kupowany poprzednio? - Papierosy",CBOS_172_09_2004.sav
+q158,Ile wynoszą PANA(I) MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ)?,CBOS_317_10_2016.sav
+q161,A czy mógłby(mogłaby) Pan(i) podać przybliżone dochody MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ)?,CBOS_317_10_2016.sav
+q162,Ile wynoszą PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W PANA(I) GOSPODARSTWIE DOMOWYM?,CBOS_317_10_2016.sav
+q165,A czy mógłby(mogłaby) Pan(i) podać przybliżone PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W PANA(I) GOSPODARSTWIE?,CBOS_317_10_2016.sav
+q137,"M19_2. A czy mógłby(mogłaby) Pan(i) podać przybliżone dochody? Czy mógłby(mogłaby) Pan(i) wskazać, w którym przedziale mieszczą się PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W PANA(I) GOSPODARST...",CBOS_257_10_2011.sav
+q426,Wróćmy jeszcze raz do Pana(i) sytuacji materialnej. Czy mógł(a)by Pan(i) powiedzieć jakie są Pana(i) własne dochody miesięczne? - brutto:,CBOS_135_08_2001.sav
+q427,Wróćmy jeszcze raz do Pana(i) sytuacji materialnej. Czy mógł(a)by Pan(i) powiedzieć jakie są Pana(i) własne dochody miesięczne? - netto:,CBOS_135_08_2001.sav
+q78,"16. Czy, Pana(i) zdaniem ….. w wyniku realizacji programu Balcerowicza: - Zarobki i dochody ludności",CBOS_6_06_1990.sav
+q61s2,A czy : - ma Pan(i) kredyt w euro,CBOS_250_03_2011.sav
+q69s10,Czy ma Pan(i) w swoim gospodarstwie domowym następujące dobra i przedmioty: - Samochód osobowy,CBOS_250_03_2011.sav
+q80i6,Z czego przede wszystkim utrzymuje się Pan(i) obecnie: Z oszczędności,CBOS_250_03_2011.sav
+q115,"M19_2. A czy mógłby(mogłaby) Pan(i) podać przybliżone dochody? Czy mógłby(mogłaby) Pan(i) wskazać, w którym przedziale mieszczą się PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W PANA(I) GOSPODARST...",CBOS_250_03_2011.sav
+q95,"Jak Pan(i) sądzi, gdyby była potrzeba przeznaczenia wszystkich Państwa oszczędności na bieżące utrzymanie i wydatki, jak długo byliby Państwo w stanie żyć ze zgromadzonych zasobów finansowych, nie obniżając dotychczasowego poziomu życia?",CBOS_286_03_2014.sav
+q107i6,Z czego przede wszystkim utrzymuje się Pan(i) obecnie? - Z oszczędności,CBOS_286_03_2014.sav

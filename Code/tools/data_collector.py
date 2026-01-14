@@ -5,9 +5,9 @@ import numpy as np
 import os
 
 RELEVANT_QUESTIONS = {
-    "age": ["W którym roku się Pan(i) urodził(a)?", "Rok urodzenia respondenta"],
-    "gender": ["płeć", "Płeć respondenta"],
-    "location": ["Województwo", "WOJEWÓDZTWO"],
+    "age": ["W którym roku się Pan(i) urodził(a)?", "Rok urodzenia"],
+    "gender": ["Płeć"],
+    "location": ["Województwo"],
     "city_size": [
         "Czy miejscowość, w której Pan(i) mieszka na stałe jest:"
     ],
@@ -67,9 +67,6 @@ RELEVANT_QUESTIONS = {
     ],
     "if_investing": [
       "Czy posiada Pan(i): - Akcje firm notowanych na giełdzie", "Czy posiada Pan(i): - Obligacje skarbu państwa", "Czy posiada Pan(i): - Jednostki uczestnictwa w funduszu powierniczym"
-    ],
-    "weight": [
-        "WAGA"
     ]
 }
 
