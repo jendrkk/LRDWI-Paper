@@ -1,30 +1,46 @@
 """
-GeoTERYT Database Module
-========================
+GeoTERYT Database Module - Version 3.0
+======================================
 
 A comprehensive database system for Polish administrative divisions (TERYT) 
 with full geometry support, historical tracking, and overlay operations.
 
-This module provides the GeoTERYTDatabase class that:
-- Stores all administrative divisions from 1999-2024 with their changes
-- Integrates geometry data from shapefiles (2005, 2011, 2012, 2017, etc.)
-- Provides search functionality by ID, name, year, level, and kind
-- Supports geometry operations (merging, best geometry selection)
-- Enables overlay operations (e.g., assign gminas to pre-1999 voivodeships)
+FIXES in v3.0:
+- Added display() method to TERYTRecord for nice DataFrame-like display
+- Added as_df() function to convert List[TERYTRecord] to DataFrame
+- Added old_woj and old_woj_id attributes for pre-1999 voivodeship assignment
+- Added save_complete() and load_complete_database() for full persistence with geometries
+- Fixed geometry loading for pre-2012 files (handles 'obszar' column with NUTS-like codes)
+- Historical TERYT IDs now properly displayed in get_unit_info()
+- All past_* attributes now properly shown
+
+FIXES in v2.0:
+- Properly parses 'notes' column from CSV (string to dict conversion using ast.literal_eval)
+- Correctly tracks changes by comparing year-over-year states
+- Adds past_levels tracking (e.g., rural -> urban-rural transitions)
+- Adds past_kinds tracking
+- Fixed get_changed_units() method to actually return changed units
+- Adds geometry clipping to Poland boundary (fixes Hel Peninsula water issue)
+- Improved change detection by comparing consecutive years
 
 Author: Generated for LRDWI-Paper project
 """
 
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple, Union, Any
+from typing import Dict, List, Optional, Tuple, Union, Any, Set
 import pandas as pd
 import numpy as np
 import geopandas as gpd
-from shapely.geometry import MultiPolygon, Polygon
+from shapely.geometry import MultiPolygon, Polygon, shape
 from shapely.ops import unary_union
+from shapely.validation import make_valid
+from shapely import wkb
 import warnings
 import re
 import os
+import ast
+import pickle
+from IPython.display import display, HTML
 
 
 # ==============================================================================
@@ -32,7 +48,6 @@ import os
 # ==============================================================================
 
 # Pre-1999 Polish voivodeships (49 voivodeships system, 1975-1998)
-# Maps voivodeship name to approximate centroid coordinates (EPSG:2180)
 PRE_1999_VOIVODESHIPS = {
     'biała podlaska': {'name': 'bialskopodlaskie', 'name_pl': 'Bialskopodlaskie'},
     'białystok': {'name': 'białostockie', 'name_pl': 'Białostockie'},
@@ -94,6 +109,17 @@ LEVEL_GMINA = 6
 # Codes 4 (town in urban-rural) and 5 (rural area in urban-rural) are sub-divisions
 RODZ_SUB_DIVISIONS = ['4', '5']
 
+# Kind mapping
+KIND_MAPPING = {
+    '1': 'urban',
+    '2': 'rural', 
+    '3': 'urban-rural',
+    '4': 'town',
+    '5': 'village',
+    '8': 'Warsaw district',
+    '9': 'delegatura'
+}
+
 
 # ==============================================================================
 # UTILITY FUNCTIONS
@@ -103,12 +129,16 @@ def nuts_code_to_teryt(nuts_code: str) -> str:
     """
     Converts a NUTS code to a TERYT code.
     
-    Parameters:
-    - nuts_code (str): The NUTS code.
-    
-    Returns:
-    - str: The corresponding TERYT code.
+    Used for pre-2012 geometry files that use NUTS-like codes in 'obszar' column.
+    Example: 'PL214102011' -> '1214010' (14 = woj, 21 = pow, 01 = gmi, 1 = rodz)
     """
+    if pd.isna(nuts_code) or nuts_code is None:
+        return '0000000'
+    
+    nuts_code = str(nuts_code).strip()
+    if len(nuts_code) < 7:
+        return '0000000'
+    
     k = 3
     gmina_id = nuts_code[-k:]
     powiat_id = nuts_code[-(k+2):-k]
@@ -116,41 +146,120 @@ def nuts_code_to_teryt(nuts_code: str) -> str:
         voivodeship_id = nuts_code[1:3]
     else:
         voivodeship_id = nuts_code[2:4]
-    teryt_code = voivodeship_id + powiat_id + gmina_id
-    return teryt_code
+    return voivodeship_id + powiat_id + gmina_id
 
 
 def teryt_to_short(teryt: str) -> str:
-    """
-    Converts a full 7-digit TERYT code to a 6-digit short version (without RODZ).
-    
-    Parameters:
-    - teryt (str): Full 7-digit TERYT code.
-    
-    Returns:
-    - str: 6-digit short TERYT (WOJ+POW+GMI).
-    """
+    """Converts a full 7-digit TERYT code to a 6-digit short version."""
     return str(teryt)[:6]
 
 
-def teryt_parent(teryt: str, level: int) -> str:
+def as_df(records: List['TERYTRecord'], include_geometry: bool = False) -> pd.DataFrame:
     """
-    Gets the parent TERYT code at a higher administrative level.
+    Convert a list of TERYTRecords to a pandas DataFrame.
     
     Parameters:
-    - teryt (str): TERYT code.
-    - level (int): Target level (2=voivodeship, 5=powiat).
+    - records: List of TERYTRecord objects
+    - include_geometry: If True, include geometry as WKT
     
     Returns:
-    - str: Parent TERYT code padded with zeros.
+    - pd.DataFrame with all record attributes
     """
-    teryt = str(teryt).zfill(7)
-    if level == LEVEL_VOIVODESHIP:
-        return teryt[:2] + "00000"
-    elif level == LEVEL_POWIAT:
-        return teryt[:4] + "000"
-    else:
-        return teryt
+    if not records:
+        return pd.DataFrame()
+    
+    data = []
+    for record in records:
+        row = record.to_dict()
+        if include_geometry and record.geometry is not None:
+            row['geometry_wkt'] = record.geometry.wkt
+        data.append(row)
+    
+    df = pd.DataFrame(data)
+    return df
+
+
+def parse_notes_column(notes_value) -> dict:
+    """
+    Parse the notes column which may be a dict, string representation of dict, or NaN.
+    
+    FIX: The notes column from CSV is saved as a string representation of a dict.
+    This function properly parses it back into a dict.
+    
+    Returns a dict with 'number_of_changes' and 'changes' keys.
+    """
+    if pd.isna(notes_value):
+        return {'number_of_changes': 0, 'changes': []}
+    
+    if isinstance(notes_value, dict):
+        return notes_value
+    
+    if isinstance(notes_value, str):
+        # Skip empty strings
+        if not notes_value.strip():
+            return {'number_of_changes': 0, 'changes': []}
+        
+        try:
+            # Try to parse as Python literal (handles dicts saved by repr())
+            parsed = ast.literal_eval(notes_value)
+            if isinstance(parsed, dict):
+                return parsed
+        except (ValueError, SyntaxError, RecursionError):
+            pass
+        
+        # Try JSON parsing as fallback
+        try:
+            import json
+            notes_value_json = notes_value.replace("'", '"')
+            return json.loads(notes_value_json)
+        except:
+            pass
+    
+    return {'number_of_changes': 0, 'changes': []}
+
+
+def safe_clip_geometry(geometry, clip_geometry):
+    """
+    Safely clip a geometry to another geometry, handling invalid geometries.
+    
+    Used to clip gmina geometries to Poland's land boundary (removes water areas).
+    """
+    if geometry is None or geometry.is_empty:
+        return geometry
+    
+    try:
+        # Make geometries valid
+        if not geometry.is_valid:
+            geometry = make_valid(geometry)
+        if not clip_geometry.is_valid:
+            clip_geometry = make_valid(clip_geometry)
+        
+        # Perform intersection
+        clipped = geometry.intersection(clip_geometry)
+        
+        if clipped.is_empty:
+            return geometry  # Return original if clipping results in empty
+        
+        # Ensure we return a Polygon or MultiPolygon
+        if clipped.geom_type == 'GeometryCollection':
+            # Extract polygons from collection
+            polys = []
+            for g in clipped.geoms:
+                if g.geom_type == 'Polygon':
+                    polys.append(g)
+                elif g.geom_type == 'MultiPolygon':
+                    polys.extend(g.geoms)
+            if polys:
+                if len(polys) == 1:
+                    clipped = polys[0]
+                else:
+                    clipped = MultiPolygon(polys)
+        
+        return clipped
+    except Exception as e:
+        # If clipping fails, return original
+        warnings.warn(f"Geometry clipping failed: {e}")
+        return geometry
 
 
 # ==============================================================================
@@ -161,30 +270,29 @@ class TERYTRecord:
     """
     Represents a single administrative division record with full metadata.
     
-    Attributes:
-    - teryt_id: 7-digit TERYT code (WOJ+POW+GMI+RODZ)
-    - name: Name of the division
-    - name_dod: Additional name/designation
-    - level: Administrative level (2, 5, or 6)
-    - kind: Type of division (urban, rural, urban-rural, etc.)
-    - years_valid: Set of years when this division existed with this ID
-    - past_names: List of previous names
-    - past_teryt_ids: List of previous TERYT IDs
-    - changes: List of change records
-    - geometry: Shapely geometry object (optional)
-    - geometry_year: Year of the geometry source
+    Tracks historical changes including:
+    - past_teryt_ids: All previous TERYT IDs this unit had
+    - past_names: All previous names
+    - past_levels: All previous administrative levels (NEW in v2.0)
+    - past_kinds: All previous kinds (urban, rural, etc.)
+    - changes: Detailed list of all changes with years
+    - old_woj: Pre-1999 voivodeship name (NEW in v3.0)
+    - old_woj_id: Pre-1999 voivodeship index (NEW in v3.0)
     """
     
     def __init__(self, teryt_id: str, name: str, name_dod: str = None,
                  level: int = None, kind: str = None):
         self.teryt_id = str(teryt_id).zfill(7)
+        self.nts_id = teryt_id[:-1] # NTS ID is TERYT without the last digit
         self.name = name
         self.name_dod = name_dod
         self.level = level
         self.kind = kind
-        self.years_valid: set = set()
-        self.past_names: List[str] = []
-        self.past_teryt_ids: List[str] = []
+        self.years_valid: Set[int] = set()
+        self.past_names: List[Tuple[str, int]] = []  # (name, year_until)
+        self.past_teryt_ids: List[Tuple[str, int]] = []  # (teryt_id, year_until)
+        self.past_levels: List[Tuple[int, int]] = []  # (level, year_until) - NEW
+        self.past_kinds: List[Tuple[str, int]] = []  # (kind, year_until)
         self.changes: List[dict] = []
         self.geometry = None
         self.geometry_year: Optional[int] = None
@@ -194,25 +302,56 @@ class TERYTRecord:
         self.pow = self.teryt_id[2:4]
         self.gmi = self.teryt_id[4:6]
         self.rodz = self.teryt_id[6]
+        
+        # Pre-1999 voivodeship assignment (NEW in v3.0)
+        self.old_woj: Optional[str] = None  # Name of pre-1999 voivodeship
+        self.old_woj_id: Optional[int] = None  # Index of pre-1999 voivodeship
+        
+        # Track if this unit underwent any changes
+        self.has_changes = False
     
     def add_year(self, year: int):
         """Add a year when this division was valid."""
         self.years_valid.add(year)
     
-    def add_past_name(self, name: str):
-        """Add a previous name if not already present."""
-        if name and name not in self.past_names and name != self.name:
-            self.past_names.append(name)
+    def add_past_name(self, name: str, year_until: int):
+        """Add a previous name with the year it was valid until."""
+        if name and name != self.name:
+            entry = (name, year_until)
+            if entry not in self.past_names:
+                self.past_names.append(entry)
+                self.has_changes = True
     
-    def add_past_teryt_id(self, teryt_id: str):
-        """Add a previous TERYT ID if not already present."""
+    def add_past_teryt_id(self, teryt_id: str, year_until: int):
+        """Add a previous TERYT ID with the year it was valid until."""
         teryt_id = str(teryt_id).zfill(7)
-        if teryt_id and teryt_id not in self.past_teryt_ids and teryt_id != self.teryt_id:
-            self.past_teryt_ids.append(teryt_id)
+        if teryt_id and teryt_id != self.teryt_id and teryt_id != '0000000':
+            entry = (teryt_id, year_until)
+            if entry not in self.past_teryt_ids:
+                self.past_teryt_ids.append(entry)
+                self.has_changes = True
+    
+    def add_past_level(self, level: int, year_until: int):
+        """Add a previous level with the year it was valid until."""
+        if level is not None and level != self.level:
+            entry = (int(level), year_until)
+            if entry not in self.past_levels:
+                self.past_levels.append(entry)
+                self.has_changes = True
+    
+    def add_past_kind(self, kind: str, year_until: int):
+        """Add a previous kind with the year it was valid until."""
+        if kind and kind != self.kind:
+            entry = (kind, year_until)
+            if entry not in self.past_kinds:
+                self.past_kinds.append(entry)
+                self.has_changes = True
     
     def add_change(self, change: dict):
         """Add a change record."""
-        self.changes.append(change)
+        if change not in self.changes:
+            self.changes.append(change)
+            self.has_changes = True
     
     def set_geometry(self, geometry, year: int):
         """Set the geometry and its source year."""
@@ -221,23 +360,38 @@ class TERYTRecord:
     
     @property
     def first_year(self) -> Optional[int]:
-        """First year this division existed."""
         return min(self.years_valid) if self.years_valid else None
     
     @property
     def last_year(self) -> Optional[int]:
-        """Last year this division existed."""
         return max(self.years_valid) if self.years_valid else None
     
     @property
     def has_geometry(self) -> bool:
-        """Check if geometry is available."""
         return self.geometry is not None
     
     @property
     def short_teryt(self) -> str:
-        """6-digit TERYT without RODZ."""
         return self.teryt_id[:6]
+    
+    @property
+    def all_teryt_ids(self) -> List[str]:
+        """Get all TERYT IDs this unit ever had (current + past)."""
+        ids = [self.teryt_id]
+        ids.extend([tid for tid, _ in self.past_teryt_ids])
+        return ids
+    
+    @property
+    def all_names(self) -> List[str]:
+        """Get all names this unit ever had (current + past)."""
+        names = [self.name]
+        names.extend([name for name, _ in self.past_names])
+        return list(set(names))
+    
+    @property
+    def n_changes(self) -> int:
+        """Total number of changes for this unit."""
+        return len(self.changes)
     
     def to_dict(self) -> dict:
         """Convert record to dictionary."""
@@ -256,13 +410,56 @@ class TERYTRecord:
             'last_year': self.last_year,
             'past_names': self.past_names,
             'past_teryt_ids': self.past_teryt_ids,
+            'past_levels': self.past_levels,
+            'past_kinds': self.past_kinds,
+            'all_teryt_ids': self.all_teryt_ids,
+            'all_names': self.all_names,
             'changes': self.changes,
+            'has_changes': self.has_changes,
+            'n_changes': self.n_changes,
             'has_geometry': self.has_geometry,
-            'geometry_year': self.geometry_year
+            'geometry_year': self.geometry_year,
+            'old_woj': self.old_woj,
+            'old_woj_id': self.old_woj_id
         }
     
+    def display(self):
+        """
+        Display this record in a nice DataFrame-like format (for Jupyter notebooks).
+        """
+        data = self.to_dict()
+        # Format some fields for better readability
+        formatted = {
+            'Field': [],
+            'Value': []
+        }
+        
+        for key, value in data.items():
+            formatted['Field'].append(key)
+            if isinstance(value, (list, set)):
+                if len(value) == 0:
+                    formatted['Value'].append('[]')
+                elif len(value) > 5:
+                    formatted['Value'].append(f'{str(value[:5])}... ({len(value)} items)')
+                else:
+                    formatted['Value'].append(str(value))
+            else:
+                formatted['Value'].append(str(value))
+        
+        df = pd.DataFrame(formatted)
+        try:
+            display(df)
+        except:
+            print(df.to_string(index=False))
+    
     def __repr__(self):
-        return f"TERYTRecord({self.teryt_id}, {self.name}, years={self.first_year}-{self.last_year})"
+        status = []
+        if self.has_changes:
+            status.append(f"changes={self.n_changes}")
+        if self.past_levels:
+            status.append(f"level_changes={len(self.past_levels)}")
+        status_str = ", ".join(status) if status else "no changes"
+        return f"TERYTRecord({self.teryt_id}, {self.name}, years={self.first_year}-{self.last_year}, {status_str})"
 
 
 # ==============================================================================
@@ -273,26 +470,12 @@ class GeoTERYTDatabase:
     """
     Comprehensive database for Polish administrative divisions with geometry support.
     
-    This class provides:
-    - Storage of all administrative divisions from 1999-2024
-    - Historical tracking (name changes, ID changes, structural changes)
-    - Geometry integration from multiple shapefile sources
-    - Search functionality (by ID, name, year, level, kind)
-    - Geometry operations (merging to higher levels, best geometry selection)
-    - Overlay operations (assign gminas to historical voivodeships)
-    
-    Usage:
-        db = GeoTERYTDatabase()
-        db.build_from_harmonized(mega_df)
-        db.load_geometries(gdf_list)
-        
-        # Search
-        divisions = db.get_divisions_by_year(2020, level=6)
-        history = db.get_unit_info('1461011')
-        
-        # Geometry operations
-        gdf = db.to_geodataframe(year=2020, level=6)
-        voivodeship_gdf = db.merge_to_level(year=2020, target_level=2)
+    Version 2.0 improvements:
+    - Properly parses notes column from CSV (string to dict conversion)
+    - Correctly tracks changes by comparing year-over-year states
+    - Tracks past_levels and past_kinds  
+    - Clips geometries to Poland boundary (fixes water area issues)
+    - Fixed get_changed_units() method
     """
     
     def __init__(self):
@@ -301,34 +484,54 @@ class GeoTERYTDatabase:
         self._records: Dict[str, TERYTRecord] = {}
         
         # Indices for fast lookup
-        self._by_year: Dict[int, set] = {}  # year -> set of teryt_ids
-        self._by_name: Dict[str, set] = {}  # lowercase name -> set of teryt_ids
-        self._by_level: Dict[int, set] = {}  # level -> set of teryt_ids
-        self._by_kind: Dict[str, set] = {}  # kind -> set of teryt_ids
-        self._by_voivodeship: Dict[str, set] = {}  # woj code -> set of teryt_ids
+        self._by_year: Dict[int, Set[str]] = {}
+        self._by_name: Dict[str, Set[str]] = {}
+        self._by_level: Dict[int, Set[str]] = {}
+        self._by_kind: Dict[str, Set[str]] = {}
+        self._by_voivodeship: Dict[str, Set[str]] = {}
         
-        # Geometry storage: {year: GeoDataFrame}
+        # Track ID changes: old_id -> new_id
+        self._id_transitions: Dict[str, str] = {}
+        
+        # Geometry storage
         self._geometries: Dict[int, gpd.GeoDataFrame] = {}
+        self._poland_boundary = None
         
         # Metadata
         self._year_range: Tuple[int, int] = (1999, 2024)
         self._crs = "EPSG:2180"
         self._built = False
     
-    # ==========================================================================
-    # DATABASE CONSTRUCTION
-    # ==========================================================================
+    def set_poland_boundary(self, boundary_gdf: gpd.GeoDataFrame):
+        """
+        Set the Poland boundary for clipping geometries.
+        
+        This removes water areas (like the Baltic Sea around Hel Peninsula).
+        
+        Parameters:
+        - boundary_gdf: GeoDataFrame with Poland's boundary (will use unary_union)
+        """
+        if boundary_gdf.crs != self._crs:
+            boundary_gdf = boundary_gdf.to_crs(self._crs)
+        self._poland_boundary = unary_union(boundary_gdf.geometry)
+        if not self._poland_boundary.is_valid:
+            self._poland_boundary = make_valid(self._poland_boundary)
     
     def build_from_harmonized(self, mega_df: pd.DataFrame, verbose: bool = True):
         """
         Build the database from a harmonized TERYT mega DataFrame.
         
+        FIXED: Now properly:
+        - Parses notes column from CSV string format
+        - Tracks changes by comparing consecutive years
+        - Records past_levels when a unit changes level (e.g., rural -> urban-rural)
+        
         Parameters:
-        - mega_df (pd.DataFrame): Output from harmonize_teryt() function.
-        - verbose (bool): Print progress information.
+        - mega_df: DataFrame from harmonize_teryt() or loaded from CSV
+        - verbose: Print progress messages
         """
         if verbose:
-            print("Building GeoTERYT database from harmonized data...")
+            print("Building GeoTERYT database v2.0 from harmonized data...")
         
         # Clear existing data
         self._records.clear()
@@ -337,71 +540,195 @@ class GeoTERYTDatabase:
         self._by_level.clear()
         self._by_kind.clear()
         self._by_voivodeship.clear()
+        self._id_transitions.clear()
         
-        # Get year range from data
         years = sorted(mega_df['year'].unique())
         self._year_range = (min(years), max(years))
         
-        # Group by final TERYT ID (use the latest valid ID for each unit)
-        # We need to track the evolution of each unit
+        # ======================================================================
+        # PASS 1: Collect all unit states by year
+        # ======================================================================
+        if verbose:
+            print("  Pass 1: Collecting unit states by year...")
         
-        total_rows = len(mega_df)
-        processed = 0
+        # Structure: teryt_id -> {year: {state data}}
+        unit_states = {}
         
         for year in years:
             year_data = mega_df[mega_df['year'] == year]
             
             for _, row in year_data.iterrows():
                 teryt_id = str(row.get('id', '')).zfill(7)
-                
-                # Skip invalid IDs
                 if teryt_id == '0000000' or len(teryt_id) != 7:
                     continue
                 
-                # Get or create record
-                if teryt_id not in self._records:
-                    self._records[teryt_id] = TERYTRecord(
-                        teryt_id=teryt_id,
-                        name=row.get('NAZWA', ''),
-                        name_dod=row.get('NAZWA_DOD', ''),
-                        level=row.get('level'),
-                        kind=row.get('kind')
-                    )
+                if teryt_id not in unit_states:
+                    unit_states[teryt_id] = {}
                 
-                record = self._records[teryt_id]
+                # Parse the notes column properly!
+                notes = parse_notes_column(row.get('notes'))
                 
-                # Add this year
+                unit_states[teryt_id][year] = {
+                    'name': row.get('NAZWA', row.get('name', '')),
+                    'name_dod': row.get('NAZWA_DOD', row.get('name_dod', '')),
+                    'level': row.get('level'),
+                    'kind': row.get('kind'),
+                    'if_changed': row.get('if_changed', False),
+                    'when_changed': row.get('when_changed'),
+                    'notes': notes
+                }
+        
+        if verbose:
+            print(f"    Found {len(unit_states)} unique TERYT IDs across all years")
+        
+        # ======================================================================
+        # PASS 2: Build records with proper change tracking
+        # ======================================================================
+        if verbose:
+            print("  Pass 2: Building records with change detection...")
+        
+        change_stats = {
+            'name_changes': 0,
+            'kind_changes': 0,
+            'level_changes': 0,
+            'notes_changes': 0
+        }
+        
+        for teryt_id, year_states in unit_states.items():
+            sorted_years = sorted(year_states.keys())
+            
+            # Use the latest state for the main record
+            latest_year = max(sorted_years)
+            latest_state = year_states[latest_year]
+            
+            record = TERYTRecord(
+                teryt_id=teryt_id,
+                name=latest_state['name'],
+                name_dod=latest_state['name_dod'],
+                level=latest_state['level'],
+                kind=latest_state['kind']
+            )
+            
+            # Track all years this unit existed
+            for year in sorted_years:
                 record.add_year(year)
+            
+            # Track changes by comparing consecutive years
+            prev_name = None
+            prev_level = None
+            prev_kind = None
+            is_first_year = True
+            
+            def values_differ(val1, val2):
+                """Compare two values, treating NaN/None as equal."""
+                if pd.isna(val1) and pd.isna(val2):
+                    return False
+                if pd.isna(val1) or pd.isna(val2):
+                    return True
+                return val1 != val2
+            
+            for year in sorted_years:
+                state = year_states[year]
+                current_name = state['name']
+                current_level = state['level']
+                current_kind = state['kind']
                 
-                # Update indices
+                # Skip NaN comparisons on first year
+                if not is_first_year:
+                    # Detect NAME changes
+                    if prev_name is not None and values_differ(current_name, prev_name):
+                        record.add_past_name(prev_name, year - 1)
+                        record.add_change({
+                            'year': year,
+                            'type': 'name_change',
+                            'from': prev_name,
+                            'to': current_name
+                        })
+                        change_stats['name_changes'] += 1
+                    
+                    # Detect LEVEL changes (e.g., from level 6 to level 5)
+                    # Only if both values are not NaN
+                    if prev_level is not None and not pd.isna(prev_level) and not pd.isna(current_level):
+                        if values_differ(current_level, prev_level):
+                            record.add_past_level(prev_level, year - 1)
+                            record.add_change({
+                                'year': year,
+                                'type': 'level_change',
+                                'from': prev_level,
+                                'to': current_level
+                            })
+                            change_stats['level_changes'] += 1
+                
+                # Detect KIND changes (e.g., rural -> urban-rural)
+                # Only if both values are not NaN
+                if not is_first_year and prev_kind is not None and not pd.isna(prev_kind) and not pd.isna(current_kind):
+                    if values_differ(current_kind, prev_kind):
+                        record.add_past_kind(prev_kind, year - 1)
+                        record.add_change({
+                            'year': year,
+                            'type': 'kind_change',
+                            'from': prev_kind,
+                            'to': current_kind
+                        })
+                        change_stats['kind_changes'] += 1
+                
+                # Also add changes from the notes column (from harmonization)
+                # Only add on the year the change actually happened to avoid duplicates
+                notes = state['notes']
+                when_changed = state.get('when_changed')
+                if notes and notes.get('number_of_changes', 0) > 0:
+                    # Only add notes changes if when_changed matches this year,
+                    # OR if when_changed is NaN and this is the first year
+                    should_add = False
+                    if when_changed is not None and not pd.isna(when_changed):
+                        if int(when_changed) == year:
+                            should_add = True
+                    elif is_first_year:
+                        # If no when_changed, add to first year only
+                        should_add = True
+                    
+                    if should_add:
+                        for change_desc in notes.get('changes', []):
+                            record.add_change({
+                                'year': year,
+                                'type': 'reform',
+                                'description': change_desc,
+                                'when_changed': when_changed
+                            })
+                            change_stats['notes_changes'] += 1
+                
+                # Also mark if_changed flag
+                if state.get('if_changed'):
+                    record.has_changes = True
+                
+                # Update previous values for next iteration
+                is_first_year = False
+                prev_name = current_name
+                prev_level = current_level
+                prev_kind = current_kind
+            
+            self._records[teryt_id] = record
+        
+        if verbose:
+            print(f"    Name changes detected: {change_stats['name_changes']}")
+            print(f"    Kind changes detected: {change_stats['kind_changes']}")
+            print(f"    Level changes detected: {change_stats['level_changes']}")
+            print(f"    Changes from notes: {change_stats['notes_changes']}")
+        
+        # ======================================================================
+        # PASS 3: Build indices
+        # ======================================================================
+        if verbose:
+            print("  Pass 3: Building indices...")
+        
+        for teryt_id, record in self._records.items():
+            # Year index
+            for year in record.years_valid:
                 if year not in self._by_year:
                     self._by_year[year] = set()
                 self._by_year[year].add(teryt_id)
-                
-                # Track name changes
-                current_name = row.get('NAZWA', '')
-                if current_name and current_name != record.name:
-                    record.add_past_name(current_name)
-                
-                # Track changes from notes
-                notes = row.get('notes', {})
-                if isinstance(notes, dict) and notes.get('changes'):
-                    for change in notes['changes']:
-                        change_dict = {
-                            'year': year,
-                            'description': change
-                        }
-                        if change_dict not in record.changes:
-                            record.add_change(change_dict)
-                
-                processed += 1
             
-            if verbose and year % 5 == 0:
-                print(f"  Processed year {year}...")
-        
-        # Build remaining indices
-        for teryt_id, record in self._records.items():
-            # Name index (lowercase)
+            # Name index
             name_lower = record.name.lower() if record.name else ''
             if name_lower:
                 if name_lower not in self._by_name:
@@ -422,42 +749,55 @@ class GeoTERYTDatabase:
                 self._by_kind[record.kind].add(teryt_id)
             
             # Voivodeship index
-            woj = record.woj
-            if woj not in self._by_voivodeship:
-                self._by_voivodeship[woj] = set()
-            self._by_voivodeship[woj].add(teryt_id)
+            if record.woj not in self._by_voivodeship:
+                self._by_voivodeship[record.woj] = set()
+            self._by_voivodeship[record.woj].add(teryt_id)
         
         self._built = True
         
+        # Summary statistics
+        units_with_changes = sum(1 for r in self._records.values() if r.has_changes)
+        units_with_level_changes = sum(1 for r in self._records.values() if r.past_levels)
+        units_with_kind_changes = sum(1 for r in self._records.values() if r.past_kinds)
+        
         if verbose:
-            print(f"Database built successfully!")
-            print(f"  Total records: {len(self._records)}")
+            print(f"\n✓ Database built successfully!")
+            print(f"  Total records: {len(self._records):,}")
             print(f"  Year range: {self._year_range[0]} - {self._year_range[1]}")
             print(f"  Voivodeships: {len(self._by_level.get(2, set()))}")
             print(f"  Powiats: {len(self._by_level.get(5, set()))}")
             print(f"  Gminas: {len(self._by_level.get(6, set()))}")
+            print(f"  Units with changes: {units_with_changes}")
+            print(f"  Units with level changes: {units_with_level_changes}")
+            print(f"  Units with kind changes: {units_with_kind_changes}")
     
     def load_geometries(self, gdf_dict: Dict[str, gpd.GeoDataFrame], 
                         teryt_column: str = 'teryt',
+                        clip_to_poland: bool = True,
                         verbose: bool = True):
         """
         Load geometries from a dictionary of GeoDataFrames.
         
+        FIXED in v3.0: Now handles pre-2012 files with 'obszar' column containing
+        NUTS-like codes that need to be converted to TERYT codes.
+        
         Parameters:
-        - gdf_dict (dict): Dictionary mapping year/key strings to GeoDataFrames.
-            Keys should contain 4-digit year (e.g., "2017_gminy", "2005_Obszary").
-        - teryt_column (str): Column name containing TERYT codes.
-        - verbose (bool): Print progress information.
+        - gdf_dict: Dictionary mapping year/key strings to GeoDataFrames
+        - teryt_column: Column name containing TERYT codes (tries 'teryt' then 'jpt_kod_je')
+        - clip_to_poland: If True and Poland boundary is set, clip geometries to land
+        - verbose: Print progress
         """
         if verbose:
-            print("Loading geometries into database...")
+            print("Loading geometries into database (v3.0)...")
+            if clip_to_poland and self._poland_boundary is not None:
+                print("  (Clipping to Poland boundary enabled)")
         
         for key, gdf in gdf_dict.items():
             # Extract year from key
-            match = re.search(r'\d{4}', key)
+            match = re.search(r'\d{4}', str(key))
             if not match:
                 if verbose:
-                    print(f"  Skipping {key}: no year found in key")
+                    print(f"  Skipping {key}: no year found")
                 continue
             
             year = int(match.group(0))
@@ -468,122 +808,119 @@ class GeoTERYTDatabase:
             # Ensure CRS
             if gdf.crs is None:
                 gdf = gdf.set_crs(self._crs)
-            elif gdf.crs.to_string() != self._crs:
+            elif str(gdf.crs) != self._crs:
                 gdf = gdf.to_crs(self._crs)
+            
+            # Standardize column names to lowercase for consistent matching
+            gdf.columns = [col.lower() for col in gdf.columns]
             
             # Store the GeoDataFrame
             self._geometries[year] = gdf.copy()
             
-            # Link geometries to records
-            if teryt_column in gdf.columns:
-                geometry_linked = 0
-                for _, row in gdf.iterrows():
-                    teryt = str(row[teryt_column]).zfill(7)
-                    
-                    # For older files, TERYT might be 6 digits (without RODZ)
-                    # Try to find matching records
-                    if len(teryt) == 6:
-                        teryt = teryt + '0'  # Try with RODZ=0
-                    
-                    if teryt in self._records:
-                        # Only update if no geometry or newer geometry
-                        record = self._records[teryt]
-                        if not record.has_geometry or year > record.geometry_year:
-                            record.set_geometry(row.geometry, year)
-                            geometry_linked += 1
-                    else:
-                        # Try matching with any RODZ
-                        short_teryt = teryt[:6]
-                        for teryt_id, record in self._records.items():
-                            if teryt_id[:6] == short_teryt:
-                                if not record.has_geometry or year > record.geometry_year:
-                                    record.set_geometry(row.geometry, year)
-                                    geometry_linked += 1
-                                    break
-                
+            # Find TERYT column or create it from 'obszar' (pre-2012 files)
+            actual_teryt_col = None
+            needs_conversion = False
+            
+            # Check for standard TERYT columns first
+            for col in [teryt_column.lower(), 'teryt', 'jpt_kod_je']:
+                if col in gdf.columns:
+                    actual_teryt_col = col
+                    break
+            
+            # If no TERYT column found, check for 'obszar' (NUTS-like codes in pre-2012 files)
+            if actual_teryt_col is None and 'obszar' in gdf.columns:
+                actual_teryt_col = 'obszar'
+                needs_conversion = True
                 if verbose:
-                    print(f"    Linked {geometry_linked} geometries")
+                    print(f"    Using 'obszar' column (will convert NUTS codes to TERYT)")
+            
+            if actual_teryt_col is None:
+                if verbose:
+                    print(f"    Warning: No TERYT or 'obszar' column found, skipping geometry linking")
+                    print(f"    Available columns: {list(gdf.columns)}")
+                continue
+            
+            # Link geometries to records
+            geometry_linked = 0
+            for _, row in gdf.iterrows():
+                raw_code = str(row[actual_teryt_col])
+                
+                # Convert NUTS code to TERYT if needed (pre-2012 files)
+                if needs_conversion:
+                    teryt = nuts_code_to_teryt(raw_code)
+                else:
+                    teryt = raw_code.zfill(7)
+                
+                # Handle 6-digit codes (append 0)
+                if len(teryt) == 6:
+                    teryt = teryt + '0'
+                
+                # Get geometry, optionally clipped
+                geom = row.geometry
+                if clip_to_poland and self._poland_boundary is not None:
+                    geom = safe_clip_geometry(geom, self._poland_boundary)
+                
+                # Try exact match first
+                if teryt in self._records:
+                    record = self._records[teryt]
+                    # Prefer more recent geometry
+                    if not record.has_geometry or (record.geometry_year and year > record.geometry_year):
+                        record.set_geometry(geom, year)
+                        geometry_linked += 1
+                else:
+                    # Try matching with different RODZ values
+                    short_teryt = teryt[:6]
+                    matched = False
+                    for tid, record in self._records.items():
+                        if tid[:6] == short_teryt:
+                            if not record.has_geometry or (record.geometry_year and year > record.geometry_year):
+                                record.set_geometry(geom, year)
+                                geometry_linked += 1
+                                matched = True
+                                break
+            
+            if verbose:
+                print(f"    Linked {geometry_linked} geometries")
         
         if verbose:
             total_with_geometry = sum(1 for r in self._records.values() if r.has_geometry)
-            print(f"  Total records with geometry: {total_with_geometry}/{len(self._records)}")
+            print(f"\n  Total records with geometry: {total_with_geometry}/{len(self._records)}")
     
-    def load_geometries_from_path(self, geometry_root: Path, verbose: bool = True):
+    def load_poland_boundary(self, gadm_path: Union[str, Path], verbose: bool = True):
         """
-        Load geometries from a root directory containing geometry folders.
+        Load Poland boundary from GADM shapefile for geometry clipping.
+        
+        This should be called BEFORE load_geometries() to enable clipping.
         
         Parameters:
-        - geometry_root (Path): Root directory containing geometry subdirectories.
-        - verbose (bool): Print progress information.
+        - gadm_path: Path to GADM level 0 or 1 shapefile
+        - verbose: Print progress
         """
         if verbose:
-            print(f"Scanning for geometry files in {geometry_root}...")
+            print(f"Loading Poland boundary from {gadm_path}...")
         
-        gdf_dict = {}
+        gdf = gpd.read_file(gadm_path)
+        self.set_poland_boundary(gdf)
         
-        for folder in geometry_root.iterdir():
-            if not folder.is_dir() or folder.name.startswith('.'):
-                continue
-            
-            # Find shapefiles
-            for file in folder.iterdir():
-                if file.suffix.lower() == '.shp':
-                    # Check if it's a gmina-level file
-                    if 'obszar' in file.name.lower() or 'gmin' in file.name.lower():
-                        key = f"{folder.name}_{file.stem}"
-                        try:
-                            gdf = gpd.read_file(file)
-                            gdf_dict[key] = gdf
-                            if verbose:
-                                print(f"  Loaded {key}: {len(gdf)} features")
-                        except Exception as e:
-                            if verbose:
-                                print(f"  Error loading {file}: {e}")
-        
-        if gdf_dict:
-            self.load_geometries(gdf_dict, verbose=verbose)
+        if verbose:
+            print("  ✓ Poland boundary loaded and set for clipping")
     
     # ==========================================================================
     # SEARCH METHODS
     # ==========================================================================
     
     def get_by_teryt_id(self, teryt_id: str) -> Optional[TERYTRecord]:
-        """
-        Get a record by its TERYT ID.
-        
-        Parameters:
-        - teryt_id (str): 7-digit TERYT code.
-        
-        Returns:
-        - TERYTRecord or None if not found.
-        """
+        """Get a record by its TERYT ID."""
         teryt_id = str(teryt_id).zfill(7)
         return self._records.get(teryt_id)
     
     def get_unit_info(self, teryt_id: str) -> Optional[dict]:
-        """
-        Get detailed information about a unit by its TERYT ID.
-        
-        Parameters:
-        - teryt_id (str): 7-digit TERYT code.
-        
-        Returns:
-        - dict with unit information or None if not found.
-        """
+        """Get detailed information about a unit by its TERYT ID."""
         record = self.get_by_teryt_id(teryt_id)
         return record.to_dict() if record else None
     
     def search_by_name(self, name: str, exact: bool = False) -> List[TERYTRecord]:
-        """
-        Search for divisions by name.
-        
-        Parameters:
-        - name (str): Name to search for.
-        - exact (bool): If True, require exact match; if False, allow partial match.
-        
-        Returns:
-        - List of matching TERYTRecord objects.
-        """
+        """Search for divisions by name."""
         name_lower = name.lower()
         results = []
         
@@ -600,192 +937,202 @@ class GeoTERYTDatabase:
     def get_divisions_by_year(self, year: int, level: Optional[int] = None,
                                kind: Optional[str] = None,
                                exclude_subdivisions: bool = True) -> List[TERYTRecord]:
-        """
-        Get all divisions valid in a specific year.
-        
-        Parameters:
-        - year (int): Year to query.
-        - level (int, optional): Filter by administrative level (2, 5, or 6).
-        - kind (str, optional): Filter by kind (urban, rural, urban-rural, etc.).
-        - exclude_subdivisions (bool): If True, exclude RODZ 4 and 5 (sub-gmina units).
-        
-        Returns:
-        - List of TERYTRecord objects.
-        """
+        """Get all divisions valid in a specific year."""
         if year not in self._by_year:
             return []
         
-        teryt_ids = self._by_year[year]
+        teryt_ids = self._by_year[year].copy()
         
-        # Apply level filter
         if level is not None:
             level_ids = self._by_level.get(level, set())
             teryt_ids = teryt_ids & level_ids
         
-        # Apply kind filter
         if kind is not None:
             kind_ids = self._by_kind.get(kind, set())
             teryt_ids = teryt_ids & kind_ids
         
-        # Get records
         records = [self._records[tid] for tid in teryt_ids]
         
-        # Exclude subdivisions if requested
         if exclude_subdivisions:
             records = [r for r in records if r.rodz not in RODZ_SUB_DIVISIONS]
         
         return records
     
     def get_divisions_by_level(self, level: int) -> List[TERYTRecord]:
-        """
-        Get all divisions at a specific administrative level.
-        
-        Parameters:
-        - level (int): Administrative level (2=voivodeship, 5=powiat, 6=gmina).
-        
-        Returns:
-        - List of TERYTRecord objects.
-        """
+        """Get all divisions at a specific administrative level."""
         teryt_ids = self._by_level.get(level, set())
         return [self._records[tid] for tid in teryt_ids]
     
     def get_gminas_in_voivodeship(self, woj_code: str, year: Optional[int] = None) -> List[TERYTRecord]:
-        """
-        Get all gminas in a voivodeship.
-        
-        Parameters:
-        - woj_code (str): 2-digit voivodeship code.
-        - year (int, optional): If provided, filter to gminas valid in that year.
-        
-        Returns:
-        - List of TERYTRecord objects.
-        """
+        """Get all gminas in a voivodeship."""
         woj_code = str(woj_code).zfill(2)
         
         if woj_code not in self._by_voivodeship:
             return []
         
-        teryt_ids = self._by_voivodeship[woj_code]
-        
-        # Filter to gminas (level 6)
+        teryt_ids = self._by_voivodeship[woj_code].copy()
         gmina_ids = self._by_level.get(LEVEL_GMINA, set())
         teryt_ids = teryt_ids & gmina_ids
         
-        # Filter by year if provided
         if year is not None:
             year_ids = self._by_year.get(year, set())
             teryt_ids = teryt_ids & year_ids
         
         records = [self._records[tid] for tid in teryt_ids]
-        
-        # Exclude subdivisions
         records = [r for r in records if r.rodz not in RODZ_SUB_DIVISIONS]
         
         return records
     
     def get_changed_units(self, year_from: Optional[int] = None, 
-                          year_to: Optional[int] = None) -> List[TERYTRecord]:
+                          year_to: Optional[int] = None,
+                          change_type: Optional[str] = None) -> List[TERYTRecord]:
         """
         Get units that experienced changes in a time period.
         
-        Parameters:
-        - year_from (int, optional): Start year (inclusive).
-        - year_to (int, optional): End year (inclusive).
+        FIXED in v2.0: Now properly checks both:
+        - has_changes flag
+        - actual change records with year filtering
         
-        Returns:
-        - List of TERYTRecord objects with changes.
+        Parameters:
+        - year_from: Start year (inclusive), None for no lower bound
+        - year_to: End year (inclusive), None for no upper bound
+        - change_type: Filter by change type ('name_change', 'kind_change', 'level_change', 'reform')
         """
         results = []
         
         for record in self._records.values():
-            if record.changes:
-                has_relevant_change = False
-                for change in record.changes:
-                    change_year = change.get('year', 0)
-                    if year_from is not None and change_year < year_from:
-                        continue
-                    if year_to is not None and change_year > year_to:
-                        continue
-                    has_relevant_change = True
-                    break
+            # Skip if no changes at all
+            if not record.has_changes and not record.changes:
+                continue
+            
+            # If no time filter, return all changed units
+            if year_from is None and year_to is None and change_type is None:
+                results.append(record)
+                continue
+            
+            # Check if any change falls within the time range
+            has_relevant_change = False
+            
+            for change in record.changes:
+                change_year = change.get('year')
+                if change_year is None:
+                    change_year = change.get('when_changed')
+                if change_year is None:
+                    continue
                 
-                if has_relevant_change:
-                    results.append(record)
+                # Handle numpy types
+                if hasattr(change_year, 'item'):
+                    change_year = change_year.item()
+                try:
+                    change_year = int(change_year)
+                except (ValueError, TypeError):
+                    continue
+                
+                # Check year range
+                if year_from is not None and change_year < year_from:
+                    continue
+                if year_to is not None and change_year > year_to:
+                    continue
+                
+                # Check change type
+                if change_type is not None and change.get('type') != change_type:
+                    continue
+                
+                has_relevant_change = True
+                break
+            
+            # Also check past_* lists for changes in time range (if no type filter)
+            if not has_relevant_change and change_type is None:
+                # Check past_names
+                for _, year_until in record.past_names:
+                    check_year = year_until + 1  # Change happened in the next year
+                    if (year_from is None or check_year >= year_from) and \
+                       (year_to is None or check_year <= year_to):
+                        has_relevant_change = True
+                        break
+                
+                # Check past_levels
+                if not has_relevant_change:
+                    for _, year_until in record.past_levels:
+                        check_year = year_until + 1
+                        if (year_from is None or check_year >= year_from) and \
+                           (year_to is None or check_year <= year_to):
+                            has_relevant_change = True
+                            break
+                
+                # Check past_kinds
+                if not has_relevant_change:
+                    for _, year_until in record.past_kinds:
+                        check_year = year_until + 1
+                        if (year_from is None or check_year >= year_from) and \
+                           (year_to is None or check_year <= year_to):
+                            has_relevant_change = True
+                            break
+            
+            if has_relevant_change:
+                results.append(record)
         
         return results
+    
+    def get_units_with_level_changes(self) -> List[TERYTRecord]:
+        """Get all units that changed their administrative level."""
+        return [r for r in self._records.values() if r.past_levels]
+    
+    def get_units_with_kind_changes(self) -> List[TERYTRecord]:
+        """Get all units that changed their kind (urban/rural/etc)."""
+        return [r for r in self._records.values() if r.past_kinds]
     
     # ==========================================================================
     # GEOMETRY METHODS
     # ==========================================================================
     
     def get_geometry(self, teryt_id: str, year: Optional[int] = None):
-        """
-        Get geometry for a specific TERYT ID.
-        
-        Parameters:
-        - teryt_id (str): 7-digit TERYT code.
-        - year (int, optional): Preferred geometry year; if None, use best available.
-        
-        Returns:
-        - Shapely geometry or None if not available.
-        """
+        """Get geometry for a specific TERYT ID."""
         record = self.get_by_teryt_id(teryt_id)
         
         if record is None:
             return None
         
-        # If record has geometry directly assigned
         if record.has_geometry:
             return record.geometry
         
-        # Try to find geometry from stored GeoDataFrames
         return self._find_best_geometry(teryt_id, year)
     
     def _find_best_geometry(self, teryt_id: str, target_year: Optional[int] = None):
-        """
-        Find the best available geometry for a TERYT ID.
-        
-        The "best" geometry is:
-        1. Exact year match if target_year specified
-        2. Closest year with available geometry
-        3. Newest geometry overall
-        
-        Parameters:
-        - teryt_id (str): TERYT code.
-        - target_year (int, optional): Preferred year.
-        
-        Returns:
-        - Shapely geometry or None.
-        """
+        """Find the best available geometry for a TERYT ID."""
         teryt_id = str(teryt_id).zfill(7)
         short_teryt = teryt_id[:6]
         
-        # Collect available geometries
         available = []
         
         for year, gdf in self._geometries.items():
-            teryt_col = 'teryt' if 'teryt' in gdf.columns else 'jpt_kod_je'
-            if teryt_col not in gdf.columns:
+            # Find TERYT column
+            teryt_col = None
+            for col in ['teryt', 'jpt_kod_je', 'TERYT', 'JPT_KOD_JE']:
+                if col in gdf.columns:
+                    teryt_col = col
+                    break
+            if teryt_col is None:
                 continue
             
-            # Look for exact match or short match
             mask = (gdf[teryt_col].astype(str).str.zfill(7) == teryt_id) | \
                    (gdf[teryt_col].astype(str).str[:6] == short_teryt)
             
             matches = gdf[mask]
             if len(matches) > 0:
-                available.append((year, matches.iloc[0].geometry))
+                geom = matches.iloc[0].geometry
+                # Optionally clip
+                if self._poland_boundary is not None:
+                    geom = safe_clip_geometry(geom, self._poland_boundary)
+                available.append((year, geom))
         
         if not available:
             return None
         
-        # Sort by preference
         if target_year is not None:
-            # Sort by distance from target year
             available.sort(key=lambda x: abs(x[0] - target_year))
         else:
-            # Sort by recency (newest first)
-            available.sort(key=lambda x: -x[0])
+            available.sort(key=lambda x: -x[0])  # Most recent first
         
         return available[0][1]
     
@@ -793,27 +1140,24 @@ class GeoTERYTDatabase:
                         level: Optional[int] = None,
                         kind: Optional[str] = None,
                         exclude_subdivisions: bool = True,
-                        include_all_attributes: bool = True) -> gpd.GeoDataFrame:
+                        include_all_attributes: bool = True,
+                        only_with_geometry: bool = False) -> gpd.GeoDataFrame:
         """
         Convert database records to a GeoDataFrame.
         
         Parameters:
-        - year (int, optional): Filter to divisions valid in this year.
-        - level (int, optional): Filter by administrative level.
-        - kind (str, optional): Filter by kind.
-        - exclude_subdivisions (bool): Exclude RODZ 4 and 5.
-        - include_all_attributes (bool): Include all record attributes.
-        
-        Returns:
-        - GeoDataFrame with divisions and their geometries.
+        - year: Filter by specific year
+        - level: Filter by administrative level
+        - kind: Filter by kind
+        - exclude_subdivisions: Exclude RODZ 4,5
+        - include_all_attributes: Include all record attributes
+        - only_with_geometry: Only include records with geometry
         """
-        # Get records
         if year is not None:
             records = self.get_divisions_by_year(year, level=level, kind=kind,
-                                                   exclude_subdivisions=exclude_subdivisions)
+                                                  exclude_subdivisions=exclude_subdivisions)
         else:
             records = list(self._records.values())
-            
             if level is not None:
                 records = [r for r in records if r.level == level]
             if kind is not None:
@@ -821,7 +1165,9 @@ class GeoTERYTDatabase:
             if exclude_subdivisions:
                 records = [r for r in records if r.rodz not in RODZ_SUB_DIVISIONS]
         
-        # Build data
+        if only_with_geometry:
+            records = [r for r in records if r.has_geometry]
+        
         data = []
         geometries = []
         
@@ -844,68 +1190,54 @@ class GeoTERYTDatabase:
                     'last_year': record.last_year,
                     'has_geometry': record.has_geometry,
                     'geometry_year': record.geometry_year,
-                    'n_changes': len(record.changes),
-                    'past_names': ', '.join(record.past_names) if record.past_names else None,
-                    'past_teryt_ids': ', '.join(record.past_teryt_ids) if record.past_teryt_ids else None,
+                    'n_changes': record.n_changes,
+                    'has_changes': record.has_changes,
+                    'past_names': str(record.past_names) if record.past_names else None,
+                    'past_teryt_ids': str(record.past_teryt_ids) if record.past_teryt_ids else None,
+                    'past_levels': str(record.past_levels) if record.past_levels else None,
+                    'past_kinds': str(record.past_kinds) if record.past_kinds else None,
                 })
             
             data.append(row_data)
-            
-            # Get geometry
             geom = self.get_geometry(record.teryt_id, year)
             geometries.append(geom)
         
-        # Create GeoDataFrame
-        gdf = gpd.GeoDataFrame(data, geometry=geometries, crs=self._crs)
-        
-        return gdf
+        return gpd.GeoDataFrame(data, geometry=geometries, crs=self._crs)
     
     def merge_to_level(self, year: int, target_level: int) -> gpd.GeoDataFrame:
         """
-        Merge geometries to a higher administrative level.
-        
-        For example, merge gminas (level 6) to powiats (level 5) or voivodeships (level 2).
+        Merge gmina geometries up to a higher administrative level.
         
         Parameters:
-        - year (int): Year for source geometries.
-        - target_level (int): Target administrative level (2 or 5).
-        
-        Returns:
-        - GeoDataFrame with merged geometries at target level.
+        - year: Year for which to get gminas
+        - target_level: Target level (2 for voivodeship, 5 for powiat)
         """
-        # Get gmina-level GeoDataFrame
-        gdf = self.to_geodataframe(year=year, level=LEVEL_GMINA, 
-                                   exclude_subdivisions=True)
+        gdf = self.to_geodataframe(year=year, level=LEVEL_GMINA, exclude_subdivisions=True)
         
         if len(gdf) == 0:
             return gpd.GeoDataFrame(columns=['teryt_id', 'name', 'geometry'], crs=self._crs)
         
-        # Determine grouping column
         if target_level == LEVEL_VOIVODESHIP:
             gdf['group_id'] = gdf['woj']
         elif target_level == LEVEL_POWIAT:
             gdf['group_id'] = gdf['woj'] + gdf['pow']
         else:
-            raise ValueError(f"Invalid target level: {target_level}")
+            raise ValueError(f"Invalid target level: {target_level}. Use 2 or 5.")
         
-        # Remove rows with missing geometry
         gdf_valid = gdf[gdf.geometry.notna()].copy()
         
         if len(gdf_valid) == 0:
             return gpd.GeoDataFrame(columns=['teryt_id', 'name', 'geometry'], crs=self._crs)
         
-        # Merge geometries
         merged = gdf_valid.dissolve(by='group_id', as_index=False)
         
-        # Add names from parent records
         merged_data = []
         for _, row in merged.iterrows():
             group_id = row['group_id']
             
-            # Find parent record
             if target_level == LEVEL_VOIVODESHIP:
                 parent_teryt = group_id + "00000"
-            else:  # LEVEL_POWIAT
+            else:
                 parent_teryt = group_id + "000"
             
             parent_record = self.get_by_teryt_id(parent_teryt)
@@ -932,21 +1264,14 @@ class GeoTERYTDatabase:
         Overlay gminas onto regions and assign each gmina to a region.
         
         Parameters:
-        - gminas_gdf (GeoDataFrame): GeoDataFrame with gmina geometries.
-        - regions_gdf (GeoDataFrame): GeoDataFrame with region boundaries.
-        - region_id_column (str): Column name for region identifier in regions_gdf.
-        - method (str): Assignment method:
-            - 'centroid': Assign based on where gmina centroid falls
-            - 'area': Assign based on largest intersection area
-            - 'contains': Assign only if region fully contains gmina
-        
-        Returns:
-        - GeoDataFrame: gminas_gdf with added column for region assignment.
+        - gminas_gdf: GeoDataFrame with gmina geometries
+        - regions_gdf: GeoDataFrame with region boundaries
+        - region_id_column: Column in regions_gdf with region identifier
+        - method: 'centroid' (point in polygon) or 'area' (max overlap)
         """
         result = gminas_gdf.copy()
         result['assigned_region'] = None
         
-        # Ensure same CRS
         if regions_gdf.crs != gminas_gdf.crs:
             regions_gdf = regions_gdf.to_crs(gminas_gdf.crs)
         
@@ -959,7 +1284,7 @@ class GeoTERYTDatabase:
             if method == 'centroid':
                 centroid = geom.centroid
                 for _, region_row in regions_gdf.iterrows():
-                    if region_row.geometry.contains(centroid):
+                    if region_row.geometry is not None and region_row.geometry.contains(centroid):
                         result.at[idx, 'assigned_region'] = region_row[region_id_column]
                         break
                         
@@ -968,6 +1293,8 @@ class GeoTERYTDatabase:
                 best_region = None
                 for _, region_row in regions_gdf.iterrows():
                     try:
+                        if region_row.geometry is None:
+                            continue
                         intersection = geom.intersection(region_row.geometry)
                         area = intersection.area
                         if area > max_area:
@@ -976,45 +1303,75 @@ class GeoTERYTDatabase:
                     except:
                         continue
                 result.at[idx, 'assigned_region'] = best_region
-                
-            elif method == 'contains':
-                for _, region_row in regions_gdf.iterrows():
-                    if region_row.geometry.contains(geom):
-                        result.at[idx, 'assigned_region'] = region_row[region_id_column]
-                        break
         
         return result
     
     def assign_gminas_to_pre1999_voivodeships(self, year: int,
                                                pre1999_boundaries_gdf: gpd.GeoDataFrame,
                                                voivodeship_name_col: str = 'name',
-                                               method: str = 'centroid') -> gpd.GeoDataFrame:
+                                               voivodeship_id_col: str = 'old_woj_id',
+                                               method: str = 'centroid',
+                                               update_records: bool = True,
+                                               verbose: bool = True) -> gpd.GeoDataFrame:
         """
         Assign gminas from a given year to pre-1999 voivodeship boundaries.
         
-        This is useful for comparing data across the administrative reform
-        of 1999 when Poland changed from 49 to 16 voivodeships.
+        NEW in v3.0: Also updates the old_woj and old_woj_id attributes in 
+        the database records if update_records=True.
         
         Parameters:
-        - year (int): Year for which to get gminas.
-        - pre1999_boundaries_gdf (GeoDataFrame): Pre-1999 voivodeship boundaries.
-        - voivodeship_name_col (str): Column with voivodeship names in boundaries GDF.
-        - method (str): Assignment method ('centroid', 'area', or 'contains').
-        
-        Returns:
-        - GeoDataFrame: Gminas with 'pre1999_voivodeship' column added.
+        - year: Year for gmina data
+        - pre1999_boundaries_gdf: GeoDataFrame with 49 voivodeship boundaries
+        - voivodeship_name_col: Column name for voivodeship names
+        - voivodeship_id_col: Column name for voivodeship IDs (created if missing)
+        - method: 'centroid' or 'area'
+        - update_records: If True, update old_woj/old_woj_id in database records
+        - verbose: Print progress
         """
-        gminas_gdf = self.to_geodataframe(year=year, level=LEVEL_GMINA,
-                                          exclude_subdivisions=True)
+        gminas_gdf = self.to_geodataframe(year=year, level=LEVEL_GMINA, 
+                                           exclude_subdivisions=True,
+                                           only_with_geometry=True)
+        
+        if verbose:
+            print(f"Assigning {len(gminas_gdf)} gminas to pre-1999 voivodeships...")
+        
+        # Ensure the voivodeship ID column exists
+        pre1999_copy = pre1999_boundaries_gdf.copy()
+        if voivodeship_id_col not in pre1999_copy.columns:
+            pre1999_copy[voivodeship_id_col] = range(1, len(pre1999_copy) + 1)
+        
+        # Create a mapping from name to ID
+        name_to_id = dict(zip(pre1999_copy[voivodeship_name_col], pre1999_copy[voivodeship_id_col]))
         
         result = self.overlay_gminas_to_regions(
             gminas_gdf, 
-            pre1999_boundaries_gdf,
+            pre1999_copy,
             region_id_column=voivodeship_name_col,
             method=method
         )
         
         result = result.rename(columns={'assigned_region': 'pre1999_voivodeship'})
+        
+        # Add the voivodeship ID column
+        result['pre1999_voivodeship_id'] = result['pre1999_voivodeship'].map(name_to_id)
+        
+        # Update database records if requested
+        if update_records:
+            updated = 0
+            for _, row in result.iterrows():
+                teryt_id = row['teryt_id']
+                old_woj = row.get('pre1999_voivodeship')
+                old_woj_id = row.get('pre1999_voivodeship_id')
+                
+                if teryt_id in self._records:
+                    self._records[teryt_id].old_woj = old_woj
+                    self._records[teryt_id].old_woj_id = old_woj_id
+                    updated += 1
+            
+            if verbose:
+                assigned = result['pre1999_voivodeship'].notna().sum()
+                print(f"  ✓ Assigned {assigned} gminas to voivodeships")
+                print(f"  ✓ Updated {updated} database records with old_woj/old_woj_id")
         
         return result
     
@@ -1023,15 +1380,7 @@ class GeoTERYTDatabase:
     # ==========================================================================
     
     def to_dataframe(self, include_geometry: bool = False) -> pd.DataFrame:
-        """
-        Export all records to a pandas DataFrame.
-        
-        Parameters:
-        - include_geometry (bool): If True, include geometry column (as WKT).
-        
-        Returns:
-        - DataFrame with all records.
-        """
+        """Export all records to a pandas DataFrame."""
         data = []
         for record in self._records.values():
             row = record.to_dict()
@@ -1044,29 +1393,15 @@ class GeoTERYTDatabase:
     def export_to_geopackage(self, filepath: Union[str, Path], 
                               year: Optional[int] = None,
                               level: Optional[int] = None):
-        """
-        Export database to a GeoPackage file.
-        
-        Parameters:
-        - filepath (str or Path): Output file path.
-        - year (int, optional): Filter to specific year.
-        - level (int, optional): Filter to specific level.
-        """
-        gdf = self.to_geodataframe(year=year, level=level)
+        """Export database to a GeoPackage file."""
+        gdf = self.to_geodataframe(year=year, level=level, only_with_geometry=True)
         gdf.to_file(filepath, driver='GPKG')
     
     def export_to_shapefile(self, filepath: Union[str, Path],
                              year: Optional[int] = None,
                              level: Optional[int] = None):
-        """
-        Export database to a Shapefile.
-        
-        Parameters:
-        - filepath (str or Path): Output file path (should end with .shp).
-        - year (int, optional): Filter to specific year.
-        - level (int, optional): Filter to specific level.
-        """
-        gdf = self.to_geodataframe(year=year, level=level)
+        """Export database to a Shapefile."""
+        gdf = self.to_geodataframe(year=year, level=level, only_with_geometry=True)
         gdf.to_file(filepath, driver='ESRI Shapefile')
     
     # ==========================================================================
@@ -1074,12 +1409,7 @@ class GeoTERYTDatabase:
     # ==========================================================================
     
     def summary(self) -> dict:
-        """
-        Get a summary of the database contents.
-        
-        Returns:
-        - dict with summary statistics.
-        """
+        """Get a summary of the database contents."""
         return {
             'total_records': len(self._records),
             'year_range': self._year_range,
@@ -1087,17 +1417,20 @@ class GeoTERYTDatabase:
             'powiats': len(self._by_level.get(5, set())),
             'gminas': len(self._by_level.get(6, set())),
             'records_with_geometry': sum(1 for r in self._records.values() if r.has_geometry),
-            'records_with_changes': sum(1 for r in self._records.values() if r.changes),
+            'records_with_changes': sum(1 for r in self._records.values() if r.has_changes),
+            'records_with_level_changes': sum(1 for r in self._records.values() if r.past_levels),
+            'records_with_kind_changes': sum(1 for r in self._records.values() if r.past_kinds),
             'geometry_years_available': sorted(self._geometries.keys()),
             'unique_kinds': list(self._by_kind.keys()),
             'unique_voivodeships': list(self._by_voivodeship.keys()),
+            'has_poland_boundary': self._poland_boundary is not None,
         }
     
     def print_summary(self):
         """Print a formatted summary of the database."""
         s = self.summary()
         print("=" * 60)
-        print("GeoTERYT Database Summary")
+        print("GeoTERYT Database Summary (v3.0)")
         print("=" * 60)
         print(f"Total records:           {s['total_records']:,}")
         print(f"Year range:              {s['year_range'][0]} - {s['year_range'][1]}")
@@ -1107,21 +1440,107 @@ class GeoTERYTDatabase:
         print(f"  Powiats (5):           {s['powiats']}")
         print(f"  Gminas (6):            {s['gminas']}")
         print("-" * 60)
-        print(f"Records with geometry:   {s['records_with_geometry']}")
-        print(f"Records with changes:    {s['records_with_changes']}")
-        print(f"Geometry years:          {s['geometry_years_available']}")
+        print("Change tracking:")
+        print(f"  Records with changes:      {s['records_with_changes']}")
+        print(f"  Records with level changes: {s['records_with_level_changes']}")
+        print(f"  Records with kind changes:  {s['records_with_kind_changes']}")
+        print("-" * 60)
+        print("Geometry:")
+        print(f"  Records with geometry: {s['records_with_geometry']}")
+        print(f"  Geometry years:        {s['geometry_years_available']}")
+        print(f"  Poland boundary set:   {s['has_poland_boundary']}")
+        # Pre-1999 voivodeship info
+        records_with_old_woj = sum(1 for r in self._records.values() if r.old_woj is not None)
+        if records_with_old_woj > 0:
+            print("-" * 60)
+            print("Pre-1999 Voivodeship Overlay:")
+            print(f"  Records with old_woj:  {records_with_old_woj}")
         print("=" * 60)
     
-    def get_year_statistics(self, year: int) -> dict:
+    # ==========================================================================
+    # PERSISTENCE METHODS (NEW in v3.0)
+    # ==========================================================================
+    
+    def save_complete(self, filepath: Union[str, Path], verbose: bool = True):
         """
-        Get statistics for a specific year.
+        Save the complete database to a single file, including all geometries.
+        
+        NEW in v3.0: Uses pickle to save the entire database state so it can be
+        restored later without re-building from raw data.
         
         Parameters:
-        - year (int): Year to analyze.
-        
-        Returns:
-        - dict with year-specific statistics.
+        - filepath: Path for the output file (will add .pkl extension if not present)
+        - verbose: Print progress
         """
+        filepath = Path(filepath)
+        if not filepath.suffix:
+            filepath = filepath.with_suffix('.pkl')
+        
+        if verbose:
+            print(f"Saving complete database to {filepath}...")
+        
+        # Prepare data for serialization
+        # Convert geometries to WKB (Well-Known Binary) for efficient storage
+        records_data = {}
+        for teryt_id, record in self._records.items():
+            rec_dict = {
+                'teryt_id': record.teryt_id,
+                'name': record.name,
+                'name_dod': record.name_dod,
+                'level': record.level,
+                'kind': record.kind,
+                'years_valid': record.years_valid,
+                'past_names': record.past_names,
+                'past_teryt_ids': record.past_teryt_ids,
+                'past_levels': record.past_levels,
+                'past_kinds': record.past_kinds,
+                'changes': record.changes,
+                'has_changes': record.has_changes,
+                'geometry_year': record.geometry_year,
+                'old_woj': record.old_woj,
+                'old_woj_id': record.old_woj_id,
+                'geometry_wkb': record.geometry.wkb if record.geometry else None
+            }
+            records_data[teryt_id] = rec_dict
+        
+        # Prepare geometry GeoDataFrames for storage (as WKB)
+        geometries_data = {}
+        for year, gdf in self._geometries.items():
+            # Store just essential columns with geometry as WKB
+            gdf_copy = gdf.copy()
+            gdf_copy['geometry_wkb'] = gdf_copy.geometry.apply(lambda g: g.wkb if g else None)
+            geometries_data[year] = gdf_copy.drop(columns=['geometry']).to_dict('records')
+        
+        # Poland boundary
+        poland_wkb = self._poland_boundary.wkb if self._poland_boundary else None
+        
+        save_data = {
+            'version': '3.0',
+            'records': records_data,
+            'by_year': {k: list(v) for k, v in self._by_year.items()},
+            'by_name': {k: list(v) for k, v in self._by_name.items()},
+            'by_level': {k: list(v) for k, v in self._by_level.items()},
+            'by_kind': {k: list(v) for k, v in self._by_kind.items()},
+            'by_voivodeship': {k: list(v) for k, v in self._by_voivodeship.items()},
+            'id_transitions': self._id_transitions,
+            'geometries': geometries_data,
+            'poland_boundary_wkb': poland_wkb,
+            'year_range': self._year_range,
+            'crs': self._crs,
+            'built': self._built
+        }
+        
+        with open(filepath, 'wb') as f:
+            pickle.dump(save_data, f, protocol=pickle.HIGHEST_PROTOCOL)
+        
+        if verbose:
+            file_size = filepath.stat().st_size / (1024 * 1024)
+            print(f"  ✓ Saved {len(records_data)} records")
+            print(f"  ✓ File size: {file_size:.1f} MB")
+            print(f"  ✓ Path: {filepath}")
+    
+    def get_year_statistics(self, year: int) -> dict:
+        """Get statistics for a specific year."""
         if year not in self._by_year:
             return {'error': f'Year {year} not in database'}
         
@@ -1133,9 +1552,11 @@ class GeoTERYTDatabase:
         
         for r in records:
             level = r.level
-            if level not in level_counts:
-                level_counts[level] = 0
-            level_counts[level] += 1
+            if level is not None:
+                level = int(level)
+                if level not in level_counts:
+                    level_counts[level] = 0
+                level_counts[level] += 1
             
             kind = r.kind
             if kind:
@@ -1149,6 +1570,7 @@ class GeoTERYTDatabase:
             'level_counts': level_counts,
             'kind_counts': kind_counts,
             'units_with_geometry': sum(1 for r in records if r.has_geometry),
+            'units_with_changes': sum(1 for r in records if r.has_changes),
         }
     
     # ==========================================================================
@@ -1167,7 +1589,7 @@ class GeoTERYTDatabase:
     
     @property
     def is_built(self) -> bool:
-        """Check if database has been built."""
+        """Whether the database has been built."""
         return self._built
     
     def __len__(self):
@@ -1181,61 +1603,95 @@ class GeoTERYTDatabase:
 
 
 # ==============================================================================
-# FACTORY FUNCTIONS
+# MODULE-LEVEL FUNCTION FOR LOADING COMPLETE DATABASE (NEW in v3.0)
 # ==============================================================================
 
-def create_database_from_files(terc_1999_path: Union[str, Path],
-                                terc_2024_path: Union[str, Path],
-                                changes_xml_path: Union[str, Path],
-                                geometry_root: Optional[Union[str, Path]] = None,
-                                verbose: bool = True) -> GeoTERYTDatabase:
+def load_complete_database(filepath: Union[str, Path], verbose: bool = True) -> GeoTERYTDatabase:
     """
-    Create a GeoTERYT database from source files.
+    Load a complete GeoTERYT database from a saved file.
     
-    This is a convenience function that loads data, runs harmonization,
-    and builds the database in one call.
+    NEW in v3.0: Restores the entire database state, including all geometries,
+    from a single pickle file created by db.save_complete().
     
     Parameters:
-    - terc_1999_path: Path to 1999 TERYT CSV file.
-    - terc_2024_path: Path to 2024 TERYT CSV file.
-    - changes_xml_path: Path to changes XML file.
-    - geometry_root: Optional path to geometry folder.
-    - verbose: Print progress information.
+    - filepath: Path to the saved database file (.pkl)
+    - verbose: Print progress
     
     Returns:
-    - GeoTERYTDatabase instance.
+    - GeoTERYTDatabase: Fully restored database ready to use
     """
-    # Import harmonization function
-    from local_utility_functions import harmonize_teryt
+    filepath = Path(filepath)
     
-    # Load data
-    terc_1999 = pd.read_csv(terc_1999_path, sep=';', encoding='utf-8')
-    terc_2024 = pd.read_csv(terc_2024_path, sep=';', encoding='utf-8')
+    if verbose:
+        print(f"Loading complete database from {filepath}...")
     
-    # Parse XML changes (requires XML parsing)
-    import xml.etree.ElementTree as ET
-    tree = ET.parse(changes_xml_path)
-    root = tree.getroot()
+    with open(filepath, 'rb') as f:
+        data = pickle.load(f)
     
-    # Extract changes data from XML
-    changes_data = []
-    for change in root.findall('.//zmiana'):
-        row = {}
-        for child in change:
-            row[child.tag] = child.text
-        changes_data.append(row)
+    # Check version
+    version = data.get('version', 'unknown')
+    if verbose:
+        print(f"  Database version: {version}")
     
-    terc_changes = pd.DataFrame(changes_data)
-    
-    # Harmonize
-    mega_df = harmonize_teryt(terc_1999, terc_2024, terc_changes)
-    
-    # Build database
+    # Create new database instance
     db = GeoTERYTDatabase()
-    db.build_from_harmonized(mega_df, verbose=verbose)
     
-    # Load geometries if path provided
-    if geometry_root is not None:
-        db.load_geometries_from_path(Path(geometry_root), verbose=verbose)
+    # Restore basic attributes
+    db._year_range = data['year_range']
+    db._crs = data['crs']
+    db._built = data['built']
+    db._id_transitions = data.get('id_transitions', {})
+    
+    # Restore Poland boundary
+    poland_wkb = data.get('poland_boundary_wkb')
+    if poland_wkb:
+        db._poland_boundary = wkb.loads(poland_wkb)
+    
+    # Restore records
+    records_data = data['records']
+    for teryt_id, rec_dict in records_data.items():
+        record = TERYTRecord(
+            teryt_id=rec_dict['teryt_id'],
+            name=rec_dict['name'],
+            name_dod=rec_dict.get('name_dod'),
+            level=rec_dict.get('level'),
+            kind=rec_dict.get('kind')
+        )
+        record.years_valid = set(rec_dict.get('years_valid', []))
+        record.past_names = rec_dict.get('past_names', [])
+        record.past_teryt_ids = rec_dict.get('past_teryt_ids', [])
+        record.past_levels = rec_dict.get('past_levels', [])
+        record.past_kinds = rec_dict.get('past_kinds', [])
+        record.changes = rec_dict.get('changes', [])
+        record.has_changes = rec_dict.get('has_changes', False)
+        record.geometry_year = rec_dict.get('geometry_year')
+        record.old_woj = rec_dict.get('old_woj')
+        record.old_woj_id = rec_dict.get('old_woj_id')
+        
+        # Restore geometry from WKB
+        geom_wkb = rec_dict.get('geometry_wkb')
+        if geom_wkb:
+            record.geometry = wkb.loads(geom_wkb)
+        
+        db._records[teryt_id] = record
+    
+    # Restore indices
+    db._by_year = {int(k): set(v) for k, v in data['by_year'].items()}
+    db._by_name = {k: set(v) for k, v in data['by_name'].items()}
+    db._by_level = {int(k): set(v) for k, v in data['by_level'].items()}
+    db._by_kind = {k: set(v) for k, v in data['by_kind'].items()}
+    db._by_voivodeship = {k: set(v) for k, v in data['by_voivodeship'].items()}
+    
+    # Note: We don't restore the raw geometry GeoDataFrames (_geometries) 
+    # since all geometries are already in the records
+    
+    if verbose:
+        print(f"  ✓ Loaded {len(db._records)} records")
+        print(f"  ✓ Year range: {db._year_range[0]} - {db._year_range[1]}")
+        geom_count = sum(1 for r in db._records.values() if r.has_geometry)
+        print(f"  ✓ Records with geometry: {geom_count}")
+        old_woj_count = sum(1 for r in db._records.values() if r.old_woj)
+        if old_woj_count > 0:
+            print(f"  ✓ Records with old_woj: {old_woj_count}")
     
     return db

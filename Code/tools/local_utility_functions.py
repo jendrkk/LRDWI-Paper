@@ -2,6 +2,171 @@ from pathlib import Path
 import pandas as pd
 import numpy as np
 
+import pandas as pd
+import numpy as np
+from typing import Union
+
+def deflate_income(
+    income_series: pd.Series,
+    cpi_series: pd.Series,
+    ref_date: Union[str, pd.Timestamp],
+    income_freq: str = 'A',
+    cpi_is_rate: bool = False,
+    use_exact_dates: bool = False
+) -> pd.Series:
+    """
+    Deflate (convert to real) an income time series to a reference date using a CPI series.
+
+    Parameters
+    ----------
+    income_series : pd.Series
+        Nominal income values. Index should be datetimes (yearly dates accepted).
+    cpi_series : pd.Series
+        CPI values as:
+        - Cumulative index (e.g., 100, 102.5, 105.1) if cpi_is_rate=False
+        - Month-to-month ratios (e.g., 100, 102.5, 104.3 where 100=no change) if cpi_is_rate=True
+        Index should be datetimes (e.g. monthly).
+    ref_date : str or pd.Timestamp
+        Date to which we deflate (e.g. '2020-12-31' or '2020-06-01'). Will be converted to Timestamp.
+    income_freq : str, default 'A'
+        Frequency of the income series: 'M' (monthly), 'Q' (quarterly), 'A' or 'Y' (annual).
+        Used to map income timestamps to CPI observations (end of period) unless use_exact_dates=True.
+    cpi_is_rate : bool, default False
+        If True, cpi_series contains month-to-month ratios as percentages (e.g., 102.5 = 2.5% increase).
+        These will be converted to a cumulative index.
+    use_exact_dates : bool, default False
+        If True, uses exact income dates for CPI lookup instead of period-end dates.
+        Set to True for survey data where the date is the actual survey date.
+
+    Returns
+    -------
+    pd.Series
+        Real income series (same index as income_series) expressed in units of the reference date.
+        
+    Examples
+    --------
+    # Monthly survey data with month-to-month CPI ratios
+    >>> deflated = deflate_income(income, cpi, '1990-01-01', 'M', cpi_is_rate=True, use_exact_dates=True)
+    
+    # Yearly income data with cumulative CPI index
+    >>> deflated = deflate_income(yearly_income, cpi, '2020-12-31', 'A', cpi_is_rate=False)
+    """
+    # --- prepare inputs ---
+    income = income_series.copy()
+    cpi = cpi_series.copy()
+    income.index = pd.to_datetime(income.index)
+    cpi.index = pd.to_datetime(cpi.index)
+    ref_date = pd.to_datetime(ref_date)
+
+    if income.empty:
+        return income.astype(float)
+
+    # Convert CPI to cumulative index if needed
+    if cpi_is_rate:
+        # CPI series contains month-to-month ratios (e.g., 100 = no change, 110 = 10% increase)
+        # Convert to cumulative index
+        cumulative_cpi = (cpi / 100.0).cumprod() * 100.0
+        
+        # Normalize so that CPI at ref_date = 100
+        if ref_date in cumulative_cpi.index:
+            cpi_at_ref_unnormalized = cumulative_cpi.loc[ref_date]
+        else:
+            # Interpolate to get CPI at ref_date
+            cpi_sorted = cumulative_cpi.sort_index()
+            all_dates_temp = cpi_sorted.index.union([ref_date]).sort_values()
+            cpi_interp = cpi_sorted.reindex(all_dates_temp).interpolate(method='time')
+            cpi_at_ref_unnormalized = cpi_interp.loc[ref_date]
+        
+        cpi = (cumulative_cpi / cpi_at_ref_unnormalized) * 100.0
+    
+    # Ensure CPI sorted
+    cpi = cpi.sort_index()
+
+    # Map income timestamps to CPI lookup dates
+    freq = income_freq.upper()
+    if use_exact_dates:
+        # Use exact income dates (for survey data)
+        income_lookup_dates = pd.to_datetime(income.index)
+    elif freq in ('A', 'Y'):
+        # Income date -> end of year (Dec 31)
+        income_lookup_dates = income.index.to_period('Y').to_timestamp('Y')
+    elif freq == 'Q':
+        income_lookup_dates = income.index.to_period('Q').to_timestamp('Q')
+    elif freq == 'M':
+        income_lookup_dates = income.index.to_period('M').to_timestamp('M')
+    else:
+        # Fallback: use the exact timestamp
+        income_lookup_dates = pd.to_datetime(income.index)
+
+    # Create combined index for interpolation
+    all_dates = cpi.index.union(income_lookup_dates.union([ref_date])).sort_values()
+
+    # Reindex & interpolate CPI to get values at all income lookup dates and ref_date
+    cpi_full = cpi.reindex(all_dates).sort_index().interpolate(method='time')
+
+    # Ensure we have CPI at ref_date
+    if pd.isna(cpi_full.loc[ref_date]):
+        raise ValueError("CPI series cannot provide a value at ref_date (check ranges).")
+
+    cpi_at_ref = float(cpi_full.loc[ref_date])
+    cpi_at_dates = cpi_full.loc[income_lookup_dates].values.astype(float)
+
+    # Avoid division by zero
+    if np.any(cpi_at_dates == 0) or cpi_at_ref == 0:
+        raise ValueError("CPI contains zero values; cannot deflate.")
+
+    # Real income in ref_date terms: real = nominal * (CPI_ref / CPI_t)
+    real_values = income.values.astype(float) * (cpi_at_ref / cpi_at_dates)
+
+    real_series = pd.Series(real_values, index=income.index, name=f"{income.name}_real_{ref_date.date()}")
+
+    return real_series
+'''
+def deflate_income(income_series: pd.Series, cpi_series: pd.Series, ref_date: pd.Timestamp, freq: str) -> pd.Series:
+    """
+    Deflates an income time series using a CPI time series to a reference date.
+    
+    Parameters:
+    - income_series (pd.Series): Time series of income values with datetime index.
+    - cpi_series (pd.Series): Time series of CPI values with datetime index.
+    - ref_date (pd.Timestamp): The reference date to which income should be deflated.
+    - freq (str): Frequency of the time series ('M' for monthly, 'Q' for quarterly, 'A' for annual).
+    
+    Returns:
+    - pd.Series: Deflated income time series.
+    """
+    # Ensure the indices are datetime
+    income_series.index = pd.to_datetime(income_series.index)
+    cpi_series.index = pd.to_datetime(cpi_series.index)
+    
+    if freq == 'Y':
+        cpi_series = cpi_series.resample('YE').prod() * 10**(-24) * 100
+    
+    # shift index by one day
+    cpi_series.index = cpi_series.index + pd.Timedelta(days=1)
+    
+    cpi_series.loc[ref_date] = 100.0
+
+    # Before the reference date
+    income_before_ref = income_series[income_series.index <= ref_date]
+    # After (and including) the reference date
+    income_after_ref = income_series[income_series.index >= ref_date]
+    
+    deflated_income = pd.Series(index=income_series.index, dtype=float)
+    for idx, val in income_after_ref.items():
+        cpi = cpi_series[cpi_series.index <= idx]
+        cpi_compound = np.prod(cpi/100)*100
+        
+        deflated_income.loc[idx] = val * (100.0 / cpi_compound)
+    
+    for idx, val in income_before_ref.items():
+        cpi = cpi_series[cpi_series.index >= idx]
+        cpi_compound = np.prod(cpi/100)*100
+        
+        deflated_income.loc[idx] = val * (100.0 / cpi_compound)
+    
+    return deflated_income
+''' 
 def adapt_txt(file_path: Path, save_path: Path) -> pd.DataFrame:
     """
     Reads a .txt file and adapts it into a pandas DataFrame.

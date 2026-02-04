@@ -57,6 +57,7 @@ class InequalityAnalyzer:
         self.gini_series = None
         self.palma_series = None
         self.income_groups = None
+        self.income_shares = None
         
         # Automatically compute basic time series upon initialization
         self._compute_basic_timeseries()
@@ -231,7 +232,7 @@ class InequalityAnalyzer:
             return np.nan
         return top_10 / bottom_40
     
-    def compute_gini(self, use_total_income: bool = False):
+    def compute_gini(self, use_total_income: bool = True):
         """
         Compute Gini coefficient for each survey period.
         
@@ -288,7 +289,7 @@ class InequalityAnalyzer:
         self.gini_series = pd.Series(ginis, index=dates)
         return self.gini_series
     
-    def compute_palma(self, use_total_income: bool = False):
+    def compute_palma(self, use_total_income: bool = True):
         """
         Compute Palma ratio for each survey period.
         
@@ -461,8 +462,140 @@ class InequalityAnalyzer:
         
         return self.income_groups
     
+    def compute_income_shares(self, groups: Optional[Dict[str, Tuple[float, float]]] = None,
+                             use_total_income: bool = True):
+        """
+        Compute income shares for different income groups.
+        
+        Income share is defined as the ratio of total income held by a group to the total income
+        of the entire population. This uses weighted total household income.
+        
+        Parameters:
+        -----------
+        groups : dict, optional
+            Dictionary mapping group names to (lower_percentile, upper_percentile) tuples.
+            Default: {'bottom_50': (0, 0.5), 'middle_40': (0.5, 0.9), 
+                     'top_10': (0.9, 1.0), 'top_1': (0.99, 1.0)}
+        use_total_income : bool
+            If True, use total household income (income * household_size)
+            If False, use household income directly
+            
+        Returns:
+        --------
+        pd.DataFrame : Income shares for each group indexed by date
+        """
+        if groups is None:
+            groups = {
+                'bottom_50': (0, 0.5),
+                'middle_40': (0.5, 0.9),
+                'top_10': (0.9, 1.0),
+                'top_1': (0.99, 1.0)
+            }
+        
+        results = {'date': []}
+        for group_name in groups.keys():
+            results[group_name] = []
+        
+        if self.annual_frequency:
+            # Annual frequency: loop over unique years
+            years = sorted(self.df[self.year_col].unique())
+            
+            for year in years:
+                df_year = self.df[self.df[self.year_col] == year]
+                date = pd.to_datetime(f"{year}-07-01")
+                results['date'].append(date)
+                
+                income, weights, hh_size = self._clean_income_data(df_year)
+                
+                if use_total_income:
+                    income = income * hh_size
+                    mask = ~np.isnan(income)
+                    income = income[mask]
+                    weights = weights[mask]
+                
+                # Weighted income
+                weighted_income = income * weights
+                
+                # Remove NaN values
+                mask = ~np.isnan(weighted_income)
+                weighted_income = weighted_income[mask]
+                income = income[mask]
+                weights = weights[mask]
+                
+                # Sort by income (not weighted income)
+                sorted_indices = np.argsort(income)
+                sorted_weighted_income = weighted_income.iloc[sorted_indices].values if isinstance(weighted_income, pd.Series) else weighted_income[sorted_indices]
+                
+                # Total income (sum of all weighted income)
+                total_income = sorted_weighted_income.sum()
+                
+                # Compute income share for each group
+                for group_name, (lower, upper) in groups.items():
+                    lower_idx = int(lower * len(sorted_weighted_income))
+                    upper_idx = int(upper * len(sorted_weighted_income))
+                    if upper_idx == lower_idx:
+                        upper_idx = len(sorted_weighted_income)
+                    
+                    group_income = sorted_weighted_income[lower_idx:upper_idx]
+                    group_total = group_income.sum()
+                    
+                    income_share = group_total / total_income if total_income > 0 else np.nan
+                    results[group_name].append(income_share)
+        else:
+            # Monthly frequency: loop over files
+            files = self._get_files_sorted()
+            
+            for file in files:
+                df_file = self.df[self.df[self.file_col] == file]
+                year = df_file[self.year_col].values[0]
+                month = df_file[self.month_col].values[0]
+                date = pd.to_datetime(f"{year}-{month}-01")
+                results['date'].append(date)
+                
+                income, weights, hh_size = self._clean_income_data(df_file)
+                
+                if use_total_income:
+                    income = income * hh_size
+                    mask = ~np.isnan(income)
+                    income = income[mask]
+                    weights = weights[mask]
+                
+                # Weighted income
+                weighted_income = income * weights
+                
+                # Remove NaN values
+                mask = ~np.isnan(weighted_income)
+                weighted_income = weighted_income[mask]
+                income = income[mask]
+                weights = weights[mask]
+                
+                # Sort by income (not weighted income)
+                sorted_indices = np.argsort(income)
+                sorted_weighted_income = weighted_income.iloc[sorted_indices].values if isinstance(weighted_income, pd.Series) else weighted_income[sorted_indices]
+                
+                # Total income (sum of all weighted income)
+                total_income = sorted_weighted_income.sum()
+                
+                # Compute income share for each group
+                for group_name, (lower, upper) in groups.items():
+                    lower_idx = int(lower * len(sorted_weighted_income))
+                    upper_idx = int(upper * len(sorted_weighted_income))
+                    if upper_idx == lower_idx:
+                        upper_idx = len(sorted_weighted_income)
+                    
+                    group_income = sorted_weighted_income[lower_idx:upper_idx]
+                    group_total = group_income.sum()
+                    
+                    income_share = group_total / total_income if total_income > 0 else np.nan
+                    results[group_name].append(income_share)
+        
+        self.income_shares = pd.DataFrame(results)
+        self.income_shares.set_index('date', inplace=True)
+        
+        return self.income_shares
+    
     def compute_percentile_ratio(self, top_pct: float = 0.1, bottom_pct: float = 0.5,
-                                use_total_income: bool = False):
+                                use_total_income: bool = True):
         """
         Compute ratio between top and bottom percentiles.
         
@@ -587,6 +720,151 @@ class InequalityAnalyzer:
             return df.resample('Y').last()
         else:
             raise ValueError(f"Unknown method: {method}")
+    
+    def compute_theil_decomposition(self, year: int, regions: list, region_col: str,
+                                   use_total_income: bool = True):
+        """
+        Compute Theil T index with decomposition into between-region and within-region components.
+        
+        The Theil T index is defined as:
+        T = Σ(w_i * (y_i/μ) * ln(y_i/μ)) / Σw_i
+        
+        Decomposition:
+        Total Theil = Between-region component + Within-region component
+        
+        Between = Σ(s_k * ln(μ_k/μ))
+        where s_k is the income share of region k, μ_k is mean income in region k, μ is overall mean
+        
+        Within = Σ(s_k * T_k)
+        where T_k is the Theil index within region k
+        
+        Parameters:
+        -----------
+        year : int
+            Year for which to compute the Theil index
+        regions : list
+            List of region names to include in the analysis
+        region_col : str
+            Column name containing region identifiers
+        use_total_income : bool
+            If True, use total household income (income * household_size)
+            If False, use household income directly
+            
+        Returns:
+        --------
+        dict : Dictionary containing:
+            - 'total_theil': Total Theil index
+            - 'between_component': Between-region inequality
+            - 'within_component': Within-region inequality
+            - 'region_theils': Dictionary of Theil indices by region
+            - 'region_shares': Dictionary of income shares by region
+            - 'region_means': Dictionary of mean incomes by region
+            - 'overall_mean': Overall mean income
+        """
+        # Filter data for the specified year and regions
+        df_year = self.df[self.df[self.year_col] == year].copy()
+        df_year = df_year[df_year[region_col].isin(regions)].copy()
+        
+        if len(df_year) == 0:
+            return {
+                'total_theil': np.nan,
+                'between_component': np.nan,
+                'within_component': np.nan,
+                'region_theils': {},
+                'region_shares': {},
+                'region_means': {},
+                'overall_mean': np.nan
+            }
+        
+        # Clean income data
+        income = pd.to_numeric(df_year[self.income_col], errors='coerce')
+        weights = pd.to_numeric(df_year[self.weight_col], errors='coerce')
+        hh_size = pd.to_numeric(df_year[self.hh_size_col], errors='coerce')
+        region_labels = df_year[region_col].values
+        
+        # Remove NaN values
+        mask = ~np.isnan(income) & ~np.isnan(weights) & ~np.isnan(hh_size)
+        income = income[mask]
+        weights = weights[mask]
+        hh_size = hh_size[mask]
+        region_labels = region_labels[mask]
+        
+        if use_total_income:
+            income = income * hh_size
+            mask = ~np.isnan(income)
+            income = income[mask]
+            weights = weights[mask]
+            region_labels = region_labels[mask]
+        
+        # Compute overall weighted mean
+        overall_mean = np.average(income, weights=weights)
+        
+        # Compute weighted total income
+        total_weighted_income = np.sum(income * weights)
+        
+        # Initialize storage for region-level calculations
+        region_theils = {}
+        region_shares = {}
+        region_means = {}
+        
+        # Compute region-specific metrics
+        for region in regions:
+            region_mask = region_labels == region
+            region_income = income[region_mask]
+            region_weights = weights[region_mask]
+            
+            if len(region_income) == 0 or region_weights.sum() == 0:
+                region_theils[region] = 0.0
+                region_shares[region] = 0.0
+                region_means[region] = 0.0
+                continue
+            
+            # Region mean income
+            region_mean = np.average(region_income, weights=region_weights)
+            region_means[region] = region_mean
+            
+            # Region income share (weighted total income / overall weighted total income)
+            region_weighted_income = np.sum(region_income * region_weights)
+            region_share = region_weighted_income / total_weighted_income
+            region_shares[region] = region_share
+            
+            # Within-region Theil index
+            # T_k = Σ(w_i * (y_i/μ_k) * ln(y_i/μ_k)) / Σw_i
+            income_ratio = region_income / region_mean
+            # Avoid log(0) by filtering out zero incomes
+            valid_mask = income_ratio > 0
+            if valid_mask.sum() == 0:
+                region_theils[region] = 0.0
+            else:
+                theil_k = np.sum(region_weights[valid_mask] * income_ratio[valid_mask] * 
+                               np.log(income_ratio[valid_mask])) / region_weights[valid_mask].sum()
+                region_theils[region] = theil_k
+        
+        # Compute between-region component
+        # Between = Σ(s_k * ln(μ_k/μ))
+        between_component = 0.0
+        for region in regions:
+            if region_shares[region] > 0 and region_means[region] > 0:
+                between_component += region_shares[region] * np.log(region_means[region] / overall_mean)
+        
+        # Compute within-region component
+        # Within = Σ(s_k * T_k)
+        within_component = 0.0
+        for region in regions:
+            within_component += region_shares[region] * region_theils[region]
+        
+        # Total Theil index
+        total_theil = between_component + within_component
+        
+        return {
+            'total_theil': total_theil,
+            'between_component': between_component,
+            'within_component': within_component,
+            'region_theils': region_theils,
+            'region_shares': region_shares,
+            'region_means': region_means,
+            'overall_mean': overall_mean
+        }
     
     def get_summary(self):
         """
