@@ -554,6 +554,10 @@ def apply_changes_to_teryt(teryt: pd.DataFrame, changes_for_year: pd.DataFrame, 
         teryt['when_changed'] = np.nan
     if 'notes' not in teryt.columns:
         teryt['notes'] = teryt.apply(lambda x: {'number_of_changes': 0, 'changes': []}, axis=1)
+    if 'historical_codes' not in teryt.columns:
+        teryt['historical_codes'] = teryt.apply(lambda x: [], axis=1)
+    if 'code_by_year' not in teryt.columns:
+        teryt['code_by_year'] = teryt.apply(lambda x: {}, axis=1)
     
     units_to_remove = []
     new_units = []
@@ -580,7 +584,9 @@ def apply_changes_to_teryt(teryt: pd.DataFrame, changes_for_year: pd.DataFrame, 
                 'id': id_after,
                 'if_changed': True,
                 'when_changed': year,
-                'notes': {'number_of_changes': 1, 'changes': change_descriptions}
+                'notes': {'number_of_changes': 1, 'changes': change_descriptions},
+                'historical_codes': [id_after],
+                'code_by_year': {year: id_after}
             }
             new_unit['level'] = encode_level(pd.Series(new_unit))
             new_unit['kind'] = encode_kind(pd.Series(new_unit))
@@ -592,9 +598,38 @@ def apply_changes_to_teryt(teryt: pd.DataFrame, changes_for_year: pd.DataFrame, 
                 units_to_remove.append(id_before)
             
         elif typ_korekty == 'M':  # Unit modified
-            # Skip if id_before is invalid (0000000 indicates no pre-existing unit)
+            # Handle M-type changes with id_before='0000000' (name-only changes)
+            # In this case, we need to find the unit by id_after (which should already exist)
+            if id_before == '0000000' and id_after != '0000000':
+                # This is a name/designation change only - find by id_after
+                mask = teryt['id'] == id_after
+                if mask.any():
+                    idx_to_update = teryt[mask].index[0]
+                    
+                    # Update name fields only
+                    if pd.notna(change_row.get('NazwaPo')):
+                        teryt.loc[idx_to_update, 'NAZWA'] = change_row.get('NazwaPo')
+                    if pd.notna(change_row.get('NazwaDodatkowaPo')):
+                        teryt.loc[idx_to_update, 'NAZWA_DOD'] = change_row.get('NazwaDodatkowaPo')
+                    
+                    # Update tracking columns
+                    teryt.loc[idx_to_update, 'if_changed'] = True
+                    teryt.loc[idx_to_update, 'when_changed'] = year
+                    
+                    # Update notes
+                    current_notes = teryt.loc[idx_to_update, 'notes']
+                    if isinstance(current_notes, dict):
+                        current_notes['number_of_changes'] += 1
+                        current_notes['changes'].extend(change_descriptions)
+                    else:
+                        teryt.loc[idx_to_update, 'notes'] = {
+                            'number_of_changes': 1,
+                            'changes': change_descriptions
+                        }
+                continue
+            
+            # Skip if both are invalid
             if id_before == '0000000':
-                # This is a data issue - skip or handle specially
                 continue
             
             # Find and update the unit
@@ -605,6 +640,24 @@ def apply_changes_to_teryt(teryt: pd.DataFrame, changes_for_year: pd.DataFrame, 
                 # For M-type changes: if id_after is 0000000, keep the original ID
                 # This happens when only the name changes but not the structural codes
                 effective_id_after = id_after if id_after != '0000000' else id_before
+                
+                # Track historical codes if ID is changing
+                if id_before != effective_id_after:
+                    current_hist = teryt.loc[idx_to_update, 'historical_codes']
+                    if isinstance(current_hist, list):
+                        if id_before not in current_hist:
+                            current_hist.append(id_before)
+                        if effective_id_after not in current_hist:
+                            current_hist.append(effective_id_after)
+                    else:
+                        teryt.loc[idx_to_update, 'historical_codes'] = [id_before, effective_id_after]
+                    
+                    # Update code_by_year
+                    current_cby = teryt.loc[idx_to_update, 'code_by_year']
+                    if isinstance(current_cby, dict):
+                        current_cby[year] = effective_id_after
+                    else:
+                        teryt.loc[idx_to_update, 'code_by_year'] = {year: effective_id_after}
                 
                 # Only update WOJ/POW/GMI/RODZ if id_after is valid (not 0000000)
                 # Otherwise it means only the name changed
@@ -649,6 +702,25 @@ def apply_changes_to_teryt(teryt: pd.DataFrame, changes_for_year: pd.DataFrame, 
                 ]
                 if len(name_match) > 0:
                     idx_to_update = name_match.index[0]
+                    old_id = teryt.loc[idx_to_update, 'id']
+                    
+                    # Track historical codes
+                    current_hist = teryt.loc[idx_to_update, 'historical_codes']
+                    if isinstance(current_hist, list):
+                        if old_id not in current_hist:
+                            current_hist.append(old_id)
+                        if id_after not in current_hist:
+                            current_hist.append(id_after)
+                    else:
+                        teryt.loc[idx_to_update, 'historical_codes'] = [old_id, id_after]
+                    
+                    # Update code_by_year
+                    current_cby = teryt.loc[idx_to_update, 'code_by_year']
+                    if isinstance(current_cby, dict):
+                        current_cby[year] = id_after
+                    else:
+                        teryt.loc[idx_to_update, 'code_by_year'] = {year: id_after}
+                    
                     # Apply updates
                     teryt.loc[idx_to_update, 'WOJ'] = str(change_row.get('WojPo', teryt.loc[idx_to_update, 'WOJ']))
                     teryt.loc[idx_to_update, 'POW'] = str(change_row.get('PowPo', teryt.loc[idx_to_update, 'POW']))
@@ -678,7 +750,8 @@ def apply_changes_to_teryt(teryt: pd.DataFrame, changes_for_year: pd.DataFrame, 
     return teryt
 
 
-def harmonize_teryt(first_teryt: pd.DataFrame, last_teryt: pd.DataFrame, changes: pd.DataFrame) -> pd.DataFrame:
+def harmonize_teryt(first_teryt: pd.DataFrame, last_teryt: pd.DataFrame, changes: pd.DataFrame, 
+                    verbose: bool = True) -> pd.DataFrame:
     """
     Harmonizes TERYT codes over all years from the first_teryt DataFrame to the last_teryt DataFrame
     using the changes DataFrame that contains the history of TERYT code changes. The output is a mega
@@ -691,6 +764,7 @@ def harmonize_teryt(first_teryt: pd.DataFrame, last_teryt: pd.DataFrame, changes
         This is used to determine the end year and for validation purposes.
     - changes (pd.DataFrame): DataFrame containing the history of TERYT code changes 
         (originally from XML format, with columns like TypKorekty, WojPrzed, WojPo, etc.).
+    - verbose (bool): If True, print progress messages. Default is True.
     
     Returns:
     - pd.DataFrame: A mega DataFrame containing TERYT codes for all years with columns:
@@ -699,6 +773,8 @@ def harmonize_teryt(first_teryt: pd.DataFrame, last_teryt: pd.DataFrame, changes
         - if_changed: Boolean indicating if the unit was involved in any changes
         - when_changed: Year of the most recent change (NaN if never changed)
         - notes: Dictionary with {'number_of_changes': int, 'changes': [list of change descriptions]}
+        - historical_codes: List of all TERYT codes this unit has had over time
+        - code_by_year: Dictionary mapping each year to the TERYT code used in that year
     
     Example usage:
         mega_df = harmonize_teryt(terc_1999, terc_2024, terc_changes)
@@ -712,7 +788,8 @@ def harmonize_teryt(first_teryt: pd.DataFrame, last_teryt: pd.DataFrame, changes
     first_year = pd.to_datetime(first_teryt_prepared['STAN_NA'].iloc[0]).year
     last_year = pd.to_datetime(last_teryt['STAN_NA'].iloc[0]).year if 'STAN_NA' in last_teryt.columns else 2024
     
-    print(f"Harmonizing TERYT codes from {first_year} to {last_year}...")
+    if verbose:
+        print(f"Harmonizing TERYT codes from {first_year} to {last_year}...")
     
     # Initialize the mega DataFrame list
     yearly_dfs = []
@@ -726,6 +803,10 @@ def harmonize_teryt(first_teryt: pd.DataFrame, last_teryt: pd.DataFrame, changes
     current_teryt['notes'] = current_teryt.apply(
         lambda x: {'number_of_changes': 0, 'changes': []}, axis=1
     )
+    # Initialize historical_codes with the initial ID
+    current_teryt['historical_codes'] = current_teryt['id'].apply(lambda x: [x])
+    # Initialize code_by_year with the first year
+    current_teryt['code_by_year'] = current_teryt['id'].apply(lambda x: {first_year: x})
     
     # Store the first year
     first_year_df = current_teryt.copy()
@@ -738,10 +819,21 @@ def harmonize_teryt(first_teryt: pd.DataFrame, last_teryt: pd.DataFrame, changes
         changes_for_year = changes_prepared[changes_prepared['year_effective'] == year]
         
         if len(changes_for_year) > 0:
-            print(f"  Year {year}: applying {len(changes_for_year)} changes...")
+            if verbose:
+                print(f"  Year {year}: applying {len(changes_for_year)} changes...")
             current_teryt = apply_changes_to_teryt(current_teryt, changes_for_year, year)
         else:
-            print(f"  Year {year}: no changes")
+            if verbose:
+                print(f"  Year {year}: no changes")
+        
+        # Update code_by_year for all units (current year's code)
+        for idx in current_teryt.index:
+            cby = current_teryt.loc[idx, 'code_by_year']
+            current_id = current_teryt.loc[idx, 'id']
+            if isinstance(cby, dict):
+                cby[year] = current_id
+            else:
+                current_teryt.loc[idx, 'code_by_year'] = {year: current_id}
         
         # Store this year's state
         year_df = current_teryt.copy()
@@ -754,17 +846,19 @@ def harmonize_teryt(first_teryt: pd.DataFrame, last_teryt: pd.DataFrame, changes
     
     # Ensure consistent column order
     column_order = ['year', 'WOJ', 'POW', 'GMI', 'RODZ', 'id', 'NAZWA', 'NAZWA_DOD', 
-                    'level', 'kind', 'STAN_NA', 'if_changed', 'when_changed', 'notes']
+                    'level', 'kind', 'STAN_NA', 'if_changed', 'when_changed', 'notes',
+                    'historical_codes', 'code_by_year']
     
     # Only include columns that exist
     column_order = [col for col in column_order if col in mega_df.columns]
     other_cols = [col for col in mega_df.columns if col not in column_order]
     mega_df = mega_df[column_order + other_cols]
     
-    print(f"\nHarmonization complete!")
-    print(f"Total rows in mega DataFrame: {len(mega_df)}")
-    print(f"Unique years: {mega_df['year'].nunique()}")
-    print(f"Units changed at some point: {mega_df[mega_df['if_changed'] == True]['id'].nunique()}")
+    if verbose:
+        print(f"\nHarmonization complete!")
+        print(f"Total rows in mega DataFrame: {len(mega_df)}")
+        print(f"Unique years: {mega_df['year'].nunique()}")
+        print(f"Units changed at some point: {mega_df[mega_df['if_changed'] == True]['id'].nunique()}")
     
     return mega_df
 

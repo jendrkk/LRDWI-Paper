@@ -1,9 +1,19 @@
 """
-GeoTERYT Database Module - Version 3.0
+GeoTERYT Database Module - Version 3.1
 ======================================
 
 A comprehensive database system for Polish administrative divisions (TERYT) 
 with full geometry support, historical tracking, and overlay operations.
+
+NEW in v3.1:
+- Added historical_codes and code_by_year attributes to TERYTRecord
+- Changed geometry loading: load_geometries() now ONLY stores in _geometries dict
+- Added assign_geometries(year, level) - assign geometries for specific year only
+- Added assign_missing_geometries(year, level) - find matching geometries for unchanged units
+- Added impute_geometries_past_tid(year, level) - use code_by_year to find affiliated teryt_ids
+- Added impute_from_best_candidates(condition) - fill geometry from geometry_best_candidate
+- Added country_shape_check(year, level) - count holes vs missing geometries
+- Updated save_complete() and load_complete_database() for new attributes
 
 FIXES in v3.0:
 - Added display() method to TERYTRecord for nice DataFrame-like display
@@ -108,6 +118,8 @@ LEVEL_GMINA = 6
 # RODZ (kind) codes to exclude when working with gmina-level data
 # Codes 4 (town in urban-rural) and 5 (rural area in urban-rural) are sub-divisions
 RODZ_SUB_DIVISIONS = ['4', '5']
+RODZ_SUB_DIVISIONS_AND_DISTRICTS = ['4', '5', '8', '9']
+RODZ_DISTRICTS = ['8', '9']
 
 # Kind mapping
 KIND_MAPPING = {
@@ -278,6 +290,8 @@ class TERYTRecord:
     - changes: Detailed list of all changes with years
     - old_woj: Pre-1999 voivodeship name (NEW in v3.0)
     - old_woj_id: Pre-1999 voivodeship index (NEW in v3.0)
+    - historical_codes: List of all TERYT codes this unit ever had (NEW in v3.1)
+    - code_by_year: Dict mapping year -> teryt_id for this unit (NEW in v3.1)
     """
     
     def __init__(self, teryt_id: str, name: str, name_dod: str = None,
@@ -295,7 +309,9 @@ class TERYTRecord:
         self.past_kinds: List[Tuple[str, int]] = []  # (kind, year_until)
         self.changes: List[dict] = []
         self.geometry = None
+        self.geometry_best_candidate = None
         self.geometry_year: Optional[int] = None
+        self.geometry_notes: Optional[str] = None
         
         # Additional metadata
         self.woj = self.teryt_id[:2]
@@ -306,6 +322,10 @@ class TERYTRecord:
         # Pre-1999 voivodeship assignment (NEW in v3.0)
         self.old_woj: Optional[str] = None  # Name of pre-1999 voivodeship
         self.old_woj_id: Optional[int] = None  # Index of pre-1999 voivodeship
+        
+        # Historical codes tracking (NEW in v3.1)
+        self.historical_codes: List[str] = []  # All TERYT codes this unit ever had
+        self.code_by_year: Dict[int, str] = {}  # year -> teryt_id mapping
         
         # Track if this unit underwent any changes
         self.has_changes = False
@@ -419,8 +439,11 @@ class TERYTRecord:
             'n_changes': self.n_changes,
             'has_geometry': self.has_geometry,
             'geometry_year': self.geometry_year,
+            'geometry_notes': self.geometry_notes,
             'old_woj': self.old_woj,
-            'old_woj_id': self.old_woj_id
+            'old_woj_id': self.old_woj_id,
+            'historical_codes': self.historical_codes,
+            'code_by_year': self.code_by_year
         }
     
     def display(self):
@@ -496,6 +519,7 @@ class GeoTERYTDatabase:
         # Geometry storage
         self._geometries: Dict[int, gpd.GeoDataFrame] = {}
         self._poland_boundary = None
+        self._poland_gdf = None
         
         # Metadata
         self._year_range: Tuple[int, int] = (1999, 2024)
@@ -516,6 +540,27 @@ class GeoTERYTDatabase:
         self._poland_boundary = unary_union(boundary_gdf.geometry)
         if not self._poland_boundary.is_valid:
             self._poland_boundary = make_valid(self._poland_boundary)
+            
+    def set_poland_gdf(self, boundary_gdf: gpd.GeoDataFrame):
+        """
+        Set the Poland GeoDataFrame for plotting and other purposes.
+        
+        Parameters:
+        - boundary_gdf: GeoDataFrame with Poland's boundary
+        """
+        if boundary_gdf.crs != self._crs:
+            boundary_gdf = boundary_gdf.to_crs(self._crs)
+        self._poland_gdf = boundary_gdf
+            
+    def get_poland_boundary(self) -> gpd.GeoDataFrame:
+        
+        if self._poland_gdf is not None:
+            return self._poland_gdf
+        
+    def get_poland_gdf(self) -> gpd.GeoDataFrame:
+        
+        if self._poland_boundary is not None:
+            return self._poland_boundary
     
     def build_from_harmonized(self, mega_df: pd.DataFrame, verbose: bool = True):
         """
@@ -709,6 +754,65 @@ class GeoTERYTDatabase:
             
             self._records[teryt_id] = record
         
+        # ======================================================================
+        # PASS 2.5: Populate historical_codes and code_by_year from mega_df
+        # ======================================================================
+        if verbose:
+            print("  Pass 2.5: Populating historical codes and code_by_year...")
+        
+        # Check if the columns exist in mega_df
+        has_historical_codes = 'historical_codes' in mega_df.columns
+        has_code_by_year = 'code_by_year' in mega_df.columns
+        
+        if has_historical_codes or has_code_by_year:
+            # Get the latest year data for each teryt_id
+            latest_year = mega_df['year'].max()
+            latest_data = mega_df[mega_df['year'] == latest_year]
+            
+            for _, row in latest_data.iterrows():
+                teryt_id = str(row.get('id', '')).zfill(7)
+                if teryt_id not in self._records:
+                    continue
+                
+                record = self._records[teryt_id]
+                
+                # Populate historical_codes
+                if has_historical_codes:
+                    hist_codes = row.get('historical_codes')
+                    if pd.notna(hist_codes):
+                        if isinstance(hist_codes, str):
+                            try:
+                                hist_codes = ast.literal_eval(hist_codes)
+                            except:
+                                hist_codes = []
+                        if isinstance(hist_codes, list):
+                            record.historical_codes = [str(c).zfill(7) for c in hist_codes]
+                
+                # Populate code_by_year
+                if has_code_by_year:
+                    cby = row.get('code_by_year')
+                    if pd.notna(cby):
+                        if isinstance(cby, str):
+                            try:
+                                cby = ast.literal_eval(cby)
+                            except:
+                                cby = {}
+                        if isinstance(cby, dict):
+                            # Convert keys to int and values to zfilled strings
+                            record.code_by_year = {
+                                int(year): str(code).zfill(7) 
+                                for year, code in cby.items()
+                            }
+            
+            if verbose:
+                records_with_hist = sum(1 for r in self._records.values() if r.historical_codes)
+                records_with_cby = sum(1 for r in self._records.values() if r.code_by_year)
+                print(f"    Records with historical_codes: {records_with_hist}")
+                print(f"    Records with code_by_year: {records_with_cby}")
+        else:
+            if verbose:
+                print("    Note: historical_codes and code_by_year columns not found in mega_df")
+        
         if verbose:
             print(f"    Name changes detected: {change_stats['name_changes']}")
             print(f"    Kind changes detected: {change_stats['kind_changes']}")
@@ -786,9 +890,12 @@ class GeoTERYTDatabase:
         - teryt_column: Column name containing TERYT codes (tries 'teryt' then 'jpt_kod_je')
         - clip_to_poland: If True and Poland boundary is set, clip geometries to land
         - verbose: Print progress
+        
+        NEW in v3.1: This method now ONLY stores geometries in _geometries dict.
+        It does NOT assign geometries to records. Use assign_geometries() methods instead.
         """
         if verbose:
-            print("Loading geometries into database (v3.0)...")
+            print("Loading geometries into database (v3.1 - storage only)...")
             if clip_to_poland and self._poland_boundary is not None:
                 print("  (Clipping to Poland boundary enabled)")
         
@@ -812,10 +919,8 @@ class GeoTERYTDatabase:
                 gdf = gdf.to_crs(self._crs)
             
             # Standardize column names to lowercase for consistent matching
+            gdf = gdf.copy()
             gdf.columns = [col.lower() for col in gdf.columns]
-            
-            # Store the GeoDataFrame
-            self._geometries[year] = gdf.copy()
             
             # Find TERYT column or create it from 'obszar' (pre-2012 files)
             actual_teryt_col = None
@@ -836,59 +941,40 @@ class GeoTERYTDatabase:
             
             if actual_teryt_col is None:
                 if verbose:
-                    print(f"    Warning: No TERYT or 'obszar' column found, skipping geometry linking")
+                    print(f"    Warning: No TERYT or 'obszar' column found")
                     print(f"    Available columns: {list(gdf.columns)}")
+                # Store anyway but without teryt column
+                self._geometries[year] = gdf
                 continue
             
-            # Link geometries to records
-            geometry_linked = 0
-            for _, row in gdf.iterrows():
-                raw_code = str(row[actual_teryt_col])
-                
-                # Convert NUTS code to TERYT if needed (pre-2012 files)
-                if needs_conversion:
-                    teryt = nuts_code_to_teryt(raw_code)
-                else:
-                    teryt = raw_code.zfill(7)
-                
-                # Handle 6-digit codes (append 0)
-                if len(teryt) == 6:
-                    teryt = teryt + '0'
-                
-                # Get geometry, optionally clipped
-                geom = row.geometry
-                if clip_to_poland and self._poland_boundary is not None:
-                    geom = safe_clip_geometry(geom, self._poland_boundary)
-                
-                # Try exact match first
-                if teryt in self._records:
-                    record = self._records[teryt]
-                    # Prefer more recent geometry
-                    if not record.has_geometry or (record.geometry_year and year > record.geometry_year):
-                        record.set_geometry(geom, year)
-                        geometry_linked += 1
-                else:
-                    # Try matching with different RODZ values
-                    short_teryt = teryt[:6]
-                    matched = False
-                    for tid, record in self._records.items():
-                        if tid[:6] == short_teryt:
-                            if not record.has_geometry or (record.geometry_year and year > record.geometry_year):
-                                record.set_geometry(geom, year)
-                                geometry_linked += 1
-                                matched = True
-                                break
+            # Create standardized 'teryt_id' column
+            if needs_conversion:
+                gdf['teryt_id'] = gdf[actual_teryt_col].apply(nuts_code_to_teryt)
+            else:
+                gdf['teryt_id'] = gdf[actual_teryt_col].apply(lambda x: str(x).zfill(7) if pd.notna(x) else '0000000')
+            
+            # Handle 6-digit codes (append 0)
+            gdf['teryt_id'] = gdf['teryt_id'].apply(lambda x: x + '0' if len(x) == 6 else x)
+            
+            # Optionally clip geometries to Poland boundary
+            if clip_to_poland and self._poland_boundary is not None:
+                gdf['geometry'] = gdf['geometry'].apply(
+                    lambda g: safe_clip_geometry(g, self._poland_boundary)
+                )
+            
+            # Store the prepared GeoDataFrame
+            self._geometries[year] = gdf
             
             if verbose:
-                print(f"    Linked {geometry_linked} geometries")
+                print(f"    Stored {len(gdf)} geometries for year {year}")
         
         if verbose:
-            total_with_geometry = sum(1 for r in self._records.values() if r.has_geometry)
-            print(f"\n  Total records with geometry: {total_with_geometry}/{len(self._records)}")
+            print(f"\n  ✓ Geometry data stored for years: {sorted(self._geometries.keys())}")
+            print(f"    NOTE: Use assign_geometries() methods to assign geometries to records")
     
-    def load_poland_boundary(self, gadm_path: Union[str, Path], verbose: bool = True):
+    def load_poland_shape(self, gadm_path: Union[str, Path] = None, verbose: bool = True):
         """
-        Load Poland boundary from GADM shapefile for geometry clipping.
+        Load Poland shape from GADM shapefile for geometry clipping.
         
         This should be called BEFORE load_geometries() to enable clipping.
         
@@ -897,13 +983,18 @@ class GeoTERYTDatabase:
         - verbose: Print progress
         """
         if verbose:
-            print(f"Loading Poland boundary from {gadm_path}...")
+            print(f"Loading Poland shape from {gadm_path}...")
+        
+        if gadm_path is None:
+            gadm_path = Path('/Users/jedrek/Documents/Studium Volkswirschaftslehre/3. Semester/Long-run dynamics of wealth inequalities/Paper/Data/Geospatial/gadm41_POL_shp/gadm41_POL_0.shp')
         
         gdf = gpd.read_file(gadm_path)
+        gdf = gdf.to_crs("EPSG:2180")  # Polish projected CRS
         self.set_poland_boundary(gdf)
+        self.set_poland_gdf(gdf)
         
         if verbose:
-            print("  ✓ Poland boundary loaded and set for clipping")
+            print("  ✓ Poland shape loaded and set for clipping")
     
     # ==========================================================================
     # SEARCH METHODS
@@ -936,7 +1027,9 @@ class GeoTERYTDatabase:
     
     def get_divisions_by_year(self, year: int, level: Optional[int] = None,
                                kind: Optional[str] = None,
-                               exclude_subdivisions: bool = True) -> List[TERYTRecord]:
+                               exclude_subdivisions_and_districts: bool = True,
+                               exclude_subdivisions: bool = True,
+                               exclude_districts: bool = True) -> List[TERYTRecord]:
         """Get all divisions valid in a specific year."""
         if year not in self._by_year:
             return []
@@ -953,8 +1046,17 @@ class GeoTERYTDatabase:
         
         records = [self._records[tid] for tid in teryt_ids]
         
+        if exclude_subdivisions_and_districts:
+            records = [r for r in records if r.rodz not in RODZ_SUB_DIVISIONS_AND_DISTRICTS]
+            return records
+        
         if exclude_subdivisions:
             records = [r for r in records if r.rodz not in RODZ_SUB_DIVISIONS]
+            return records
+
+        if exclude_districts:
+            records = [r for r in records if r.rodz not in RODZ_DISTRICTS]
+            return records
         
         return records
     
@@ -979,7 +1081,7 @@ class GeoTERYTDatabase:
             teryt_ids = teryt_ids & year_ids
         
         records = [self._records[tid] for tid in teryt_ids]
-        records = [r for r in records if r.rodz not in RODZ_SUB_DIVISIONS]
+        records = [r for r in records if r.rodz not in RODZ_SUB_DIVISIONS_AND_DISTRICTS]
         
         return records
     
@@ -1136,10 +1238,444 @@ class GeoTERYTDatabase:
         
         return available[0][1]
     
+    # ==========================================================================
+    # GEOMETRY ASSIGNMENT METHODS (NEW in v3.1)
+    # ==========================================================================
+    
+    def assign_geometries(self, year: int, level: Optional[int] = None,
+                          verbose: bool = True) -> dict:
+        """
+        Assign geometries to records for a specific year.
+        
+        Only assigns geometries where the teryt_id matches exactly in the 
+        geometry file for that year. Does NOT try to find geometries from
+        other years for unchanged units.
+        
+        Parameters:
+        - year: The year for which to assign geometries
+        - level: Optional level filter (2=voivodeship, 5=powiat, 6=gmina)
+        - verbose: Print progress
+        
+        Returns:
+        - dict with assignment statistics
+        """
+        if year not in self._geometries:
+            if verbose:
+                print(f"  No geometry data available for year {year}")
+            return {'assigned': 0, 'not_found': 0, 'error': f'No geometry for year {year}'}
+        
+        if verbose:
+            print(f"Assigning geometries for year {year}...")
+        
+        gdf = self._geometries[year]
+        
+        # Ensure teryt_id column exists
+        if 'teryt_id' not in gdf.columns:
+            if verbose:
+                print(f"  Warning: No teryt_id column in geometry for year {year}")
+            return {'assigned': 0, 'not_found': 0, 'error': 'No teryt_id column'}
+        
+        # Get snapshot of units valid in this year
+        snapshot = self.get_snapshot(year)
+        if level is not None:
+            snapshot = [r for r in snapshot if r.level == level]
+        
+        # Build lookup from teryt_id to geometry
+        geom_lookup = {}
+        for _, row in gdf.iterrows():
+            tid = str(row['teryt_id']).zfill(7)
+            geom_lookup[tid] = row.geometry
+            # Also store 6-digit version for flexible matching
+            short_tid = tid[:6]
+            if short_tid not in geom_lookup:
+                geom_lookup[short_tid] = row.geometry
+        
+        assigned = 0
+        not_found = 0
+        already_has = 0
+        
+        for record in snapshot:
+            if record.has_geometry:
+                already_has += 1
+                continue
+            
+            teryt_id = record.teryt_id
+            geom = geom_lookup.get(teryt_id)
+            
+            # Try 6-digit match if exact match fails
+            if geom is None:
+                geom = geom_lookup.get(teryt_id[:6])
+            
+            if geom is not None:
+                record.set_geometry(geom, year)
+                assigned += 1
+            else:
+                not_found += 1
+        
+        if verbose:
+            print(f"  ✓ Assigned: {assigned}")
+            print(f"  ✓ Already had geometry: {already_has}")
+            print(f"  ✗ Not found: {not_found}")
+        
+        return {'assigned': assigned, 'not_found': not_found, 'already_has': already_has}
+    
+    def assign_missing_geometries(self, year: int, level: Optional[int] = None,
+                                   tolerance: float = 0.1,
+                                   verbose: bool = True) -> dict:
+        """
+        For units without geometry that haven't changed, find matching geometries
+        from other years by comparing across years.
+        
+        For unchanged units (same teryt_id across years), if a geometry exists
+        in another year with the same area (within tolerance), assign it.
+        
+        Parameters:
+        - year: The year for which to find missing geometries
+        - level: Optional level filter
+        - tolerance: Area difference tolerance ratio (0.1 = 10%)
+        - verbose: Print progress
+        
+        Returns:
+        - dict with assignment statistics
+        """
+        if verbose:
+            print(f"Finding missing geometries for year {year} (tolerance={tolerance*100}%)...")
+        
+        # Get units valid in this year that don't have geometry
+        snapshot = self.get_snapshot(year)
+        if level is not None:
+            snapshot = [r for r in snapshot if r.level == level]
+        
+        missing = [r for r in snapshot if not r.has_geometry]
+        
+        if verbose:
+            print(f"  Units without geometry: {len(missing)}")
+        
+        if len(missing) == 0:
+            return {'assigned': 0, 'total_missing': 0}
+        
+        # For each missing unit, check if it's unchanged (same teryt_id in other years)
+        assigned = 0
+        candidates_found = 0
+        
+        for record in missing:
+            teryt_id = record.teryt_id
+            
+            # Check if this unit has any changes
+            if record.has_changes:
+                # For units with changes, we need impute_geometries_past_tid instead
+                continue
+            
+            # Look for geometry in other years with the same teryt_id
+            best_geom = None
+            best_year = None
+            best_area = None
+            
+            for geom_year, gdf in sorted(self._geometries.items(), key=lambda x: -x[0]):
+                if 'teryt_id' not in gdf.columns:
+                    continue
+                
+                # Find matching geometry
+                mask = gdf['teryt_id'] == teryt_id
+                matches = gdf[mask]
+                
+                if len(matches) > 0:
+                    geom = matches.iloc[0].geometry
+                    if geom is not None and not geom.is_empty:
+                        if best_geom is None:
+                            best_geom = geom
+                            best_year = geom_year
+                            best_area = geom.area
+                        else:
+                            # Compare areas - if within tolerance, prefer closer year
+                            area_diff = abs(geom.area - best_area) / best_area if best_area > 0 else 1
+                            if area_diff <= tolerance:
+                                # Prefer geometry from year closer to target
+                                if abs(geom_year - year) < abs(best_year - year):
+                                    best_geom = geom
+                                    best_year = geom_year
+                                    best_area = geom.area
+            
+            if best_geom is not None:
+                record.set_geometry(best_geom, best_year)
+                record.geometry_notes = f"assigned_from_year_{best_year}"
+                assigned += 1
+                candidates_found += 1
+        
+        if verbose:
+            print(f"  ✓ Assigned from other years: {assigned}")
+            still_missing = sum(1 for r in snapshot if not r.has_geometry)
+            print(f"  Remaining without geometry: {still_missing}")
+        
+        return {'assigned': assigned, 'total_missing': len(missing), 'still_missing': len(missing) - assigned}
+    
+    def impute_geometries_past_tid(self, year: int, level: Optional[int] = None,
+                                    search_radius_km: float = 50,
+                                    verbose: bool = True) -> dict:
+        """
+        For units without geometry, use code_by_year to find affiliated teryt_ids
+        and search for geometry candidates with overlap checking.
+        
+        Uses the code_by_year attribute to find which teryt_id this unit had in
+        different years, then searches for geometry candidates within a radius.
+        
+        Parameters:
+        - year: The year for which to find missing geometries
+        - level: Optional level filter
+        - search_radius_km: Search radius in km for candidate geometries (50km default)
+        - verbose: Print progress
+        
+        Returns:
+        - dict with imputation statistics
+        """
+        if verbose:
+            print(f"Imputing geometries using past teryt_ids for year {year}...")
+        
+        # Get units valid in this year that don't have geometry
+        snapshot = self.get_snapshot(year)
+        if level is not None:
+            snapshot = [r for r in snapshot if r.level == level]
+        
+        missing = [r for r in snapshot if not r.has_geometry]
+        
+        if verbose:
+            print(f"  Units without geometry: {len(missing)}")
+        
+        if len(missing) == 0:
+            return {'candidates_found': 0, 'imputed': 0, 'total_missing': 0}
+        
+        # Convert search radius to meters (for EPSG:2180)
+        search_radius_m = search_radius_km * 1000
+        
+        candidates_found = 0
+        imputed = 0
+        
+        for record in missing:
+            if not record.code_by_year:
+                continue
+            
+            # Get all affiliated teryt_ids from code_by_year
+            affiliated_ids = set(record.code_by_year.values())
+            affiliated_ids.discard(record.teryt_id)  # Exclude current ID
+            
+            if not affiliated_ids:
+                continue
+            
+            # Also include historical_codes
+            if record.historical_codes:
+                affiliated_ids.update(record.historical_codes)
+            
+            # Search for geometries of affiliated teryt_ids
+            candidate_geoms = []
+            
+            for geom_year, gdf in self._geometries.items():
+                if 'teryt_id' not in gdf.columns:
+                    continue
+                
+                for aff_id in affiliated_ids:
+                    mask = gdf['teryt_id'] == aff_id
+                    matches = gdf[mask]
+                    
+                    if len(matches) > 0:
+                        geom = matches.iloc[0].geometry
+                        if geom is not None and not geom.is_empty:
+                            candidate_geoms.append({
+                                'geometry': geom,
+                                'source_year': geom_year,
+                                'source_teryt_id': aff_id,
+                                'area': geom.area
+                            })
+            
+            if candidate_geoms:
+                candidates_found += 1
+                
+                # If we have candidates, find the best one
+                # Sort by area (prefer larger) and year (prefer closer to target)
+                candidate_geoms.sort(key=lambda x: (-x['area'], abs(x['source_year'] - year)))
+                
+                best = candidate_geoms[0]
+                record.geometry_best_candidate = best['geometry']
+                record.geometry_notes = f"candidate_from_{best['source_teryt_id']}_year_{best['source_year']}"
+                
+                # If only one candidate or all candidates overlap significantly,
+                # we can assign directly
+                if len(candidate_geoms) == 1:
+                    record.set_geometry(best['geometry'], best['source_year'])
+                    record.geometry_notes = f"imputed_from_{best['source_teryt_id']}_year_{best['source_year']}"
+                    imputed += 1
+        
+        if verbose:
+            print(f"  ✓ Candidates found: {candidates_found}")
+            print(f"  ✓ Directly imputed: {imputed}")
+            still_missing = sum(1 for r in snapshot if not r.has_geometry)
+            print(f"  Remaining without geometry: {still_missing}")
+        
+        return {
+            'candidates_found': candidates_found, 
+            'imputed': imputed, 
+            'total_missing': len(missing),
+            'still_missing': len(missing) - imputed
+        }
+    
+    def impute_from_best_candidates(self, condition: Optional[str] = None,
+                                     verbose: bool = True) -> dict:
+        """
+        Fill geometry from geometry_best_candidate based on geometry_notes.
+        
+        Parameters:
+        - condition: Optional string to filter by geometry_notes (e.g., 'candidate_from')
+        - verbose: Print progress
+        
+        Returns:
+        - dict with imputation statistics
+        """
+        if verbose:
+            print("Imputing geometries from best candidates...")
+        
+        imputed = 0
+        skipped = 0
+        
+        for record in self._records.values():
+            if record.has_geometry:
+                continue
+            
+            if record.geometry_best_candidate is None:
+                continue
+            
+            # Check condition if specified
+            if condition is not None:
+                if record.geometry_notes is None or condition not in record.geometry_notes:
+                    skipped += 1
+                    continue
+            
+            # Assign the best candidate
+            record.geometry = record.geometry_best_candidate
+            record.geometry_notes = record.geometry_notes.replace('candidate_from', 'imputed_from') if record.geometry_notes else 'imputed'
+            imputed += 1
+        
+        if verbose:
+            print(f"  ✓ Imputed: {imputed}")
+            if skipped > 0:
+                print(f"  Skipped (condition not met): {skipped}")
+        
+        return {'imputed': imputed, 'skipped': skipped}
+    
+    def country_shape_check(self, year: int, level: int = 6,
+                            verbose: bool = True) -> dict:
+        """
+        Check geometry coverage by overlaying with Poland boundary.
+        
+        Counts holes (areas inside Poland not covered by any unit geometry)
+        and compares with count of units missing geometries.
+        
+        Parameters:
+        - year: Year to check
+        - level: Administrative level (default 6 = gmina)
+        - verbose: Print progress
+        
+        Returns:
+        - dict with coverage statistics
+        """
+        if self._poland_boundary is None:
+            if verbose:
+                print("  No Poland boundary loaded. Use load_poland_shape() first.")
+            return {'error': 'No Poland boundary loaded'}
+        
+        if verbose:
+            print(f"Checking geometry coverage for year {year}, level {level}...")
+        
+        # Get all units for this year and level
+        snapshot = self.get_snapshot(year)
+        snapshot = [r for r in snapshot if r.level == level]
+        
+        # Filter out subdivisions
+        snapshot = [r for r in snapshot if r.rodz not in RODZ_SUB_DIVISIONS_AND_DISTRICTS]
+        
+        total_units = len(snapshot)
+        units_with_geom = sum(1 for r in snapshot if r.has_geometry)
+        units_missing_geom = total_units - units_with_geom
+        
+        if verbose:
+            print(f"  Total units: {total_units}")
+            print(f"  With geometry: {units_with_geom}")
+            print(f"  Missing geometry: {units_missing_geom}")
+        
+        # Create union of all geometries
+        geometries = [r.geometry for r in snapshot if r.has_geometry and r.geometry is not None]
+        
+        if not geometries:
+            if verbose:
+                print("  No geometries to check")
+            return {
+                'total_units': total_units,
+                'units_with_geom': 0,
+                'units_missing_geom': units_missing_geom,
+                'coverage_area': 0,
+                'uncovered_area': self._poland_boundary.area if self._poland_boundary else 0,
+                'coverage_percent': 0
+            }
+        
+        try:
+            from shapely.ops import unary_union
+            
+            # Union all geometries
+            all_geoms_union = unary_union(geometries)
+            
+            # Calculate coverage
+            poland_area = self._poland_boundary.area
+            coverage_area = all_geoms_union.area
+            
+            # Find uncovered area (holes)
+            uncovered = self._poland_boundary.difference(all_geoms_union)
+            uncovered_area = uncovered.area if uncovered else 0
+            
+            coverage_percent = (coverage_area / poland_area) * 100 if poland_area > 0 else 0
+            
+            # Count distinct uncovered regions (holes)
+            n_holes = 0
+            if uncovered and not uncovered.is_empty:
+                if uncovered.geom_type == 'MultiPolygon':
+                    n_holes = len(uncovered.geoms)
+                elif uncovered.geom_type == 'Polygon':
+                    n_holes = 1
+                elif uncovered.geom_type == 'GeometryCollection':
+                    n_holes = sum(1 for g in uncovered.geoms if g.geom_type in ['Polygon', 'MultiPolygon'])
+            
+            if verbose:
+                print(f"  Coverage: {coverage_percent:.2f}%")
+                print(f"  Uncovered area: {uncovered_area/1e6:.2f} km²")
+                print(f"  Number of holes/gaps: {n_holes}")
+                if n_holes != units_missing_geom:
+                    print(f"  ⚠ Mismatch: {n_holes} holes vs {units_missing_geom} missing units")
+            
+            return {
+                'total_units': total_units,
+                'units_with_geom': units_with_geom,
+                'units_missing_geom': units_missing_geom,
+                'coverage_area_km2': coverage_area / 1e6,
+                'uncovered_area_km2': uncovered_area / 1e6,
+                'coverage_percent': coverage_percent,
+                'n_holes': n_holes,
+                'holes_match_missing': n_holes == units_missing_geom,
+                'uncovered_geometry': uncovered
+            }
+            
+        except Exception as e:
+            if verbose:
+                print(f"  Error during coverage check: {e}")
+            return {
+                'error': str(e),
+                'total_units': total_units,
+                'units_with_geom': units_with_geom,
+                'units_missing_geom': units_missing_geom
+            }
+    
     def to_geodataframe(self, year: Optional[int] = None, 
                         level: Optional[int] = None,
                         kind: Optional[str] = None,
+                        exclude_subdivisions_and_districts: bool = True,
                         exclude_subdivisions: bool = True,
+                        exclude_districts: bool = True,
                         include_all_attributes: bool = True,
                         only_with_geometry: bool = False) -> gpd.GeoDataFrame:
         """
@@ -1162,8 +1698,12 @@ class GeoTERYTDatabase:
                 records = [r for r in records if r.level == level]
             if kind is not None:
                 records = [r for r in records if r.kind == kind]
-            if exclude_subdivisions:
+            if exclude_subdivisions_and_districts:
+                records = [r for r in records if r.rodz not in RODZ_SUB_DIVISIONS_AND_DISTRICTS]
+            elif exclude_subdivisions:
                 records = [r for r in records if r.rodz not in RODZ_SUB_DIVISIONS]
+            elif exclude_districts:
+                records = [r for r in records if r.rodz not in RODZ_DISTRICTS]
         
         if only_with_geometry:
             records = [r for r in records if r.has_geometry]
@@ -1497,9 +2037,13 @@ class GeoTERYTDatabase:
                 'changes': record.changes,
                 'has_changes': record.has_changes,
                 'geometry_year': record.geometry_year,
+                'geometry_notes': record.geometry_notes,  # NEW in v3.1
                 'old_woj': record.old_woj,
                 'old_woj_id': record.old_woj_id,
-                'geometry_wkb': record.geometry.wkb if record.geometry else None
+                'historical_codes': record.historical_codes,  # NEW in v3.1
+                'code_by_year': record.code_by_year,  # NEW in v3.1
+                'geometry_wkb': record.geometry.wkb if record.geometry else None,
+                'geometry_best_candidate_wkb': record.geometry_best_candidate.wkb if record.geometry_best_candidate else None  # NEW in v3.1
             }
             records_data[teryt_id] = rec_dict
         
@@ -1515,7 +2059,7 @@ class GeoTERYTDatabase:
         poland_wkb = self._poland_boundary.wkb if self._poland_boundary else None
         
         save_data = {
-            'version': '3.0',
+            'version': '3.1',
             'records': records_data,
             'by_year': {k: list(v) for k, v in self._by_year.items()},
             'by_name': {k: list(v) for k, v in self._by_name.items()},
@@ -1665,13 +2209,21 @@ def load_complete_database(filepath: Union[str, Path], verbose: bool = True) -> 
         record.changes = rec_dict.get('changes', [])
         record.has_changes = rec_dict.get('has_changes', False)
         record.geometry_year = rec_dict.get('geometry_year')
+        record.geometry_notes = rec_dict.get('geometry_notes')  # NEW in v3.1
         record.old_woj = rec_dict.get('old_woj')
         record.old_woj_id = rec_dict.get('old_woj_id')
+        record.historical_codes = rec_dict.get('historical_codes', [])  # NEW in v3.1
+        record.code_by_year = rec_dict.get('code_by_year', {})  # NEW in v3.1
         
         # Restore geometry from WKB
         geom_wkb = rec_dict.get('geometry_wkb')
         if geom_wkb:
             record.geometry = wkb.loads(geom_wkb)
+        
+        # Restore geometry_best_candidate from WKB (NEW in v3.1)
+        geom_cand_wkb = rec_dict.get('geometry_best_candidate_wkb')
+        if geom_cand_wkb:
+            record.geometry_best_candidate = wkb.loads(geom_cand_wkb)
         
         db._records[teryt_id] = record
     
@@ -1682,8 +2234,28 @@ def load_complete_database(filepath: Union[str, Path], verbose: bool = True) -> 
     db._by_kind = {k: set(v) for k, v in data['by_kind'].items()}
     db._by_voivodeship = {k: set(v) for k, v in data['by_voivodeship'].items()}
     
-    # Note: We don't restore the raw geometry GeoDataFrames (_geometries) 
-    # since all geometries are already in the records
+    # Restore geometry GeoDataFrames (NEW in v3.1)
+    # Required for the new geometry assignment workflow
+    geometries_data = data.get('geometries', {})
+    if geometries_data:
+        for year_str, records_list in geometries_data.items():
+            year = int(year_str)
+            # Reconstruct GeoDataFrame from records
+            gdf_data = []
+            geometries = []
+            for rec in records_list:
+                geom_wkb = rec.pop('geometry_wkb', None)
+                gdf_data.append(rec)
+                if geom_wkb:
+                    geometries.append(wkb.loads(geom_wkb))
+                else:
+                    geometries.append(None)
+            
+            gdf = gpd.GeoDataFrame(gdf_data, geometry=geometries, crs=db._crs)
+            db._geometries[year] = gdf
+        
+        if verbose:
+            print(f"  ✓ Restored geometry data for years: {sorted(db._geometries.keys())}")
     
     if verbose:
         print(f"  ✓ Loaded {len(db._records)} records")
