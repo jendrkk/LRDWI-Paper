@@ -156,6 +156,10 @@ def nuts_code_to_teryt(nuts_code: str) -> str:
     powiat_id = nuts_code[-(k+2):-k]
     if len(nuts_code) == 11:
         voivodeship_id = nuts_code[1:3]
+    elif len(nuts_code) == 10:
+        voivodeship_id = nuts_code[2:4]
+        powiat_id = nuts_code[4:6]
+        gmina_id = nuts_code[6:9]
     else:
         voivodeship_id = nuts_code[2:4]
     return voivodeship_id + powiat_id + gmina_id
@@ -765,16 +769,17 @@ class GeoTERYTDatabase:
         has_code_by_year = 'code_by_year' in mega_df.columns
         
         if has_historical_codes or has_code_by_year:
-            # Get the latest year data for each teryt_id
-            latest_year = mega_df['year'].max()
-            latest_data = mega_df[mega_df['year'] == latest_year]
-            
-            for _, row in latest_data.iterrows():
-                teryt_id = str(row.get('id', '')).zfill(7)
-                if teryt_id not in self._records:
+            # FIXED: Iterate over ALL teryt_ids in _records and find them in mega_df
+            # (not just latest year, since historical teryt_ids may not exist in latest year)
+            for teryt_id, record in self._records.items():
+                # Find any row with this teryt_id in mega_df
+                matching_rows = mega_df[mega_df['id'] == teryt_id]
+                
+                if len(matching_rows) == 0:
                     continue
                 
-                record = self._records[teryt_id]
+                # Use the first matching row (historical_codes and code_by_year are same across all years)
+                row = matching_rows.iloc[0]
                 
                 # Populate historical_codes
                 if has_historical_codes:
@@ -956,6 +961,9 @@ class GeoTERYTDatabase:
             # Handle 6-digit codes (append 0)
             gdf['teryt_id'] = gdf['teryt_id'].apply(lambda x: x + '0' if len(x) == 6 else x)
             
+            # Handle 8-digit codes (truncate last digit)
+            gdf['teryt_id'] = gdf['teryt_id'].apply(lambda x: x[:-1] if len(x) == 8 else x)
+            
             # Optionally clip geometries to Poland boundary
             if clip_to_poland and self._poland_boundary is not None:
                 gdf['geometry'] = gdf['geometry'].apply(
@@ -1008,7 +1016,7 @@ class GeoTERYTDatabase:
     def get_unit_info(self, teryt_id: str) -> Optional[dict]:
         """Get detailed information about a unit by its TERYT ID."""
         record = self.get_by_teryt_id(teryt_id)
-        return record.to_dict() if record else None
+        return record.to_dict() if record else "Unit not found"
     
     def search_by_name(self, name: str, exact: bool = False) -> List[TERYTRecord]:
         """Search for divisions by name."""
@@ -1059,6 +1067,26 @@ class GeoTERYTDatabase:
             return records
         
         return records
+    
+    def get_snapshot(self, year: int) -> List[TERYTRecord]:
+        """
+        Get all administrative unit records that were valid in a specific year.
+        
+        Unlike get_divisions_by_year(), this method returns ALL records without
+        filtering by level, kind, or excluding subdivisions. Use this for
+        geometry assignment operations that need to process all units.
+        
+        Parameters:
+        - year: The year to get divisions for
+        
+        Returns:
+        - List of TERYTRecord objects valid in that year
+        """
+        if year not in self._by_year:
+            return []
+        
+        teryt_ids = self._by_year[year]
+        return [self._records[tid] for tid in teryt_ids]
     
     def get_divisions_by_level(self, level: int) -> List[TERYTRecord]:
         """Get all divisions at a specific administrative level."""
@@ -1395,8 +1423,30 @@ class GeoTERYTDatabase:
                                     best_geom = geom
                                     best_year = geom_year
                                     best_area = geom.area
-            
+                else:
+                    # Also try 6-digit match
+                    short_tid = teryt_id[:6]
+                    mask = gdf['teryt_id'].str.startswith(short_tid)
+                    matches = gdf[mask]
+                    
+                    if len(matches) > 0:
+                        geom = matches.iloc[0].geometry
+                        if geom is not None and not geom.is_empty:
+                            if best_geom is None:
+                                best_geom = geom
+                                best_year = geom_year
+                                best_area = geom.area
+                            else:
+                                area_diff = abs(geom.area - best_area) / best_area if best_area > 0 else 1
+                                if area_diff <= tolerance:
+                                    if abs(geom_year - year) < abs(best_year - year):
+                                        best_geom = geom
+                                        best_year = geom_year
+                                        best_area = geom.area
+
             if best_geom is not None:
+                if verbose:
+                    print(f"  Found candidate for {record.teryt_id} from year {best_year} for {teryt_id}.")
                 record.set_geometry(best_geom, best_year)
                 record.geometry_notes = f"assigned_from_year_{best_year}"
                 assigned += 1
@@ -1485,7 +1535,22 @@ class GeoTERYTDatabase:
                                 'source_teryt_id': aff_id,
                                 'area': geom.area
                             })
-            
+                    else:
+                        # Also try 6-digit match
+                        short_aff_id = aff_id[:6]
+                        mask = gdf['teryt_id'].str.startswith(short_aff_id)
+                        matches = gdf[mask]
+                        
+                        if len(matches) > 0:
+                            geom = matches.iloc[0].geometry
+                            if geom is not None and not geom.is_empty:
+                                candidate_geoms.append({
+                                    'geometry': geom,
+                                    'source_year': geom_year,
+                                    'source_teryt_id': aff_id,
+                                    'area': geom.area
+                                })
+
             if candidate_geoms:
                 candidates_found += 1
                 

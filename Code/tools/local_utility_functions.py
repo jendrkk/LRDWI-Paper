@@ -244,6 +244,10 @@ def nuts_code_to_teryt(nuts_code: str) -> str:
     # Code of voivodeship
     if len(nuts_code) == 11:
         voivodeship_id = nuts_code[1:3]
+    elif len(nuts_code) == 10:
+        voivodeship_id = nuts_code[2:4]
+        powiat_id = nuts_code[4:6]
+        gmina_id = nuts_code[6:10]
     else:
         voivodeship_id = nuts_code[2:4]
     
