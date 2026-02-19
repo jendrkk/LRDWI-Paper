@@ -524,6 +524,7 @@ class GeoTERYTDatabase:
         self._geometries: Dict[int, gpd.GeoDataFrame] = {}
         self._poland_boundary = None
         self._poland_gdf = None
+        self._old_voivodships = None
         
         # Metadata
         self._year_range: Tuple[int, int] = (1999, 2024)
@@ -555,7 +556,10 @@ class GeoTERYTDatabase:
         if boundary_gdf.crs != self._crs:
             boundary_gdf = boundary_gdf.to_crs(self._crs)
         self._poland_gdf = boundary_gdf
-            
+    
+    def set_old_voivodships(self, old_voiv_gdf: gpd.GeoDataFrame):
+        ...
+    
     def get_poland_boundary(self) -> gpd.GeoDataFrame:
         
         if self._poland_gdf is not None:
@@ -1264,6 +1268,13 @@ class GeoTERYTDatabase:
         else:
             available.sort(key=lambda x: -x[0])  # Most recent first
         
+        geom_year = available[0][0]
+
+        # Update the record geometry year 
+        record = self.get_by_teryt_id(teryt_id)
+        if record is not None:
+            record.geometry_year = geom_year
+        
         return available[0][1]
     
     # ==========================================================================
@@ -1348,26 +1359,24 @@ class GeoTERYTDatabase:
         return {'assigned': assigned, 'not_found': not_found, 'already_has': already_has}
     
     def assign_missing_geometries(self, year: int, level: Optional[int] = None,
-                                   tolerance: float = 0.1,
                                    verbose: bool = True) -> dict:
         """
         For units without geometry that haven't changed, find matching geometries
         from other years by comparing across years.
         
         For unchanged units (same teryt_id across years), if a geometry exists
-        in another year with the same area (within tolerance), assign it.
+        in another year, assign it. Prefers geometry from year closest to target.
         
         Parameters:
         - year: The year for which to find missing geometries
         - level: Optional level filter
-        - tolerance: Area difference tolerance ratio (0.1 = 10%)
         - verbose: Print progress
         
         Returns:
         - dict with assignment statistics
         """
         if verbose:
-            print(f"Finding missing geometries for year {year} (tolerance={tolerance*100}%)...")
+            print(f"Finding missing geometries for year {year}...")
         
         # Get units valid in this year that don't have geometry
         snapshot = self.get_snapshot(year)
@@ -1387,66 +1396,38 @@ class GeoTERYTDatabase:
         candidates_found = 0
         
         for record in missing:
-            teryt_id = record.teryt_id
+            teryt_id = str(record.teryt_id).zfill(7)
+            short_tid = teryt_id[:6]
             
             # Check if this unit has any changes
             if record.has_changes:
                 # For units with changes, we need impute_geometries_past_tid instead
                 continue
             
-            # Look for geometry in other years with the same teryt_id
-            best_geom = None
-            best_year = None
-            best_area = None
+            # Collect all matching geometries from all years
+            all_candidates = []
             
-            for geom_year, gdf in sorted(self._geometries.items(), key=lambda x: -x[0]):
+            for geom_year, gdf in self._geometries.items():
                 if 'teryt_id' not in gdf.columns:
                     continue
                 
-                # Find matching geometry
-                mask = gdf['teryt_id'] == teryt_id
+                # Match using both 7-digit (full) and 6-digit (short) teryt_id format
+                gdf_teryt = gdf['teryt_id'].astype(str).str.zfill(7)
+                mask = (gdf_teryt == teryt_id) | (gdf_teryt.str[:6] == short_tid)
                 matches = gdf[mask]
                 
                 if len(matches) > 0:
                     geom = matches.iloc[0].geometry
                     if geom is not None and not geom.is_empty:
-                        if best_geom is None:
-                            best_geom = geom
-                            best_year = geom_year
-                            best_area = geom.area
-                        else:
-                            # Compare areas - if within tolerance, prefer closer year
-                            area_diff = abs(geom.area - best_area) / best_area if best_area > 0 else 1
-                            if area_diff <= tolerance:
-                                # Prefer geometry from year closer to target
-                                if abs(geom_year - year) < abs(best_year - year):
-                                    best_geom = geom
-                                    best_year = geom_year
-                                    best_area = geom.area
-                else:
-                    # Also try 6-digit match
-                    short_tid = teryt_id[:6]
-                    mask = gdf['teryt_id'].str.startswith(short_tid)
-                    matches = gdf[mask]
-                    
-                    if len(matches) > 0:
-                        geom = matches.iloc[0].geometry
-                        if geom is not None and not geom.is_empty:
-                            if best_geom is None:
-                                best_geom = geom
-                                best_year = geom_year
-                                best_area = geom.area
-                            else:
-                                area_diff = abs(geom.area - best_area) / best_area if best_area > 0 else 1
-                                if area_diff <= tolerance:
-                                    if abs(geom_year - year) < abs(best_year - year):
-                                        best_geom = geom
-                                        best_year = geom_year
-                                        best_area = geom.area
-
-            if best_geom is not None:
-                if verbose:
-                    print(f"  Found candidate for {record.teryt_id} from year {best_year} for {teryt_id}.")
+                        all_candidates.append((geom_year, geom))
+            
+            if all_candidates:
+                # Sort by year proximity to target (prefer nearest year)
+                all_candidates.sort(key=lambda x: abs(x[0] - year))
+                best_year, best_geom = all_candidates[0]
+                
+                if verbose and len(all_candidates) > 1:
+                    print(f"  Found {len(all_candidates)} candidates for {record.teryt_id}, using year {best_year}")
                 record.set_geometry(best_geom, best_year)
                 record.geometry_notes = f"assigned_from_year_{best_year}"
                 assigned += 1
@@ -1460,19 +1441,17 @@ class GeoTERYTDatabase:
         return {'assigned': assigned, 'total_missing': len(missing), 'still_missing': len(missing) - assigned}
     
     def impute_geometries_past_tid(self, year: int, level: Optional[int] = None,
-                                    search_radius_km: float = 50,
                                     verbose: bool = True) -> dict:
         """
         For units without geometry, use code_by_year to find affiliated teryt_ids
-        and search for geometry candidates with overlap checking.
+        and search for geometry candidates.
         
         Uses the code_by_year attribute to find which teryt_id this unit had in
-        different years, then searches for geometry candidates within a radius.
+        different years, then searches for matching geometries.
         
         Parameters:
         - year: The year for which to find missing geometries
         - level: Optional level filter
-        - search_radius_km: Search radius in km for candidate geometries (50km default)
         - verbose: Print progress
         
         Returns:
@@ -1494,36 +1473,41 @@ class GeoTERYTDatabase:
         if len(missing) == 0:
             return {'candidates_found': 0, 'imputed': 0, 'total_missing': 0}
         
-        # Convert search radius to meters (for EPSG:2180)
-        search_radius_m = search_radius_km * 1000
-        
         candidates_found = 0
         imputed = 0
         
         for record in missing:
-            if not record.code_by_year:
-                continue
+            # Collect all teryt_ids to search for - include current, historical, and code_by_year
+            search_ids = set()
             
-            # Get all affiliated teryt_ids from code_by_year
-            affiliated_ids = set(record.code_by_year.values())
-            affiliated_ids.discard(record.teryt_id)  # Exclude current ID
+            # Add current teryt_id
+            search_ids.add(str(record.teryt_id).zfill(7))
             
-            if not affiliated_ids:
-                continue
-            
-            # Also include historical_codes
+            # Add historical codes
             if record.historical_codes:
-                affiliated_ids.update(record.historical_codes)
+                for code in record.historical_codes:
+                    search_ids.add(str(code).zfill(7))
             
-            # Search for geometries of affiliated teryt_ids
+            # Add codes from code_by_year
+            if record.code_by_year:
+                for code in record.code_by_year.values():
+                    search_ids.add(str(code).zfill(7))
+            
+            # Search for geometries of all affiliated teryt_ids
             candidate_geoms = []
             
             for geom_year, gdf in self._geometries.items():
                 if 'teryt_id' not in gdf.columns:
                     continue
                 
-                for aff_id in affiliated_ids:
-                    mask = gdf['teryt_id'] == aff_id
+                # Normalize teryt_id column
+                gdf_teryt = gdf['teryt_id'].astype(str).str.zfill(7)
+                
+                for search_id in search_ids:
+                    short_id = search_id[:6]
+                    
+                    # Match using both 7-digit (full) and 6-digit (short) teryt_id format
+                    mask = (gdf_teryt == search_id) | (gdf_teryt.str[:6] == short_id)
                     matches = gdf[mask]
                     
                     if len(matches) > 0:
@@ -1532,42 +1516,38 @@ class GeoTERYTDatabase:
                             candidate_geoms.append({
                                 'geometry': geom,
                                 'source_year': geom_year,
-                                'source_teryt_id': aff_id,
-                                'area': geom.area
+                                'source_teryt_id': search_id,
                             })
-                    else:
-                        # Also try 6-digit match
-                        short_aff_id = aff_id[:6]
-                        mask = gdf['teryt_id'].str.startswith(short_aff_id)
-                        matches = gdf[mask]
-                        
-                        if len(matches) > 0:
-                            geom = matches.iloc[0].geometry
-                            if geom is not None and not geom.is_empty:
-                                candidate_geoms.append({
-                                    'geometry': geom,
-                                    'source_year': geom_year,
-                                    'source_teryt_id': aff_id,
-                                    'area': geom.area
-                                })
 
             if candidate_geoms:
                 candidates_found += 1
                 
-                # If we have candidates, find the best one
-                # Sort by area (prefer larger) and year (prefer closer to target)
-                candidate_geoms.sort(key=lambda x: (-x['area'], abs(x['source_year'] - year)))
+                # Remove duplicates (same geometry from multiple searches)
+                # by using geometry's wkt representation as key
+                seen_geoms = {}
+                for cand in candidate_geoms:
+                    geom_key = cand['geometry'].wkt[:100]  # Use first 100 chars of wkt as key
+                    if geom_key not in seen_geoms:
+                        seen_geoms[geom_key] = cand
+                    else:
+                        # Keep the one from year closer to target
+                        existing = seen_geoms[geom_key]
+                        if abs(cand['source_year'] - year) < abs(existing['source_year'] - year):
+                            seen_geoms[geom_key] = cand
                 
-                best = candidate_geoms[0]
+                unique_candidates = list(seen_geoms.values())
+                
+                # Sort by year proximity to target (prefer nearest year)
+                unique_candidates.sort(key=lambda x: abs(x['source_year'] - year))
+                
+                best = unique_candidates[0]
                 record.geometry_best_candidate = best['geometry']
                 record.geometry_notes = f"candidate_from_{best['source_teryt_id']}_year_{best['source_year']}"
                 
-                # If only one candidate or all candidates overlap significantly,
-                # we can assign directly
-                if len(candidate_geoms) == 1:
-                    record.set_geometry(best['geometry'], best['source_year'])
-                    record.geometry_notes = f"imputed_from_{best['source_teryt_id']}_year_{best['source_year']}"
-                    imputed += 1
+                # Assign directly if we found a good match
+                record.set_geometry(best['geometry'], best['source_year'])
+                record.geometry_notes = f"imputed_from_{best['source_teryt_id']}_year_{best['source_year']}"
+                imputed += 1
         
         if verbose:
             print(f"  ✓ Candidates found: {candidates_found}")
@@ -1979,6 +1959,9 @@ class GeoTERYTDatabase:
                 print(f"  ✓ Updated {updated} database records with old_woj/old_woj_id")
         
         return result
+    
+    def update_affilated_gminas_to_pre1999_voivodeships(self):
+        ...
     
     # ==========================================================================
     # EXPORT METHODS
