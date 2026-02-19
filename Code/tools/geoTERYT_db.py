@@ -1,9 +1,17 @@
 """
-GeoTERYT Database Module - Version 3.1
+GeoTERYT Database Module - Version 4.0
 ======================================
 
 A comprehensive database system for Polish administrative divisions (TERYT) 
 with full geometry support, historical tracking, and overlay operations.
+
+NEW in v4.0:
+- Added DataSeries class for storing numerical time series on records
+- Added data attribute to TERYTRecord with add_data_point(), get_data_series(), etc.
+- Added process_subject_data() static method on GeoTERYTDatabase (from GUS02)
+- Added load_subject_data() for bulk loading of BDL data onto records
+- Added aggregate_data() and get_distribution() for regional aggregation
+- Updated save_complete() and load_complete_database() for data persistence
 
 NEW in v3.1:
 - Added historical_codes and code_by_year attributes to TERYTRecord
@@ -33,7 +41,7 @@ FIXES in v2.0:
 - Adds geometry clipping to Poland boundary (fixes Hel Peninsula water issue)
 - Improved change detection by comparing consecutive years
 
-Author: Generated for LRDWI-Paper project
+Author: Jedrzej Slowinski and Claude Opus 4.5
 """
 
 from pathlib import Path
@@ -277,6 +285,96 @@ def safe_clip_geometry(geometry, clip_geometry):
         warnings.warn(f"Geometry clipping failed: {e}")
         return geometry
 
+# ==============================================================================
+# DATA SERIES CLASS (NEW in v4.0)
+# ==============================================================================
+
+class DataSeries:
+    """
+    A time series of numerical data with metadata.
+    
+    Stores year -> value mappings along with descriptive metadata about
+    the data source, subject, variable, and categorical dimensions.
+    
+    Attributes:
+    - source_type: Data source ('BDL', 'Census', etc.)
+    - subject_id: Subject identifier (e.g. 'P2137')
+    - subject_name: Human-readable subject name (reserved for future use)
+    - variable_id: Variable identifier within the subject
+    - variable_name: Human-readable variable name (reserved for future use)
+    - categories: Dict of categorical dimensions (e.g. {'n1': 'ogółem', 'n2': 'miasto'})
+    - values: Dict mapping year (int) -> value (float)
+    """
+    
+    def __init__(self, source_type: str, subject_id: str, variable_id,
+                 subject_name: str = '', variable_name: str = '',
+                 categories: dict = None):
+        self.source_type = source_type
+        self.subject_id = str(subject_id)
+        self.subject_name = subject_name
+        self.variable_id = str(variable_id)
+        self.variable_name = variable_name
+        self.categories = categories or {}
+        self.values: Dict[int, float] = {}  # year -> value
+    
+    def add_value(self, year, value):
+        """Add a data point for a specific year."""
+        try:
+            self.values[int(year)] = float(value)
+        except (ValueError, TypeError):
+            pass  # Skip non-numeric values
+    
+    def get_value(self, year: int) -> Optional[float]:
+        """Get value for a specific year. Returns None if not available."""
+        return self.values.get(int(year))
+    
+    @property
+    def years(self) -> List[int]:
+        """Sorted list of years with data."""
+        return sorted(self.values.keys())
+    
+    @property
+    def n_years(self) -> int:
+        """Number of years with data."""
+        return len(self.values)
+    
+    @property
+    def key(self) -> Tuple[str, str, str]:
+        """The tuple key identifying this series: (source_type, subject_id, variable_id)."""
+        return (self.source_type, self.subject_id, self.variable_id)
+    
+    def to_dict(self) -> dict:
+        """Serialize to dictionary for persistence."""
+        return {
+            'source_type': self.source_type,
+            'subject_id': self.subject_id,
+            'subject_name': self.subject_name,
+            'variable_id': self.variable_id,
+            'variable_name': self.variable_name,
+            'categories': self.categories,
+            'values': self.values
+        }
+    
+    @classmethod
+    def from_dict(cls, d: dict) -> 'DataSeries':
+        """Reconstruct from dictionary."""
+        ds = cls(
+            source_type=d['source_type'],
+            subject_id=d['subject_id'],
+            variable_id=d['variable_id'],
+            subject_name=d.get('subject_name', ''),
+            variable_name=d.get('variable_name', ''),
+            categories=d.get('categories', {})
+        )
+        # Ensure year keys are ints
+        ds.values = {int(k): v for k, v in d.get('values', {}).items()}
+        return ds
+    
+    def __repr__(self):
+        cats = ', '.join(f'{k}={v}' for k, v in self.categories.items()) if self.categories else 'none'
+        yr_range = f"{min(self.years)}-{max(self.years)}" if self.years else 'no data'
+        return f"DataSeries({self.source_type}/{self.subject_id}/{self.variable_id}, cats=[{cats}], {self.n_years} years [{yr_range}])"
+
 
 # ==============================================================================
 # DATABASE RECORD CLASS
@@ -312,6 +410,8 @@ class TERYTRecord:
         self.past_levels: List[Tuple[int, int]] = []  # (level, year_until) - NEW
         self.past_kinds: List[Tuple[str, int]] = []  # (kind, year_until)
         self.changes: List[dict] = []
+        
+        # Geometry attributes
         self.geometry = None
         self.geometry_best_candidate = None
         self.geometry_year: Optional[int] = None
@@ -333,6 +433,14 @@ class TERYTRecord:
         
         # Track if this unit underwent any changes
         self.has_changes = False
+        
+        # Childern and parent relationships (for hierarchy)
+        self.parent_id: Optional[str] = None
+        self.children_ids: List[str] = []
+        
+        # Data storage (NEW in v4.0)
+        # Key: (source_type, subject_id, variable_id) -> DataSeries
+        self.data: Dict[tuple, 'DataSeries'] = {}
     
     def add_year(self, year: int):
         """Add a year when this division was valid."""
@@ -381,6 +489,74 @@ class TERYTRecord:
         """Set the geometry and its source year."""
         self.geometry = geometry
         self.geometry_year = year
+    
+    def set_parent(self, parent_id: str):
+        """Set the parent TERYT ID."""
+        self.parent_id = parent_id
+    
+    def set_children(self, children_ids: List[str]):
+        """Set the list of children TERYT IDs."""
+        self.children_ids = children_ids
+    
+    # ------------------------------------------------------------------
+    # Data management methods (NEW in v4.0)
+    # ------------------------------------------------------------------
+    
+    def add_data_point(self, source_type: str, subject_id: str, variable_id,
+                       year, value, categories: dict = None,
+                       subject_name: str = '', variable_name: str = ''):
+        """
+        Add a single data point to this record.
+        Creates a new DataSeries if one doesn't exist for the given key.
+        
+        Parameters:
+        - source_type: Data source ('BDL', 'Census', etc.)
+        - subject_id: Subject ID (e.g. 'P2137')
+        - variable_id: Variable ID within the subject
+        - year: Year of the data point
+        - value: Numerical value
+        - categories: Dict of categorical dimensions (e.g. {'n1': 'ogółem'})
+        - subject_name: Human-readable subject name (reserved for future)
+        - variable_name: Human-readable variable name (reserved for future)
+        """
+        key = (source_type, str(subject_id), str(variable_id))
+        if key not in self.data:
+            self.data[key] = DataSeries(
+                source_type=source_type,
+                subject_id=str(subject_id),
+                variable_id=str(variable_id),
+                subject_name=subject_name,
+                variable_name=variable_name,
+                categories=categories
+            )
+        self.data[key].add_value(year, value)
+    
+    def get_data_series(self, source_type: str, subject_id: str, variable_id) -> Optional['DataSeries']:
+        """Get a specific DataSeries by key, or None if not found."""
+        key = (source_type, str(subject_id), str(variable_id))
+        return self.data.get(key)
+    
+    def get_data_by_subject(self, subject_id: str) -> Dict[tuple, 'DataSeries']:
+        """Get all DataSeries for a given subject."""
+        return {k: v for k, v in self.data.items() if k[1] == str(subject_id)}
+    
+    def list_data_keys(self) -> List[tuple]:
+        """List all (source_type, subject_id, variable_id) keys stored."""
+        return list(self.data.keys())
+    
+    def list_subjects(self) -> List[str]:
+        """List all unique subject IDs stored on this record."""
+        return list(set(k[1] for k in self.data.keys()))
+    
+    @property
+    def has_data(self) -> bool:
+        """Whether this record has any data stored."""
+        return len(self.data) > 0
+    
+    @property
+    def n_data_series(self) -> int:
+        """Number of data series stored."""
+        return len(self.data)
     
     @property
     def first_year(self) -> Optional[int]:
@@ -447,7 +623,10 @@ class TERYTRecord:
             'old_woj': self.old_woj,
             'old_woj_id': self.old_woj_id,
             'historical_codes': self.historical_codes,
-            'code_by_year': self.code_by_year
+            'code_by_year': self.code_by_year,
+            'has_data': self.has_data,
+            'n_data_series': self.n_data_series,
+            'data_subjects': self.list_subjects()
         }
     
     def display(self):
@@ -545,7 +724,7 @@ class GeoTERYTDatabase:
         self._poland_boundary = unary_union(boundary_gdf.geometry)
         if not self._poland_boundary.is_valid:
             self._poland_boundary = make_valid(self._poland_boundary)
-            
+
     def set_poland_gdf(self, boundary_gdf: gpd.GeoDataFrame):
         """
         Set the Poland GeoDataFrame for plotting and other purposes.
@@ -556,20 +735,44 @@ class GeoTERYTDatabase:
         if boundary_gdf.crs != self._crs:
             boundary_gdf = boundary_gdf.to_crs(self._crs)
         self._poland_gdf = boundary_gdf
-    
-    def set_old_voivodships(self, old_voiv_gdf: gpd.GeoDataFrame):
-        ...
-    
+
+    def set_old_voivodship_gdf(self, old_voiv_gdf: gpd.GeoDataFrame):
+        """
+        Set the old voivodeships GeoDataFrame for pre-1999 assignment.
+        
+        Parameters:
+        - old_voiv_gdf: GeoDataFrame with pre-1999 voivodeships
+        """
+        if old_voiv_gdf.crs != self._crs:
+            old_voiv_gdf = old_voiv_gdf.to_crs(self._crs)
+        
+        def build_old_woj_mapping(row):
+            mapping = {}
+            for idx, row in old_voiv_gdf.iterrows():
+                name = row.get('name', '').lower()
+                mapping[name] = {
+                    'name': row.get('name'),
+                    'name_pl': row.get('name_pl'),
+                    'geometry': row.geometry
+                }
+        
+        self._old_voivodships = old_voiv_gdf
+
     def get_poland_boundary(self) -> gpd.GeoDataFrame:
         
         if self._poland_gdf is not None:
             return self._poland_gdf
-        
+
     def get_poland_gdf(self) -> gpd.GeoDataFrame:
         
         if self._poland_boundary is not None:
             return self._poland_boundary
-    
+
+    def get_old_voivodship_gdf(self) -> gpd.GeoDataFrame:
+        
+        if self._old_voivodships is not None:
+            return self._old_voivodships
+
     def build_from_harmonized(self, mega_df: pd.DataFrame, verbose: bool = True):
         """
         Build the database from a harmonized TERYT mega DataFrame.
@@ -1007,6 +1210,66 @@ class GeoTERYTDatabase:
         
         if verbose:
             print("  ✓ Poland shape loaded and set for clipping")
+    
+    def link_children_to_parents(self, verbose: bool = True):
+        """
+        Link child units to their parents based on TERYT hierarchy.
+        
+        This populates the parent_id and children_ids fields in each record.
+        
+        Parameters:
+        - verbose: Print progress
+        """
+        if verbose:
+            print("Linking child units to their parents...")
+        
+        # Create a fake root parent for top-level units (województwa) with ID '0000000'
+        root_parent = TERYTRecord(
+            teryt_id='0000000',
+            name='Poland',
+            name_dod='',
+            level=0,
+            kind='country'
+        )
+        self._records['0000000'] = root_parent
+        all_teryt_ids = pd.DataFrame(list(self._records.keys()))
+        
+        i = 0
+        for teryt_id, record in self._records.items():
+            if len(teryt_id) != 7 or teryt_id == '0000000':
+                continue
+            
+            # Determine parent ID based on TERYT structure
+            woj = teryt_id[:2]
+            pow = teryt_id[2:4]
+            gmi = teryt_id[4:6]
+            rodz = teryt_id[6]
+            level = record.level
+            
+            parent_id = None
+            children_ids = []
+            
+            if level == 2:  # Voivodeship
+                parent_id = '0000000'  # Root parent
+                children_ids = all_teryt_ids[all_teryt_ids[0].str.startswith(woj) & (all_teryt_ids[0].str[4:6] == '00')]
+            elif level == 5:  # Powiat
+                parent_id = woj + '00000'
+                children_ids = all_teryt_ids[all_teryt_ids[0].str.startswith(woj + pow) & (all_teryt_ids[0].str[6] in ['1', '2', '3'])]
+            elif level == 6:  # Gmina
+                if rodz in ['1', '2', '3']:  # Regular gmina
+                    parent_id = woj + pow + '0000'
+                    children_ids = all_teryt_ids[all_teryt_ids[0].str.startswith(woj + pow + gmi) & (all_teryt_ids[0].str[6] in ['4', '5', '8', '9'])]
+                elif rodz in ['4', '5']:  # City and rural gmina
+                    parent_id = woj + pow + gmi + '3'
+                else: # Parts of cities with powiat rights
+                    parent_id = woj + pow + gmi + '0' 
+            
+            record.set_parent(parent_id)
+            record.set_children(list(children_ids[0].values))
+            i += 1 
+        
+        if verbose:
+            print(f"  ✓ Linked children to parents for {i} records")
     
     # ==========================================================================
     # SEARCH METHODS
@@ -1961,7 +2224,30 @@ class GeoTERYTDatabase:
         return result
     
     def update_affilated_gminas_to_pre1999_voivodeships(self):
-        ...
+        """
+        For gminas that have no old_woj_id set, but they have historical codes
+        that match gminas with old_woj_id, assign them the same old_woj_id.
+        """
+        # Build mapping from teryt_id to old_woj_id for gminas that have it set
+        teryt_to_old_woj = {}
+        for record in self._records.values():
+            if record.level == LEVEL_GMINA and record.rodz not in RODZ_SUB_DIVISIONS_AND_DISTRICTS and record.old_woj_id is not None:
+                teryt_to_old_woj[str(record.teryt_id).zfill(7)] = [record.old_woj, record.old_woj_id]
+        
+        updated = 0
+        for record in self._records.values():
+            if record.level == LEVEL_GMINA and record.rodz not in RODZ_SUB_DIVISIONS_AND_DISTRICTS and record.old_woj_id is None:
+                # Check historical codes for matches
+                if record.historical_codes:
+                    for code in record.historical_codes:
+                        code_str = str(code).zfill(7)
+                        if code_str in teryt_to_old_woj:
+                            record.old_woj = teryt_to_old_woj[code_str][0]
+                            record.old_woj_id = teryt_to_old_woj[code_str][1]
+                            updated += 1
+                            break
+        
+        print(f"Updated {updated} gminas with old_woj_id based on historical codes.")
     
     # ==========================================================================
     # EXPORT METHODS
@@ -2043,10 +2329,311 @@ class GeoTERYTDatabase:
             print("-" * 60)
             print("Pre-1999 Voivodeship Overlay:")
             print(f"  Records with old_woj:  {records_with_old_woj}")
+        # Data summary (NEW in v4.0)
+        data_summary = self.get_data_summary()
+        if data_summary['records_with_data'] > 0:
+            print("-" * 60)
+            print("Data:")
+            print(f"  Records with data:     {data_summary['records_with_data']}")
+            print(f"  Subjects loaded:       {data_summary['subjects']}")
+            print(f"  Total data series:     {data_summary['total_data_series']:,}")
+            print(f"  Total data points:     {data_summary['total_data_points']:,}")
         print("=" * 60)
     
     # ==========================================================================
-    # PERSISTENCE METHODS (NEW in v3.0)
+    # DATA LOADING AND AGGREGATION METHODS (NEW in v4.0)
+    # ==========================================================================
+    
+    @staticmethod
+    def process_subject_data(df_demographic: pd.DataFrame, df_variables: pd.DataFrame,
+                             subject_id: str) -> pd.DataFrame:
+        """
+        Process BDL demographic data for a given subject ID.
+        
+        Filters, merges, expands and normalizes raw BDL data into a flat
+        DataFrame with one row per (unit, variable, year) observation.
+        
+        Moved from GUS02_data_prep.ipynb for reuse across notebooks.
+        
+        Parameters:
+        - df_demographic: Raw BDL demographic data (bdl_demographic_data.csv)
+        - df_variables: BDL variable metadata (bdl_variables_level6.csv)
+        - subject_id: Subject ID to process (e.g. 'P2137')
+        
+        Returns:
+        - DataFrame with columns including: nuts_id, name, variableId, subjectId,
+          var_id, n1..n5 (non-constant only), year, val, attrId, teryt_id
+        """
+        # Filter by subjectId
+        df_subject = df_demographic[df_demographic['subjectId'] == subject_id].copy()
+        
+        if df_subject.empty:
+            warnings.warn(f"No data found for subject {subject_id}")
+            return pd.DataFrame()
+        
+        # Get variable metadata for this subject
+        variable_ids = df_subject['variableId'].unique()
+        df_variables_subset = df_variables[df_variables['id'].isin(variable_ids)][
+            ['id', 'n1', 'n2', 'n3', 'n4', 'n5']
+        ]
+        
+        # Merge subject data with variables
+        df_merged = pd.merge(
+            df_subject, df_variables_subset,
+            left_on='variableId', right_on='id', how='left'
+        )
+        
+        # Remove constant columns (n-columns that have only one unique value)
+        for col in ['n1', 'n2', 'n3', 'n4', 'n5']:
+            if col in df_merged.columns and df_merged[col].nunique() <= 1:
+                df_merged = df_merged.drop(columns=[col])
+        
+        # Parse values column (stored as string repr of list of dicts)
+        def parse_values_column(value):
+            try:
+                value_list = ast.literal_eval(value)
+                if isinstance(value_list, list) and len(value_list) == 1:
+                    return value_list[0]
+                return value_list
+            except (ValueError, SyntaxError):
+                return None
+        
+        df_merged['values'] = df_merged['values'].apply(parse_values_column)
+        
+        # Expand and normalize
+        df_expanded = df_merged.explode('values').reset_index(drop=True)
+        values_normalized = pd.json_normalize(df_expanded['values'])
+        df_expanded = pd.concat(
+            [df_expanded.drop(columns=['values']), values_normalized], axis=1
+        )
+        
+        # Rename and format columns
+        df_expanded = df_expanded.rename(columns={"id_x": "nuts_id", "id_y": "var_id"})
+        df_expanded['nuts_id'] = df_expanded['nuts_id'].apply(
+            lambda x: str(int(x)).zfill(12)
+        )
+        df_expanded['teryt_id'] = df_expanded['nuts_id'].apply(nuts_code_to_teryt)
+        
+        return df_expanded
+    
+    def load_subject_data(self, df_expanded: pd.DataFrame, source_type: str = 'BDL',
+                          subject_id: str = None, verbose: bool = True) -> dict:
+        """
+        Load processed subject data onto TERYTRecord objects.
+        
+        Each unique (variableId, categories) combination becomes a separate
+        DataSeries on the matching TERYTRecord.
+        
+        Parameters:
+        - df_expanded: Output of process_subject_data()
+        - source_type: Data source type ('BDL', 'Census', etc.)
+        - subject_id: Override subject_id (if None, inferred from data)
+        - verbose: Print progress
+        
+        Returns:
+        - dict with loading statistics
+        """
+        if df_expanded.empty:
+            if verbose:
+                print("  ⚠ Empty DataFrame, nothing to load")
+            return {'matched_teryts': 0, 'unmatched_teryts': 0, 'total_data_points': 0}
+        
+        # Detect subject_id from data if not provided
+        if subject_id is None:
+            subject_id = str(df_expanded['subjectId'].iloc[0])
+        
+        # Detect category columns (n1, n2, etc.)
+        category_cols = [c for c in df_expanded.columns if re.match(r'^n\d+$', c)]
+        
+        # Detect variable ID column
+        var_col = 'var_id' if 'var_id' in df_expanded.columns else 'variableId'
+        
+        matched = 0
+        unmatched = 0
+        unmatched_teryts = set()
+        total_points = 0
+        
+        # Group by teryt_id for efficient loading
+        for teryt_id, group in df_expanded.groupby('teryt_id'):
+            teryt_id = str(teryt_id).zfill(7)
+            
+            # Try exact match
+            record = self._records.get(teryt_id)
+            
+            # Try 6-digit match if exact match fails
+            if record is None:
+                short_id = teryt_id[:6]
+                candidates = [tid for tid in self._records if tid[:6] == short_id]
+                if len(candidates) == 1:
+                    record = self._records[candidates[0]]
+            
+            if record is None:
+                unmatched += 1
+                unmatched_teryts.add(teryt_id)
+                continue
+            
+            matched += 1
+            
+            # Load each variable's time series
+            for var_id, var_group in group.groupby(var_col):
+                # Get categories for this variable
+                categories = {}
+                for col in category_cols:
+                    vals = var_group[col].unique()
+                    if len(vals) == 1:
+                        categories[col] = str(vals[0])
+                
+                # Add data points for each year
+                for _, row in var_group.iterrows():
+                    year = row.get('year')
+                    val = row.get('val')
+                    if year is not None and val is not None:
+                        record.add_data_point(
+                            source_type=source_type,
+                            subject_id=subject_id,
+                            variable_id=str(var_id),
+                            year=year,
+                            value=val,
+                            categories=categories
+                        )
+                        total_points += 1
+        
+        stats = {
+            'matched_teryts': matched,
+            'unmatched_teryts': unmatched,
+            'total_data_points': total_points,
+            'unmatched_teryt_ids': sorted(unmatched_teryts)
+        }
+        
+        if verbose:
+            print(f"  ✓ Loaded {total_points:,} data points for subject {subject_id}")
+            print(f"  ✓ Matched {matched} TERYT records, {unmatched} unmatched")
+            if unmatched > 0:
+                print(f"  ⚠ Unmatched TERYT IDs (first 10): {sorted(unmatched_teryts)[:10]}")
+        
+        return stats
+    
+    def aggregate_data(self, records: List[TERYTRecord], subject_id: str, year,
+                       agg_func: str = 'sum') -> pd.DataFrame:
+        """
+        Aggregate data across multiple TERYTRecords for a given subject and year.
+        
+        Useful for computing regional totals (e.g., voivodeship population from gminas).
+        
+        Parameters:
+        - records: List of TERYTRecord objects to aggregate
+        - subject_id: Subject ID to aggregate
+        - year: Year to get values for (int or str)
+        - agg_func: 'sum' or 'mean'
+        
+        Returns:
+        - DataFrame with variable_id, categories, and aggregated values
+        """
+        year = int(year)
+        rows = []
+        for record in records:
+            subject_data = record.get_data_by_subject(subject_id)
+            for key, series in subject_data.items():
+                val = series.get_value(year)
+                if val is not None:
+                    row = {
+                        'variable_id': series.variable_id,
+                        **series.categories,
+                        'value': val
+                    }
+                    rows.append(row)
+        
+        if not rows:
+            return pd.DataFrame()
+        
+        df = pd.DataFrame(rows)
+        
+        # Determine group columns (everything except 'value')
+        group_cols = [c for c in df.columns if c != 'value']
+        
+        if agg_func == 'sum':
+            result = df.groupby(group_cols, as_index=False)['value'].sum()
+        elif agg_func == 'mean':
+            result = df.groupby(group_cols, as_index=False)['value'].mean()
+        else:
+            raise ValueError(f"Unknown agg_func: {agg_func}")
+        
+        return result
+    
+    def get_distribution(self, records: List[TERYTRecord], subject_id: str, year,
+                         row_category: str = None, col_category: str = None,
+                         agg_func: str = 'sum') -> pd.DataFrame:
+        """
+        Get joint or marginal distributions from demographic data.
+        
+        Aggregates data across the given records and pivots by the specified
+        categorical dimensions.
+        
+        Parameters:
+        - records: List of TERYTRecord objects
+        - subject_id: Subject ID
+        - year: Year to get data for
+        - row_category: Category column for rows (e.g., 'n1' for gender)
+        - col_category: Category column for columns (e.g., 'n2' for urban/rural)
+        - agg_func: 'sum' or 'mean'
+        
+        Returns:
+        - Pivot table DataFrame (joint) or Series (marginal)
+        """
+        agg_df = self.aggregate_data(records, subject_id, year, agg_func)
+        
+        if agg_df.empty:
+            return pd.DataFrame()
+        
+        if row_category and col_category:
+            # Joint distribution (pivot table)
+            if row_category in agg_df.columns and col_category in agg_df.columns:
+                return agg_df.pivot_table(
+                    index=row_category, columns=col_category,
+                    values='value', aggfunc=agg_func
+                )
+        elif row_category:
+            # Marginal distribution by row_category
+            if row_category in agg_df.columns:
+                return agg_df.groupby(row_category)['value'].agg(agg_func)
+        elif col_category:
+            # Marginal distribution by col_category
+            if col_category in agg_df.columns:
+                return agg_df.groupby(col_category)['value'].agg(agg_func)
+        
+        return agg_df
+    
+    def get_data_summary(self) -> dict:
+        """
+        Get a summary of all data stored across records.
+        
+        Returns:
+        - dict with counts of records with data, subjects, total series, etc.
+        """
+        records_with_data = 0
+        all_subjects = set()
+        total_series = 0
+        total_points = 0
+        
+        for record in self._records.values():
+            if record.has_data:
+                records_with_data += 1
+                total_series += record.n_data_series
+                for key, series in record.data.items():
+                    all_subjects.add(key[1])
+                    total_points += series.n_years
+        
+        return {
+            'records_with_data': records_with_data,
+            'total_records': len(self._records),
+            'subjects': sorted(all_subjects),
+            'n_subjects': len(all_subjects),
+            'total_data_series': total_series,
+            'total_data_points': total_points
+        }
+    
+    # ==========================================================================
+    # PERSISTENCE METHODS (NEW in v3.0, updated in v4.0)
     # ==========================================================================
     
     def save_complete(self, filepath: Union[str, Path], verbose: bool = True):
@@ -2091,7 +2678,12 @@ class GeoTERYTDatabase:
                 'historical_codes': record.historical_codes,  # NEW in v3.1
                 'code_by_year': record.code_by_year,  # NEW in v3.1
                 'geometry_wkb': record.geometry.wkb if record.geometry else None,
-                'geometry_best_candidate_wkb': record.geometry_best_candidate.wkb if record.geometry_best_candidate else None  # NEW in v3.1
+                'geometry_best_candidate_wkb': record.geometry_best_candidate.wkb if record.geometry_best_candidate else None,  # NEW in v3.1
+                'has_geometry': record.has_geometry,
+                'parent_teryt_id': record.parent_id,  # NEW in v3.1
+                'child_teryt_ids': record.children_ids,  # NEW in v3.1
+                # Data storage (NEW in v4.0)
+                'data': {f"{k[0]}|{k[1]}|{k[2]}": v.to_dict() for k, v in record.data.items()} if record.data else None
             }
             records_data[teryt_id] = rec_dict
         
@@ -2107,7 +2699,7 @@ class GeoTERYTDatabase:
         poland_wkb = self._poland_boundary.wkb if self._poland_boundary else None
         
         save_data = {
-            'version': '3.1',
+            'version': '4.0',
             'records': records_data,
             'by_year': {k: list(v) for k, v in self._by_year.items()},
             'by_name': {k: list(v) for k, v in self._by_name.items()},
@@ -2128,6 +2720,9 @@ class GeoTERYTDatabase:
         if verbose:
             file_size = filepath.stat().st_size / (1024 * 1024)
             print(f"  ✓ Saved {len(records_data)} records")
+            n_with_data = sum(1 for r in self._records.values() if r.has_data)
+            if n_with_data > 0:
+                print(f"  ✓ Records with data: {n_with_data}")
             print(f"  ✓ File size: {file_size:.1f} MB")
             print(f"  ✓ Path: {filepath}")
     
@@ -2262,6 +2857,8 @@ def load_complete_database(filepath: Union[str, Path], verbose: bool = True) -> 
         record.old_woj_id = rec_dict.get('old_woj_id')
         record.historical_codes = rec_dict.get('historical_codes', [])  # NEW in v3.1
         record.code_by_year = rec_dict.get('code_by_year', {})  # NEW in v3.1
+        record.parent_id = rec_dict.get('parent_teryt_id')  # NEW in v3.1
+        record.children_ids = rec_dict.get('child_teryt_ids', [])  # NEW
         
         # Restore geometry from WKB
         geom_wkb = rec_dict.get('geometry_wkb')
@@ -2272,6 +2869,13 @@ def load_complete_database(filepath: Union[str, Path], verbose: bool = True) -> 
         geom_cand_wkb = rec_dict.get('geometry_best_candidate_wkb')
         if geom_cand_wkb:
             record.geometry_best_candidate = wkb.loads(geom_cand_wkb)
+        
+        # Restore data (NEW in v4.0)
+        data_dict = rec_dict.get('data')
+        if data_dict:
+            for key_str, series_dict in data_dict.items():
+                ds = DataSeries.from_dict(series_dict)
+                record.data[ds.key] = ds
         
         db._records[teryt_id] = record
     
@@ -2313,5 +2917,8 @@ def load_complete_database(filepath: Union[str, Path], verbose: bool = True) -> 
         old_woj_count = sum(1 for r in db._records.values() if r.old_woj)
         if old_woj_count > 0:
             print(f"  ✓ Records with old_woj: {old_woj_count}")
+        data_count = sum(1 for r in db._records.values() if r.has_data)
+        if data_count > 0:
+            print(f"  ✓ Records with data: {data_count}")
     
     return db

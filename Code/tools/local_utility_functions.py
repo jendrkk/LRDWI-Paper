@@ -253,7 +253,6 @@ def nuts_code_to_teryt(nuts_code: str) -> str:
     
     teryt_code = voivodeship_id + powiat_id + gmina_id
     return teryt_code
-    
 
 # ==============================================================================
 # TERYT HARMONIZATION FUNCTIONS
