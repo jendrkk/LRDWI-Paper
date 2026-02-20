@@ -377,6 +377,221 @@ class DataSeries:
 
 
 # ==============================================================================
+# CROSS TABLE CLASS (NEW in v4.1)
+# ==============================================================================
+
+YEAR_RANGE_FULL = list(range(1988, 2026))  # 1988–2025
+
+class CrossTable:
+    """
+    Multi-dimensional cross table for a subject on a TERYTRecord.
+    
+    Stores an M-dimensional numpy array per year, where M is the number of
+    non-constant categorical dimensions (n1, n2, ...) in the subject.
+    
+    For a subject with 2 categories (e.g., n1=age, n2=gender), the cross table
+    for each year is a 2D matrix. For 3 categories, it is a 3D tensor, etc.
+    For a single category, it is a 1D vector (one row).
+    
+    Years without data are stored as NaN-filled arrays of the same shape.
+    
+    Attributes:
+    - subject_id: Subject identifier
+    - subject_name: Human-readable subject name
+    - dim_names: Ordered list of dimension names (e.g., ['n1', 'n2'])
+    - dim_labels: Dict mapping dim name -> ordered list of labels (e.g., {'n1': ['ogółem', '0-4', ...], 'n2': ['ogółem', 'mężczyźni', 'kobiety']})
+    - tables: Dict mapping year (int) -> np.ndarray (shape determined by dim_labels)
+    - year_range: List of years the cross table spans (default: 1988–2024)
+    """
+    
+    def __init__(self, subject_id: str, dim_names: List[str],
+                 dim_labels: Dict[str, List[str]], subject_name: str = '',
+                 year_range: List[int] = None):
+        self.subject_id = str(subject_id)
+        self.subject_name = subject_name
+        self.dim_names = list(dim_names)
+        self.dim_labels = {k: list(v) for k, v in dim_labels.items()}
+        self.year_range = year_range or YEAR_RANGE_FULL
+        # Compute shape from dim_labels
+        self._shape = tuple(len(self.dim_labels[d]) for d in self.dim_names)
+        # Initialize tables: year -> ndarray (NaN for missing)
+        self.tables: Dict[int, np.ndarray] = {}
+        for year in self.year_range:
+            self.tables[year] = np.full(self._shape, np.nan)
+    
+    @property
+    def shape(self) -> tuple:
+        """Shape of each year's cross table."""
+        return self._shape
+    
+    @property
+    def ndim(self) -> int:
+        """Number of dimensions."""
+        return len(self.dim_names)
+    
+    @property
+    def years_with_data(self) -> List[int]:
+        """Years that have at least one non-NaN value."""
+        return sorted(y for y, t in self.tables.items() if not np.all(np.isnan(t)))
+    
+    @property
+    def years_missing(self) -> List[int]:
+        """Years that are entirely NaN."""
+        return sorted(y for y, t in self.tables.items() if np.all(np.isnan(t)))
+    
+    def get_table(self, year: int) -> Optional[np.ndarray]:
+        """Get the cross table array for a given year."""
+        return self.tables.get(int(year))
+    
+    def set_table(self, year: int, table: np.ndarray):
+        """
+        Manually set the cross table for a given year.
+        
+        The table must have the same shape as existing tables.
+        """
+        year = int(year)
+        table = np.asarray(table, dtype=float)
+        if table.shape != self._shape:
+            raise ValueError(
+                f"Table shape {table.shape} does not match expected {self._shape}"
+            )
+        self.tables[year] = table
+    
+    def get_as_dataframe(self, year: int) -> pd.DataFrame:
+        """
+        Get the cross table for a year as a pandas DataFrame.
+        
+        For 1D: single-column DataFrame with dim_labels as index.
+        For 2D: DataFrame with dim_labels[dim0] as index, dim_labels[dim1] as columns.
+        For 3D+: MultiIndex DataFrame (first N-1 dims as row MultiIndex, last dim as columns).
+        """
+        table = self.get_table(year)
+        if table is None:
+            return pd.DataFrame()
+        
+        if self.ndim == 1:
+            return pd.DataFrame(
+                table, index=self.dim_labels[self.dim_names[0]],
+                columns=['value']
+            )
+        elif self.ndim == 2:
+            return pd.DataFrame(
+                table,
+                index=self.dim_labels[self.dim_names[0]],
+                columns=self.dim_labels[self.dim_names[1]]
+            )
+        else:
+            # M-dimensional: flatten to 2D with MultiIndex rows
+            # Last dimension becomes columns, rest become row MultiIndex
+            import itertools
+            row_dims = self.dim_names[:-1]
+            col_dim = self.dim_names[-1]
+            row_labels_product = list(itertools.product(
+                *[self.dim_labels[d] for d in row_dims]
+            ))
+            row_index = pd.MultiIndex.from_tuples(row_labels_product, names=row_dims)
+            flat = table.reshape(-1, table.shape[-1])
+            return pd.DataFrame(flat, index=row_index,
+                                columns=self.dim_labels[col_dim])
+    
+    def deconstruct_to_data_points(self, year: int) -> List[dict]:
+        """
+        Deconstruct the cross table for a year into raw data points.
+        
+        Returns a list of dicts with category values and numeric value,
+        suitable for feeding back into add_data_point().
+        
+        Returns:
+        - List of dicts: [{'n1': ..., 'n2': ..., 'value': ...}, ...]
+        """
+        import itertools
+        table = self.get_table(year)
+        if table is None:
+            return []
+        
+        points = []
+        indices = list(itertools.product(
+            *[range(len(self.dim_labels[d])) for d in self.dim_names]
+        ))
+        for idx in indices:
+            val = table[idx]
+            if np.isnan(val):
+                continue
+            categories = {}
+            for i, dim in enumerate(self.dim_names):
+                categories[dim] = self.dim_labels[dim][idx[i]]
+            points.append({**categories, 'value': float(val)})
+        
+        return points
+    
+    def to_dict(self) -> dict:
+        """Serialize to dictionary for persistence."""
+        tables_serialized = {}
+        for year, table in self.tables.items():
+            tables_serialized[year] = table.tolist()
+        return {
+            'subject_id': self.subject_id,
+            'subject_name': self.subject_name,
+            'dim_names': self.dim_names,
+            'dim_labels': self.dim_labels,
+            'year_range': self.year_range,
+            'tables': tables_serialized
+        }
+    
+    @classmethod
+    def from_dict(cls, d: dict) -> 'CrossTable':
+        """Reconstruct from dictionary."""
+        ct = cls(
+            subject_id=d['subject_id'],
+            dim_names=d['dim_names'],
+            dim_labels=d['dim_labels'],
+            subject_name=d.get('subject_name', ''),
+            year_range=d.get('year_range', YEAR_RANGE_FULL)
+        )
+        for year_str, table_list in d.get('tables', {}).items():
+            ct.tables[int(year_str)] = np.array(table_list, dtype=float)
+        return ct
+    
+    def __repr__(self):
+        data_years = self.years_with_data
+        yr_str = f"{data_years[0]}-{data_years[-1]}" if data_years else 'no data'
+        return (f"CrossTable({self.subject_id}, dims={self.dim_names}, "
+                f"shape={self._shape}, {len(data_years)} years with data [{yr_str}])")
+    
+    def __add__(self, other: 'CrossTable') -> 'CrossTable':
+        """
+        Add two cross tables element-wise (for aggregation across TERYTs).
+        
+        NaN + x = x (NaN is treated as 0 for aggregation purposes).
+        """
+        if self.subject_id != other.subject_id:
+            raise ValueError(f"Cannot add cross tables from different subjects: "
+                             f"{self.subject_id} vs {other.subject_id}")
+        if self._shape != other._shape:
+            raise ValueError(f"Cannot add cross tables with different shapes: "
+                             f"{self._shape} vs {other._shape}")
+        
+        result = CrossTable(
+            subject_id=self.subject_id,
+            dim_names=self.dim_names,
+            dim_labels=self.dim_labels,
+            subject_name=self.subject_name,
+            year_range=self.year_range
+        )
+        for year in result.year_range:
+            a = self.tables.get(year, np.full(self._shape, np.nan))
+            b = other.tables.get(year, np.full(self._shape, np.nan))
+            # np.nansum: NaN + NaN = 0, NaN + x = x
+            # We want NaN + NaN = NaN, so handle that
+            both_nan = np.isnan(a) & np.isnan(b)
+            summed = np.where(np.isnan(a), 0, a) + np.where(np.isnan(b), 0, b)
+            summed[both_nan] = np.nan
+            result.tables[year] = summed
+        
+        return result
+
+
+# ==============================================================================
 # DATABASE RECORD CLASS
 # ==============================================================================
 
@@ -441,6 +656,10 @@ class TERYTRecord:
         # Data storage (NEW in v4.0)
         # Key: (source_type, subject_id, variable_id) -> DataSeries
         self.data: Dict[tuple, 'DataSeries'] = {}
+        
+        # Cross table storage (NEW in v4.1)
+        # Key: subject_id -> CrossTable
+        self.cross_tables: Dict[str, 'CrossTable'] = {}
     
     def add_year(self, year: int):
         """Add a year when this division was valid."""
@@ -558,6 +777,172 @@ class TERYTRecord:
         """Number of data series stored."""
         return len(self.data)
     
+    # ------------------------------------------------------------------
+    # Cross table methods (NEW in v4.1)
+    # ------------------------------------------------------------------
+    
+    def build_cross_table(self, subject_id: str, subject_name: str = '') -> Optional['CrossTable']:
+        """
+        Build a CrossTable for a subject from existing DataSeries on this record.
+        
+        Automatically detects dimensions from the categories of stored variables.
+        If the subject has 0 or 1 variables, returns None (cross table not meaningful).
+        
+        Parameters:
+        - subject_id: Subject ID
+        - subject_name: Human-readable name for the cross table
+        
+        Returns:
+        - CrossTable if built, None if not enough variables
+        """
+        subject_data = self.get_data_by_subject(str(subject_id))
+        if not subject_data:
+            return None
+        
+        # Collect all unique dimension names and their labels
+        dim_values = {}  # dim_name -> set of labels
+        for key, series in subject_data.items():
+            if series.categories:
+                for dim_name, label in series.categories.items():
+                    if dim_name not in dim_values:
+                        dim_values[dim_name] = set()
+                    dim_values[dim_name].add(str(label))
+        
+        if not dim_values:
+            return None
+        
+        # Sort dimension names and labels for deterministic ordering
+        dim_names = sorted(dim_values.keys())
+        dim_labels = {d: sorted(dim_values[d]) for d in dim_names}
+        
+        # Create cross table
+        ct = CrossTable(
+            subject_id=str(subject_id),
+            dim_names=dim_names,
+            dim_labels=dim_labels,
+            subject_name=subject_name
+        )
+        
+        # Fill in values from DataSeries
+        for key, series in subject_data.items():
+            if not series.categories:
+                continue
+            # Find the index for each dimension
+            idx = []
+            valid = True
+            for dim in dim_names:
+                label = str(series.categories.get(dim, ''))
+                if label in dim_labels[dim]:
+                    idx.append(dim_labels[dim].index(label))
+                else:
+                    valid = False
+                    break
+            if not valid:
+                continue
+            
+            idx_tuple = tuple(idx)
+            for year, val in series.values.items():
+                yr = int(year)
+                if val is not None and yr in ct.tables:
+                    ct.tables[yr][idx_tuple] = float(val)
+        
+        self.cross_tables[str(subject_id)] = ct
+        return ct
+    
+    def get_cross_table(self, subject_id: str) -> Optional['CrossTable']:
+        """Get the CrossTable for a subject, or None if not built."""
+        return self.cross_tables.get(str(subject_id))
+    
+    def set_cross_table(self, subject_id: str, cross_table: 'CrossTable'):
+        """
+        Manually set/replace a CrossTable for a subject.
+        
+        Parameters:
+        - subject_id: Subject ID
+        - cross_table: CrossTable instance to store
+        """
+        self.cross_tables[str(subject_id)] = cross_table
+    
+    def insert_cross_table_year(self, subject_id: str, year: int,
+                                table: np.ndarray, subject_name: str = '',
+                                dim_names: List[str] = None,
+                                dim_labels: Dict[str, List[str]] = None):
+        """
+        Insert a cross table for a single year, creating the CrossTable if needed.
+        
+        Parameters:
+        - subject_id: Subject ID
+        - year: Year for this table
+        - table: numpy array with the values
+        - subject_name: Human-readable name (used only if creating new)
+        - dim_names: Dimension names (required if creating new)
+        - dim_labels: Dimension labels (required if creating new)
+        """
+        subject_id = str(subject_id)
+        ct = self.cross_tables.get(subject_id)
+        if ct is None:
+            if dim_names is None or dim_labels is None:
+                raise ValueError("dim_names and dim_labels required when creating new CrossTable")
+            ct = CrossTable(
+                subject_id=subject_id,
+                dim_names=dim_names,
+                dim_labels=dim_labels,
+                subject_name=subject_name
+            )
+            self.cross_tables[subject_id] = ct
+        ct.set_table(year, table)
+    
+    def deconstruct_cross_table(self, subject_id: str, year: int,
+                                source_type: str = 'CrossTable') -> int:
+        """
+        Deconstruct a cross table for a year back into raw DataSeries data points.
+        
+        The deconstructed data is stored in self.data as new DataSeries.
+        
+        Parameters:
+        - subject_id: Subject ID
+        - year: Year to deconstruct
+        - source_type: Source type label for the created data points
+        
+        Returns:
+        - Number of data points created
+        """
+        ct = self.cross_tables.get(str(subject_id))
+        if ct is None:
+            return 0
+        
+        points = ct.deconstruct_to_data_points(year)
+        count = 0
+        for pt in points:
+            # Build categories and variable_id from dimension values
+            categories = {k: v for k, v in pt.items() if k != 'value'}
+            var_id = '|'.join(str(categories.get(d, '')) for d in ct.dim_names)
+            self.add_data_point(
+                source_type=source_type,
+                subject_id=str(subject_id),
+                variable_id=var_id,
+                year=year,
+                value=pt['value'],
+                categories=categories,
+                subject_name=ct.subject_name
+            )
+            count += 1
+        return count
+    
+    def list_cross_tables(self) -> List[str]:
+        """List subject IDs that have cross tables."""
+        return list(self.cross_tables.keys())
+    
+    @property
+    def has_cross_tables(self) -> bool:
+        """Whether this record has any cross tables."""
+        return len(self.cross_tables) > 0
+    
+    @property
+    def n_cross_tables(self) -> int:
+        """Number of cross tables stored."""
+        return len(self.cross_tables)
+    
     @property
     def first_year(self) -> Optional[int]:
         return min(self.years_valid) if self.years_valid else None
@@ -626,7 +1011,10 @@ class TERYTRecord:
             'code_by_year': self.code_by_year,
             'has_data': self.has_data,
             'n_data_series': self.n_data_series,
-            'data_subjects': self.list_subjects()
+            'data_subjects': self.list_subjects(),
+            'has_cross_tables': self.has_cross_tables,
+            'n_cross_tables': self.n_cross_tables,
+            'cross_table_subjects': self.list_cross_tables()
         }
     
     def display(self):
@@ -2348,16 +2736,17 @@ class GeoTERYTDatabase:
     def process_subject_data(df_demographic: pd.DataFrame, df_variables: pd.DataFrame,
                              subject_id: str) -> pd.DataFrame:
         """
-        Process BDL demographic data for a given subject ID.
+        Process BDL or Census demographic data for a given subject ID.
         
-        Filters, merges, expands and normalizes raw BDL data into a flat
+        Filters, merges, expands and normalizes raw data into a flat
         DataFrame with one row per (unit, variable, year) observation.
         
-        Moved from GUS02_data_prep.ipynb for reuse across notebooks.
+        Works with both BDL time-series data (multiple years per row in
+        values column) and Census cross-sectional data (single year per row).
         
         Parameters:
-        - df_demographic: Raw BDL demographic data (bdl_demographic_data.csv)
-        - df_variables: BDL variable metadata (bdl_variables_level6.csv)
+        - df_demographic: Raw data (bdl_demographic_data.csv or census data CSV)
+        - df_variables: Variable metadata (bdl_variables_level6.csv or census_meta.csv)
         - subject_id: Subject ID to process (e.g. 'P2137')
         
         Returns:
@@ -2372,10 +2761,11 @@ class GeoTERYTDatabase:
             return pd.DataFrame()
         
         # Get variable metadata for this subject
+        # Use only columns that exist in the metadata
         variable_ids = df_subject['variableId'].unique()
-        df_variables_subset = df_variables[df_variables['id'].isin(variable_ids)][
-            ['id', 'n1', 'n2', 'n3', 'n4', 'n5']
-        ]
+        n_cols = [c for c in ['n1', 'n2', 'n3', 'n4', 'n5'] if c in df_variables.columns]
+        subset_cols = ['id'] + n_cols
+        df_variables_subset = df_variables[df_variables['id'].isin(variable_ids)][subset_cols]
         
         # Merge subject data with variables
         df_merged = pd.merge(
@@ -2384,17 +2774,19 @@ class GeoTERYTDatabase:
         )
         
         # Remove constant columns (n-columns that have only one unique value)
-        for col in ['n1', 'n2', 'n3', 'n4', 'n5']:
+        for col in n_cols:
             if col in df_merged.columns and df_merged[col].nunique() <= 1:
                 df_merged = df_merged.drop(columns=[col])
         
         # Parse values column (stored as string repr of list of dicts)
+        # IMPORTANT: always return a list so that .explode() works correctly
+        # for both BDL (multi-year) and Census (single-year) data
         def parse_values_column(value):
             try:
                 value_list = ast.literal_eval(value)
-                if isinstance(value_list, list) and len(value_list) == 1:
-                    return value_list[0]
-                return value_list
+                if isinstance(value_list, list):
+                    return value_list  # always return the list, never unwrap
+                return [value_list]  # wrap single dicts in a list
             except (ValueError, SyntaxError):
                 return None
         
@@ -2417,7 +2809,8 @@ class GeoTERYTDatabase:
         return df_expanded
     
     def load_subject_data(self, df_expanded: pd.DataFrame, source_type: str = 'BDL',
-                          subject_id: str = None, verbose: bool = True) -> dict:
+                          subject_id: str = None, verbose: bool = True,
+                          subject_name: str = "") -> dict:
         """
         Load processed subject data onto TERYTRecord objects.
         
@@ -2463,7 +2856,7 @@ class GeoTERYTDatabase:
             # Try 6-digit match if exact match fails
             if record is None:
                 short_id = teryt_id[:6]
-                candidates = [tid for tid in self._records if tid[:6] == short_id]
+                candidates = [tid for tid in self._records if tid[:6] == short_id and tid[-1] in ['1','2','3']]
                 if len(candidates) == 1:
                     record = self._records[candidates[0]]
             
@@ -2483,6 +2876,10 @@ class GeoTERYTDatabase:
                     if len(vals) == 1:
                         categories[col] = str(vals[0])
                 
+                var_name = ""
+                for cat in list(categories.values()):
+                    var_name += f"{cat}/"
+                
                 # Add data points for each year
                 for _, row in var_group.iterrows():
                     year = row.get('year')
@@ -2494,7 +2891,9 @@ class GeoTERYTDatabase:
                             variable_id=str(var_id),
                             year=year,
                             value=val,
-                            categories=categories
+                            categories=categories,
+                            subject_name=subject_name,
+                            variable_name=var_name
                         )
                         total_points += 1
         
@@ -2633,6 +3032,256 @@ class GeoTERYTDatabase:
         }
     
     # ==========================================================================
+    # QUALITY OF LIFE / INSPECTION METHODS (NEW in v4.1)
+    # ==========================================================================
+    
+    def subject_availability(self, subject_ids: List[str] = None,
+                             level: int = None,
+                             mode: str = 'bool') -> pd.DataFrame:
+        """
+        Get a DataFrame showing subject data availability across TERYTRecords.
+        
+        Parameters:
+        - subject_ids: List of subject IDs to check (None = all found)
+        - level: Filter records by admin level (2=woj, 4=pow, 6=gmi, None=all)
+        - mode: 
+            'bool' - True/False whether record has any data for subject
+            'years' - comma-separated string of years with data
+            'count' - number of data series for the subject
+        
+        Returns:
+        - DataFrame with teryt_ids as index and subject_ids as columns
+        """
+        # Collect records
+        records = list(self._records.values())
+        if level is not None:
+            records = [r for r in records if r.level == level]
+        
+        # Discover all subjects if not specified
+        if subject_ids is None:
+            subject_ids = sorted(set(
+                k[1] for r in records for k in r.data.keys()
+            ))
+        
+        rows = []
+        for record in records:
+            row = {'teryt_id': record.teryt_id, 'name': record.name}
+            for sid in subject_ids:
+                subj_data = record.get_data_by_subject(sid)
+                if mode == 'bool':
+                    row[sid] = len(subj_data) > 0
+                elif mode == 'years':
+                    all_years = set()
+                    for ds in subj_data.values():
+                        all_years.update(ds.years)
+                    row[sid] = ','.join(str(y) for y in sorted(all_years)) if all_years else ''
+                elif mode == 'count':
+                    row[sid] = len(subj_data)
+                else:
+                    row[sid] = len(subj_data) > 0
+            rows.append(row)
+        
+        df = pd.DataFrame(rows)
+        if not df.empty:
+            df = df.set_index('teryt_id')
+        return df
+    
+    def get_subject_dataframe(self, subject_id: str, teryt_id: str = None,
+                              year: int = None) -> pd.DataFrame:
+        """
+        Reconstruct a DataFrame from stored DataSeries for a given subject.
+        
+        This effectively reverses load_subject_data(): it collects all data
+        points from all matching records and returns one flat DataFrame.
+        
+        Parameters:
+        - subject_id: Subject ID to retrieve
+        - teryt_id: Restrict to a single TERYT record (None = all records)
+        - year: Restrict to a single year (None = all years)
+        
+        Returns:
+        - DataFrame with columns: teryt_id, name, variable_id, source_type,
+          year, value, + category columns (n1, n2, ...)
+        """
+        rows = []
+        if teryt_id:
+            records = [self._records.get(str(teryt_id).zfill(7))]
+            records = [r for r in records if r is not None]
+        else:
+            records = list(self._records.values())
+        
+        for record in records:
+            subj_data = record.get_data_by_subject(str(subject_id))
+            for key, series in subj_data.items():
+                src, sid, vid = key
+                for yr, val in series.values.items():
+                    if year is not None and int(yr) != int(year):
+                        continue
+                    if val is None:
+                        continue
+                    row = {
+                        'teryt_id': record.teryt_id,
+                        'name': record.name,
+                        'source_type': src,
+                        'subject_id': sid,
+                        'variable_id': vid,
+                        'year': int(yr),
+                        'value': val,
+                    }
+                    if series.categories:
+                        row.update(series.categories)
+                    rows.append(row)
+        
+        return pd.DataFrame(rows)
+    
+    def get_variable_values(self, subject_id: str, year: int,
+                            level: int = None) -> pd.DataFrame:
+        """
+        Get all values of a subject for a given year across all teryts.
+        
+        Useful to quickly see e.g. population by gmina for a given year.
+        
+        Parameters:
+        - subject_id: Subject ID
+        - year: Year
+        - level: Filter by admin level (None = all)
+        
+        Returns:
+        - DataFrame with teryt_id, name, + one column per variable
+        """
+        year = int(year)
+        rows = []
+        for record in self._records.values():
+            if level is not None and record.level != level:
+                continue
+            subj_data = record.get_data_by_subject(str(subject_id))
+            if not subj_data:
+                continue
+            row = {'teryt_id': record.teryt_id, 'name': record.name}
+            for key, series in subj_data.items():
+                val = series.get_value(year)
+                if val is not None:
+                    # Use variable_name if available, else variable_id
+                    col_name = series.variable_name.rstrip('/') if series.variable_name else key[2]
+                    row[col_name] = val
+            if len(row) > 2:  # has at least one value
+                rows.append(row)
+        
+        df = pd.DataFrame(rows)
+        if not df.empty:
+            df = df.set_index('teryt_id')
+        return df
+    
+    # ==========================================================================
+    # CROSS TABLE DATABASE METHODS (NEW in v4.1)
+    # ==========================================================================
+    
+    def build_cross_tables(self, subject_id: str, subject_name: str = '',
+                           level: int = None, verbose: bool = True) -> int:
+        """
+        Build cross tables for a subject across all matching records.
+        
+        Should be called after load_subject_data(). Only builds for records
+        that have 2+ variables for the subject (otherwise cross table is trivial).
+        
+        Parameters:
+        - subject_id: Subject ID
+        - subject_name: Human-readable name
+        - level: Filter by admin level (None = all)
+        - verbose: Print progress
+        
+        Returns:
+        - Number of cross tables built
+        """
+        count = 0
+        for record in self._records.values():
+            if level is not None and record.level != level:
+                continue
+            subj_data = record.get_data_by_subject(str(subject_id))
+            if len(subj_data) < 2:
+                continue
+            ct = record.build_cross_table(str(subject_id), subject_name=subject_name)
+            if ct is not None:
+                count += 1
+        
+        if verbose:
+            print(f"  ✓ Built {count} cross tables for subject {subject_id}"
+                  f"{f' ({subject_name})' if subject_name else ''}")
+        
+        return count
+    
+    def aggregate_cross_tables(self, teryt_ids: List[str],
+                               subject_id: str) -> Optional['CrossTable']:
+        """
+        Aggregate cross tables across multiple TERYTs (element-wise sum).
+        
+        Parameters:
+        - teryt_ids: List of TERYT IDs to aggregate
+        - subject_id: Subject ID
+        
+        Returns:
+        - Aggregated CrossTable, or None if no data found
+        """
+        result = None
+        for tid in teryt_ids:
+            record = self._records.get(str(tid).zfill(7))
+            if record is None:
+                continue
+            ct = record.get_cross_table(str(subject_id))
+            if ct is None:
+                continue
+            if result is None:
+                # Deep copy the first one as starting point
+                result = CrossTable(
+                    subject_id=ct.subject_id,
+                    dim_names=ct.dim_names,
+                    dim_labels=ct.dim_labels,
+                    subject_name=ct.subject_name,
+                    year_range=ct.year_range
+                )
+                for year in ct.year_range:
+                    result.tables[year] = ct.tables[year].copy()
+            else:
+                result = result + ct
+        
+        return result
+    
+    def get_cross_table_summary(self) -> pd.DataFrame:
+        """
+        Get a summary DataFrame of all cross tables in the database.
+        
+        Returns:
+        - DataFrame with subject_id, n_records, dims, shape, years_with_data
+        """
+        subject_info = {}
+        for record in self._records.values():
+            for sid, ct in record.cross_tables.items():
+                if sid not in subject_info:
+                    subject_info[sid] = {
+                        'subject_id': sid,
+                        'subject_name': ct.subject_name,
+                        'n_records': 0,
+                        'dim_names': ct.dim_names,
+                        'shape': ct.shape,
+                    }
+                subject_info[sid]['n_records'] += 1
+        
+        if not subject_info:
+            return pd.DataFrame()
+        
+        rows = []
+        for sid, info in subject_info.items():
+            rows.append({
+                'subject_id': info['subject_id'],
+                'subject_name': info['subject_name'],
+                'n_records': info['n_records'],
+                'dimensions': ' × '.join(info['dim_names']),
+                'shape': info['shape'],
+            })
+        
+        return pd.DataFrame(rows).set_index('subject_id')
+    
+    # ==========================================================================
     # PERSISTENCE METHODS (NEW in v3.0, updated in v4.0)
     # ==========================================================================
     
@@ -2683,7 +3332,9 @@ class GeoTERYTDatabase:
                 'parent_teryt_id': record.parent_id,  # NEW in v3.1
                 'child_teryt_ids': record.children_ids,  # NEW in v3.1
                 # Data storage (NEW in v4.0)
-                'data': {f"{k[0]}|{k[1]}|{k[2]}": v.to_dict() for k, v in record.data.items()} if record.data else None
+                'data': {f"{k[0]}|{k[1]}|{k[2]}": v.to_dict() for k, v in record.data.items()} if record.data else None,
+                # Cross table storage (NEW in v4.1)
+                'cross_tables': {k: v.to_dict() for k, v in record.cross_tables.items()} if record.cross_tables else None
             }
             records_data[teryt_id] = rec_dict
         
@@ -2699,7 +3350,7 @@ class GeoTERYTDatabase:
         poland_wkb = self._poland_boundary.wkb if self._poland_boundary else None
         
         save_data = {
-            'version': '4.0',
+            'version': '4.1',
             'records': records_data,
             'by_year': {k: list(v) for k, v in self._by_year.items()},
             'by_name': {k: list(v) for k, v in self._by_name.items()},
@@ -2723,6 +3374,9 @@ class GeoTERYTDatabase:
             n_with_data = sum(1 for r in self._records.values() if r.has_data)
             if n_with_data > 0:
                 print(f"  ✓ Records with data: {n_with_data}")
+            n_with_ct = sum(1 for r in self._records.values() if r.has_cross_tables)
+            if n_with_ct > 0:
+                print(f"  ✓ Records with cross tables: {n_with_ct}")
             print(f"  ✓ File size: {file_size:.1f} MB")
             print(f"  ✓ Path: {filepath}")
     
@@ -2877,6 +3531,12 @@ def load_complete_database(filepath: Union[str, Path], verbose: bool = True) -> 
                 ds = DataSeries.from_dict(series_dict)
                 record.data[ds.key] = ds
         
+        # Restore cross tables (NEW in v4.1)
+        ct_dict = rec_dict.get('cross_tables')
+        if ct_dict:
+            for sid, ct_data in ct_dict.items():
+                record.cross_tables[sid] = CrossTable.from_dict(ct_data)
+        
         db._records[teryt_id] = record
     
     # Restore indices
@@ -2920,5 +3580,8 @@ def load_complete_database(filepath: Union[str, Path], verbose: bool = True) -> 
         data_count = sum(1 for r in db._records.values() if r.has_data)
         if data_count > 0:
             print(f"  ✓ Records with data: {data_count}")
+        ct_count = sum(1 for r in db._records.values() if r.has_cross_tables)
+        if ct_count > 0:
+            print(f"  ✓ Records with cross tables: {ct_count}")
     
     return db
