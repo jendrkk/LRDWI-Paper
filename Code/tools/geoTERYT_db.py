@@ -293,7 +293,8 @@ class DataSeries:
     """
     A time series of numerical data with metadata.
     
-    Stores year -> value mappings along with descriptive metadata about
+    Stores values as a pd.Series with DatetimeIndex (01.01.YYYY format)
+    spanning YEAR_RANGE_FULL, along with descriptive metadata about
     the data source, subject, variable, and categorical dimensions.
     
     Attributes:
@@ -303,7 +304,9 @@ class DataSeries:
     - variable_id: Variable identifier within the subject
     - variable_name: Human-readable variable name (reserved for future use)
     - categories: Dict of categorical dimensions (e.g. {'n1': 'ogółem', 'n2': 'miasto'})
-    - values: Dict mapping year (int) -> value (float)
+    - values: pd.Series with DatetimeIndex, NaN for missing years
+    - cat_code: Dict mapping dimension name -> numerical category code (e.g. {'n1': 1, 'n2': 2})
+    - cat_bounds: Dict mapping dimension name -> {'lower_bound': ..., 'upper_bound': ...}
     """
     
     def __init__(self, source_type: str, subject_id: str, variable_id,
@@ -315,28 +318,44 @@ class DataSeries:
         self.variable_id = str(variable_id)
         self.variable_name = variable_name
         self.categories = categories or {}
-        self.values: Dict[int, float] = {}  # year -> value
+        # pd.Series indexed by DatetimeIndex spanning YEAR_RANGE_FULL (NEW in v4.2)
+        self.values: pd.Series = pd.Series(
+            data=np.nan,
+            index=DATETIME_INDEX_FULL,
+            dtype=float
+        )
+        # Category coding (NEW in v4.2)
+        self.cat_code: Dict[str, int] = {}      # dim_name -> numerical code
+        self.cat_bounds: Dict[str, dict] = {}    # dim_name -> {'lower_bound': ..., 'upper_bound': ...}
     
     def add_value(self, year, value):
         """Add a data point for a specific year."""
         try:
-            self.values[int(year)] = float(value)
+            yr = int(year)
+            ts = pd.Timestamp(year=yr, month=1, day=1)
+            if ts in self.values.index:
+                self.values[ts] = float(value)
         except (ValueError, TypeError):
             pass  # Skip non-numeric values
     
     def get_value(self, year: int) -> Optional[float]:
         """Get value for a specific year. Returns None if not available."""
-        return self.values.get(int(year))
+        try:
+            ts = pd.Timestamp(year=int(year), month=1, day=1)
+            val = self.values.get(ts, np.nan)
+            return None if pd.isna(val) else float(val)
+        except (ValueError, KeyError):
+            return None
     
     @property
     def years(self) -> List[int]:
-        """Sorted list of years with data."""
-        return sorted(self.values.keys())
+        """Sorted list of years with non-NaN data."""
+        return sorted([ts.year for ts in self.values.dropna().index])
     
     @property
     def n_years(self) -> int:
-        """Number of years with data."""
-        return len(self.values)
+        """Number of years with non-NaN data."""
+        return int(self.values.notna().sum())
     
     @property
     def key(self) -> Tuple[str, str, str]:
@@ -345,6 +364,8 @@ class DataSeries:
     
     def to_dict(self) -> dict:
         """Serialize to dictionary for persistence."""
+        # Store only non-NaN values as {year_int: value}
+        vals = {ts.year: v for ts, v in self.values.items() if not pd.isna(v)}
         return {
             'source_type': self.source_type,
             'subject_id': self.subject_id,
@@ -352,7 +373,9 @@ class DataSeries:
             'variable_id': self.variable_id,
             'variable_name': self.variable_name,
             'categories': self.categories,
-            'values': self.values
+            'values': vals,
+            'cat_code': self.cat_code if self.cat_code else None,
+            'cat_bounds': self.cat_bounds if self.cat_bounds else None
         }
     
     @classmethod
@@ -366,8 +389,12 @@ class DataSeries:
             variable_name=d.get('variable_name', ''),
             categories=d.get('categories', {})
         )
-        # Ensure year keys are ints
-        ds.values = {int(k): v for k, v in d.get('values', {}).items()}
+        # Restore values from {year: value} dict
+        for k, v in d.get('values', {}).items():
+            ds.add_value(int(k), v)
+        # Restore cat_code and cat_bounds (NEW in v4.2)
+        ds.cat_code = d.get('cat_code') or {}
+        ds.cat_bounds = d.get('cat_bounds') or {}
         return ds
     
     def __repr__(self):
@@ -381,6 +408,11 @@ class DataSeries:
 # ==============================================================================
 
 YEAR_RANGE_FULL = list(range(1988, 2026))  # 1988–2025
+
+# DatetimeIndex for the full time span (NEW in v4.2)
+DATETIME_INDEX_FULL = pd.DatetimeIndex(
+    [pd.Timestamp(year=y, month=1, day=1) for y in YEAR_RANGE_FULL]
+)
 
 class CrossTable:
     """
@@ -660,6 +692,20 @@ class TERYTRecord:
         # Cross table storage (NEW in v4.1)
         # Key: subject_id -> CrossTable
         self.cross_tables: Dict[str, 'CrossTable'] = {}
+        
+        # Population and classification (NEW in v4.2)
+        # Total population time series indexed by DatetimeIndex
+        self.pop: pd.Series = pd.Series(
+            data=np.nan,
+            index=DATETIME_INDEX_FULL,
+            dtype=float
+        )
+        # Urban/rural classification DataFrame indexed by DatetimeIndex
+        self.pop_class: pd.DataFrame = pd.DataFrame(
+            {'pop_class_code': pd.Series(dtype=int),
+             'pop_class_label': pd.Series(dtype=str)},
+            index=pd.DatetimeIndex([])
+        )
     
     def add_year(self, year: int):
         """Add a year when this division was valid."""
@@ -841,9 +887,9 @@ class TERYTRecord:
                 continue
             
             idx_tuple = tuple(idx)
-            for year, val in series.values.items():
-                yr = int(year)
-                if val is not None and yr in ct.tables:
+            for ts, val in series.values.dropna().items():
+                yr = ts.year
+                if yr in ct.tables:
                     ct.tables[yr][idx_tuple] = float(val)
         
         self.cross_tables[str(subject_id)] = ct
@@ -1014,7 +1060,10 @@ class TERYTRecord:
             'data_subjects': self.list_subjects(),
             'has_cross_tables': self.has_cross_tables,
             'n_cross_tables': self.n_cross_tables,
-            'cross_table_subjects': self.list_cross_tables()
+            'cross_table_subjects': self.list_cross_tables(),
+            'has_pop': bool(self.pop.notna().any()),
+            'pop_years': sorted([ts.year for ts in self.pop.dropna().index]) if self.pop.notna().any() else [],
+            'has_pop_class': len(self.pop_class) > 0,
         }
     
     def display(self):
@@ -1635,25 +1684,36 @@ class GeoTERYTDatabase:
             level = record.level
             
             parent_id = None
-            children_ids = []
+            children_ids = pd.DataFrame()
             
             if level == 2:  # Voivodeship
                 parent_id = '0000000'  # Root parent
-                children_ids = all_teryt_ids[all_teryt_ids[0].str.startswith(woj) & (all_teryt_ids[0].str[4:6] == '00')]
+                # Children = powiats: same woj, gmi='00', but NOT the voivodeship itself
+                mask = (all_teryt_ids[0].str[:2] == woj) & \
+                       (all_teryt_ids[0].str[4:6] == '00') & \
+                       (all_teryt_ids[0].str[2:4] != '00')
+                children_ids = all_teryt_ids[mask]
             elif level == 5:  # Powiat
                 parent_id = woj + '00000'
-                children_ids = all_teryt_ids[all_teryt_ids[0].str.startswith(woj + pow) & (all_teryt_ids[0].str[6] in ['1', '2', '3'])]
+                # Children = gminas (rodz 1,2,3) under this powiat
+                mask = (all_teryt_ids[0].str[:4] == woj + pow) & \
+                       (all_teryt_ids[0].str[6].isin(['1', '2', '3']))
+                children_ids = all_teryt_ids[mask]
             elif level == 6:  # Gmina
                 if rodz in ['1', '2', '3']:  # Regular gmina
-                    parent_id = woj + pow + '0000'
-                    children_ids = all_teryt_ids[all_teryt_ids[0].str.startswith(woj + pow + gmi) & (all_teryt_ids[0].str[6] in ['4', '5', '8', '9'])]
-                elif rodz in ['4', '5']:  # City and rural gmina
+                    parent_id = woj + pow + '000'
+                    # Children = sub-parts (rodz 4,5,8,9) with same woj+pow+gmi
+                    mask = (all_teryt_ids[0].str[:6] == woj + pow + gmi) & \
+                           (all_teryt_ids[0].str[6].isin(['4', '5', '8', '9']))
+                    children_ids = all_teryt_ids[mask]
+                elif rodz in ['4', '5']:  # City/rural part of gmina miejsko-wiejska
                     parent_id = woj + pow + gmi + '3'
-                else: # Parts of cities with powiat rights
-                    parent_id = woj + pow + gmi + '0' 
+                else:  # Parts of cities with powiat rights (dzielnice, delegatury)
+                    parent_id = woj + pow + gmi + '1'
             
             record.set_parent(parent_id)
-            record.set_children(list(children_ids[0].values))
+            child_list = list(children_ids[0].values) if not children_ids.empty else []
+            record.set_children(child_list)
             i += 1 
         
         if verbose:
@@ -3114,10 +3174,9 @@ class GeoTERYTDatabase:
             subj_data = record.get_data_by_subject(str(subject_id))
             for key, series in subj_data.items():
                 src, sid, vid = key
-                for yr, val in series.values.items():
-                    if year is not None and int(yr) != int(year):
-                        continue
-                    if val is None:
+                for ts, val in series.values.dropna().items():
+                    yr = ts.year
+                    if year is not None and yr != int(year):
                         continue
                     row = {
                         'teryt_id': record.teryt_id,
@@ -3215,6 +3274,9 @@ class GeoTERYTDatabase:
         """
         Aggregate cross tables across multiple TERYTs (element-wise sum).
         
+        Handles cross tables with different label sets by building a union
+        of all dimension labels and aligning data before summing.
+        
         Parameters:
         - teryt_ids: List of TERYT IDs to aggregate
         - subject_id: Subject ID
@@ -3222,27 +3284,63 @@ class GeoTERYTDatabase:
         Returns:
         - Aggregated CrossTable, or None if no data found
         """
-        result = None
+        import itertools
+        
+        # Collect all cross tables
+        all_cts = []
         for tid in teryt_ids:
             record = self._records.get(str(tid).zfill(7))
             if record is None:
                 continue
             ct = record.get_cross_table(str(subject_id))
-            if ct is None:
-                continue
-            if result is None:
-                # Deep copy the first one as starting point
-                result = CrossTable(
-                    subject_id=ct.subject_id,
-                    dim_names=ct.dim_names,
-                    dim_labels=ct.dim_labels,
-                    subject_name=ct.subject_name,
-                    year_range=ct.year_range
-                )
-                for year in ct.year_range:
-                    result.tables[year] = ct.tables[year].copy()
-            else:
-                result = result + ct
+            if ct is not None:
+                all_cts.append(ct)
+        
+        if not all_cts:
+            return None
+        
+        # Build union of labels for each dimension (preserving order)
+        dim_names = all_cts[0].dim_names
+        union_labels = {d: [] for d in dim_names}
+        for ct in all_cts:
+            for d in dim_names:
+                for label in ct.dim_labels[d]:
+                    if label not in union_labels[d]:
+                        union_labels[d].append(label)
+        
+        union_shape = tuple(len(union_labels[d]) for d in dim_names)
+        
+        result = CrossTable(
+            subject_id=all_cts[0].subject_id,
+            dim_names=dim_names,
+            dim_labels=union_labels,
+            subject_name=all_cts[0].subject_name,
+            year_range=all_cts[0].year_range
+        )
+        
+        for ct in all_cts:
+            # Build index mapping: ct label index -> result label index
+            idx_maps = []
+            for d in dim_names:
+                mapping = [union_labels[d].index(label) for label in ct.dim_labels[d]]
+                idx_maps.append(mapping)
+            
+            for year in ct.year_range:
+                src = ct.tables.get(year)
+                if src is None or np.all(np.isnan(src)):
+                    continue
+                
+                dst = result.tables[year]
+                # Iterate over all index combinations in the source
+                for src_idx in itertools.product(*[range(len(m)) for m in idx_maps]):
+                    dst_idx = tuple(idx_maps[i][src_idx[i]] for i in range(len(dim_names)))
+                    val = src[src_idx]
+                    if np.isnan(val):
+                        continue
+                    if np.isnan(dst[dst_idx]):
+                        dst[dst_idx] = val
+                    else:
+                        dst[dst_idx] += val
         
         return result
     
@@ -3280,6 +3378,888 @@ class GeoTERYTDatabase:
             })
         
         return pd.DataFrame(rows).set_index('subject_id')
+    
+    # ==========================================================================
+    # DATA UNIFICATION METHODS (NEW in v4.2)
+    # ==========================================================================
+    
+    @staticmethod
+    def filter_subject_data(df_processed: pd.DataFrame, subject_id: str,
+                            filters: Dict[str, str] = None) -> pd.DataFrame:
+        """
+        Filter processed subject data by specific dimension values.
+        
+        Used to reduce dimensions before loading (e.g., keep only
+        'miejsce zamieszkania' in n2 for subject P1336).
+        
+        Parameters:
+        - df_processed: Output of process_subject_data()
+        - subject_id: Subject ID (for logging)
+        - filters: Dict mapping column name -> value to keep
+                   e.g. {'n2': 'miejsce zamieszkania', 'n3': 'stan na 30 czerwca'}
+        
+        Returns:
+        - Filtered DataFrame
+        """
+        if filters is None or df_processed.empty:
+            return df_processed
+        
+        df = df_processed.copy()
+        for col, val in filters.items():
+            if col in df.columns:
+                before = len(df)
+                df = df[df[col] == val].copy()
+                # Drop the now-constant filter column
+                if df[col].nunique() <= 1:
+                    df = df.drop(columns=[col])
+        
+        return df
+    
+    # ------------------------------------------------------------------
+    # Merged subject creation (NEW in v4.3 - replaces unify_census_subjects)
+    # ------------------------------------------------------------------
+    
+    @staticmethod
+    def _parse_numeric_bounds(label: str) -> Tuple[Optional[int], Optional[int]]:
+        """
+        Parse a category label to extract (lower_bound, upper_bound).
+        
+        Handles age groups, household sizes, and other numeric range categories.
+        Returns (None, None) for non-parseable labels (e.g. 'ogółem').
+        
+        Examples:
+            '0-4' → (0, 4)
+            '15-19' → (15, 19)
+            '85 i więcej' → (85, None)
+            '14 lat i mniej' → (None, 14)
+            '3-osobowe' → (3, 3)
+            '5-osobowe i większe' → (5, None)
+            'ogółem' → (None, None)
+        """
+        label_lower = label.lower().strip()
+        
+        # Skip totals
+        if label_lower in ['ogółem', 'total', 'razem']:
+            return None, None
+        
+        # Pattern: "X-Y" or "X–Y" (range)
+        m = re.search(r'(\d+)\s*[-–]\s*(\d+)', label)
+        if m:
+            return int(m.group(1)), int(m.group(2))
+        
+        # Pattern: number followed eventually by "i więcej" / "i większe"
+        m = re.search(r'(\d+).*?(?:i\s+więcej|i\s+większe|i\s+więc|i\s+wiecej)', label_lower)
+        if m:
+            return int(m.group(1)), None
+        
+        # Pattern: "X i mniej"
+        m = re.search(r'(\d+).*?i\s+mniej', label_lower)
+        if m:
+            return None, int(m.group(1))
+        
+        # Pattern: "poniżej X"
+        m = re.search(r'poniżej\s*(\d+)', label_lower)
+        if m:
+            return None, int(m.group(1)) - 1
+        
+        # Pattern: "X-osobowe" or "X osob" (single size, household)
+        m = re.search(r'(\d+)\s*[-–]?\s*osob', label_lower)
+        if m:
+            n = int(m.group(1))
+            return n, n
+        
+        return None, None
+    
+    @staticmethod
+    def _compute_unified_bins(sources_labels: Dict[str, List[str]]
+                              ) -> Tuple[List[str], Dict[str, Dict[str, str]]]:
+        """
+        Compute unified bins from multiple sources with possibly different binning.
+        
+        Uses the "common break points" approach:
+        1. Parse each source's labels to extract (lower, upper) bounds
+        2. Compute break points for each source (lower bounds + upper+1)
+        3. Unified break points = intersection of all sources' break points
+        4. Unified bins = consecutive pairs of common break points
+        5. Each source label maps to the unified bin containing its lower bound
+        
+        Multiple source labels can map to the same unified label when the source
+        has finer bins — values should be SUMMED by the caller.
+        
+        Parameters:
+        - sources_labels: {source_id: [list of labels including 'ogółem']}
+        
+        Returns:
+        - unified_labels: List of unified bin labels (including 'ogółem')
+        - mapping: {source_id: {source_label: unified_label}}
+        """
+        total_labels_set = {'ogółem', 'total', 'razem'}
+        
+        # Step 1: Parse bounds for each source
+        source_bins = {}       # sid -> [(lower, upper, label)]
+        source_non_parseable = {}  # sid -> [labels that aren't numeric bins]
+        source_break_points = {}
+        
+        for sid, labels in sources_labels.items():
+            bins = []
+            non_parseable = []
+            for label in labels:
+                if label.lower() in total_labels_set:
+                    continue
+                lb, ub = GeoTERYTDatabase._parse_numeric_bounds(label)
+                if lb is not None or ub is not None:
+                    if lb is None:
+                        lb = 0  # default open lower bound to 0
+                    bins.append((lb, ub, label))
+                else:
+                    non_parseable.append(label)
+            bins.sort(key=lambda x: (x[0], x[1] if x[1] is not None else float('inf')))
+            source_bins[sid] = bins
+            source_non_parseable[sid] = non_parseable
+            
+            # Extract break points
+            bps = set()
+            for lb, ub, _ in bins:
+                bps.add(lb)
+                if ub is not None:
+                    bps.add(ub + 1)
+            bps.add(float('inf'))
+            source_break_points[sid] = bps
+        
+        # Step 2: Common break points
+        if source_break_points:
+            common_bps = sorted(set.intersection(*source_break_points.values()))
+        else:
+            common_bps = [0, float('inf')]
+        
+        # Step 3: Build unified bin labels
+        unified_bin_labels = []
+        for i in range(len(common_bps) - 1):
+            lb = int(common_bps[i])
+            next_bp = common_bps[i + 1]
+            if next_bp == float('inf'):
+                label = f"{lb} i więcej"
+            else:
+                ub = int(next_bp - 1)
+                label = f"{lb}-{ub}" if lb != ub else str(lb)
+            unified_bin_labels.append(label)
+        
+        # Non-parseable labels: union across sources
+        all_non_parseable = []
+        for labels in source_non_parseable.values():
+            for l in labels:
+                if l not in all_non_parseable:
+                    all_non_parseable.append(l)
+        
+        # Final: ogółem + bins + non-parseable
+        unified_labels = ['ogółem'] + unified_bin_labels + sorted(all_non_parseable)
+        
+        # Step 4: Build mapping for each source
+        mapping = {}
+        for sid in sources_labels:
+            m = {}
+            # Map totals
+            for label in sources_labels[sid]:
+                if label.lower() in total_labels_set:
+                    m[label] = 'ogółem'
+            # Map bin labels by lower bound
+            for lb, ub, label in source_bins[sid]:
+                for i in range(len(common_bps) - 1):
+                    u_lb = common_bps[i]
+                    u_next = common_bps[i + 1]
+                    if lb >= u_lb and (u_next == float('inf') or lb < u_next):
+                        m[label] = unified_bin_labels[i]
+                        break
+            # Map non-parseable (exact match)
+            for label in source_non_parseable[sid]:
+                m[label] = label
+            mapping[sid] = m
+        
+        return unified_labels, mapping
+    
+    def create_merged_subjects(self, subject_names_dict: Dict[str, str],
+                               verbose: bool = True) -> Dict[str, List[str]]:
+        """
+        Create new merged subjects from groups of subjects sharing the same topic.
+        
+        DOES NOT modify original subjects — keeps all raw data intact.
+        Creates new DataSeries under merged subject IDs (prefixed with 'M_').
+        
+        For each merge group:
+        1. Detects semantic dimension types (age, sex, education, etc.)
+        2. Aligns dimensions across sources (e.g., BDL n1=age/n2=sex vs Census n1=sex/n2=age)
+        3. For range-based dimensions (age, hh_size): computes unified bins
+           via common break points and sums finer bins
+        4. For exact-match dimensions (sex): matches labels directly
+        5. BDL data takes priority; census fills only NaN years
+        
+        Parameters:
+        - subject_names_dict: Dict mapping subject_id -> subject_name
+        
+        Returns:
+        - Dict mapping merged_subject_id -> list of source subject_ids
+        """
+        import itertools
+        
+        # Group subjects by name → find merge groups
+        name_to_ids = {}
+        for sid, name in subject_names_dict.items():
+            name_to_ids.setdefault(name, []).append(sid)
+        merge_groups = {name: sids for name, sids in name_to_ids.items() if len(sids) > 1}
+        
+        if verbose:
+            print(f"Found {len(merge_groups)} subject groups to merge:")
+            for name, sids in merge_groups.items():
+                print(f"  {name}: {sids}")
+        
+        result = {}
+        
+        for group_name, sids in merge_groups.items():
+            merged_sid = f"M_{group_name}"
+            
+            # ---- Step 1: Collect dimension labels per source per n-dim ----
+            source_dim_labels = {}  # sid -> {n_dim -> set(labels)}
+            for sid in sids:
+                source_dim_labels[sid] = {}
+                for record in self._records.values():
+                    subj_data = record.get_data_by_subject(sid)
+                    for key, series in subj_data.items():
+                        for dim, label in series.categories.items():
+                            source_dim_labels[sid].setdefault(dim, set()).add(str(label))
+            
+            # Keep only sources that actually have data
+            sids_with_data = [s for s in sids if source_dim_labels.get(s)]
+            if len(sids_with_data) < 1:
+                if verbose:
+                    print(f"  ⚠ Skipping {group_name}: no sources with data")
+                continue
+            
+            # ---- Step 2: Detect semantic type of each n-dim ----
+            source_dim_types = {}  # sid -> {n_dim -> semantic_type}
+            for sid in sids_with_data:
+                source_dim_types[sid] = {}
+                for dim, labels in source_dim_labels[sid].items():
+                    if self._detect_gender_dim(labels):
+                        source_dim_types[sid][dim] = 'sex'
+                    elif self._detect_age_dim(labels):
+                        source_dim_types[sid][dim] = 'age'
+                    elif self._detect_education_dim(labels):
+                        source_dim_types[sid][dim] = 'education'
+                    else:
+                        # Check for hh_size patterns
+                        hh_pattern = re.compile(r'\d+\s*[-–]?\s*osob', re.IGNORECASE)
+                        if sum(1 for l in labels if hh_pattern.search(l)) >= 2:
+                            source_dim_types[sid][dim] = 'hh_size'
+                        else:
+                            source_dim_types[sid][dim] = 'other'
+            
+            # ---- Step 3: Canonical dimension mapping ----
+            # Use BDL subject as canonical (it has the most years of data)
+            bdl_sid = None
+            for s in sids_with_data:
+                for r in self._records.values():
+                    if any(k[0] == 'BDL' and k[1] == s for k in r.data.keys()):
+                        bdl_sid = s
+                        break
+                if bdl_sid:
+                    break
+            
+            canonical_sid = bdl_sid or sids_with_data[0]
+            canonical_types = source_dim_types.get(canonical_sid, {})
+            
+            # Map: semantic_type -> canonical n_dim name
+            type_to_canon_dim = {}
+            for n_dim, sem_type in canonical_types.items():
+                type_to_canon_dim[sem_type] = n_dim
+            
+            # Map: (source_sid, source_n_dim) -> canonical n_dim
+            dim_alignment = {}
+            for sid in sids_with_data:
+                for n_dim, sem_type in source_dim_types[sid].items():
+                    if sem_type in type_to_canon_dim:
+                        dim_alignment[(sid, n_dim)] = type_to_canon_dim[sem_type]
+                    else:
+                        dim_alignment[(sid, n_dim)] = n_dim
+            
+            # ---- Step 4: Compute unified labels per canonical dimension ----
+            canonical_dim_names = sorted(type_to_canon_dim.values())
+            unified_labels = {}
+            label_mappings = {}  # canon_dim -> {sid -> {src_label -> unified_label}}
+            
+            for sem_type, canon_dim in type_to_canon_dim.items():
+                if sem_type in ('age', 'hh_size'):
+                    # Range-based: compute unified bins
+                    range_labels_per_source = {}
+                    for sid in sids_with_data:
+                        for n_dim, st in source_dim_types[sid].items():
+                            if st == sem_type:
+                                range_labels_per_source[sid] = sorted(source_dim_labels[sid][n_dim])
+                    
+                    unified, mapping = self._compute_unified_bins(range_labels_per_source)
+                    unified_labels[canon_dim] = unified
+                    label_mappings[canon_dim] = mapping
+                
+                elif sem_type == 'sex':
+                    # Standard sex labels
+                    std_labels = ['ogółem', 'mężczyźni', 'kobiety']
+                    unified_labels[canon_dim] = std_labels
+                    label_mappings[canon_dim] = {}
+                    for sid in sids_with_data:
+                        for n_dim, st in source_dim_types[sid].items():
+                            if st == 'sex':
+                                label_mappings[canon_dim][sid] = {
+                                    l: l for l in source_dim_labels[sid][n_dim]
+                                    if l in std_labels
+                                }
+                
+                else:
+                    # Exact match: union of labels
+                    all_labels = set()
+                    for sid in sids_with_data:
+                        for n_dim, st in source_dim_types[sid].items():
+                            if st == sem_type:
+                                all_labels.update(source_dim_labels[sid][n_dim])
+                    unified_labels[canon_dim] = sorted(all_labels)
+                    label_mappings[canon_dim] = {}
+                    for sid in sids_with_data:
+                        for n_dim, st in source_dim_types[sid].items():
+                            if st == sem_type:
+                                label_mappings[canon_dim][sid] = {
+                                    l: l for l in source_dim_labels[sid][n_dim]
+                                }
+            
+            if verbose:
+                print(f"\n  Merged subject: {merged_sid}")
+                for cdim in canonical_dim_names:
+                    labels = unified_labels.get(cdim, [])
+                    print(f"    {cdim} ({type_to_canon_dim and [t for t,d in type_to_canon_dim.items() if d==cdim]}): "
+                          f"{len(labels)} labels")
+            
+            # ---- Step 5: Generate variable IDs for unified categories ----
+            cat_combos = list(itertools.product(
+                *[unified_labels[d] for d in canonical_dim_names]
+            ))
+            var_id_map = {}  # frozen category tuple -> var_id string
+            for i, combo in enumerate(cat_combos):
+                cats = {canonical_dim_names[j]: combo[j] for j in range(len(canonical_dim_names))}
+                cats_key = tuple(sorted(cats.items()))
+                var_id_map[cats_key] = f"M{i+1:04d}"
+            
+            # ---- Step 6: Create merged DataSeries for each record ----
+            # Process BDL source first, then census (BDL takes priority)
+            bdl_sources = [s for s in sids_with_data 
+                          if any(k[0] == 'BDL' for r in self._records.values() 
+                                for k in r.data.keys() if k[1] == s)]
+            census_sources = [s for s in sids_with_data if s not in bdl_sources]
+            ordered_sources = bdl_sources + census_sources
+            
+            records_merged = 0
+            series_created = 0
+            
+            for record in self._records.values():
+                record_has_merged = False
+                
+                for sid in ordered_sources:
+                    subj_data = record.get_data_by_subject(sid)
+                    if not subj_data:
+                        continue
+                    
+                    # Accumulate values per unified category within this source
+                    temp_values = {}  # cats_key -> pd.Series
+                    
+                    for key, series in subj_data.items():
+                        if not series.categories:
+                            continue
+                        
+                        # Map source dims to canonical dims + map labels
+                        mapped_cats = {}
+                        skip = False
+                        for src_dim, src_label in series.categories.items():
+                            canon_dim = dim_alignment.get((sid, src_dim))
+                            if canon_dim is None or canon_dim not in label_mappings:
+                                skip = True
+                                break
+                            
+                            src_mapping = label_mappings.get(canon_dim, {}).get(sid, {})
+                            unified_label = src_mapping.get(src_label)
+                            if unified_label is None:
+                                skip = True
+                                break
+                            
+                            mapped_cats[canon_dim] = unified_label
+                        
+                        if skip or len(mapped_cats) != len(canonical_dim_names):
+                            continue
+                        
+                        cats_key = tuple(sorted(mapped_cats.items()))
+                        var_id = var_id_map.get(cats_key)
+                        if var_id is None:
+                            continue
+                        
+                        # Sum within this source (aggregates finer bins)
+                        if cats_key not in temp_values:
+                            temp_values[cats_key] = pd.Series(
+                                data=np.nan, index=DATETIME_INDEX_FULL, dtype=float
+                            )
+                        
+                        for ts, val in series.values.dropna().items():
+                            existing = temp_values[cats_key].get(ts, np.nan)
+                            if pd.isna(existing):
+                                temp_values[cats_key][ts] = val
+                            else:
+                                temp_values[cats_key][ts] = existing + val
+                    
+                    # Merge temp into target (only fill NaN positions)
+                    for cats_key, temp_series in temp_values.items():
+                        var_id = var_id_map[cats_key]
+                        merged_key = ('Merged', merged_sid, var_id)
+                        
+                        if merged_key not in record.data:
+                            cats_dict = dict(cats_key)
+                            record.data[merged_key] = DataSeries(
+                                source_type='Merged',
+                                subject_id=merged_sid,
+                                variable_id=var_id,
+                                subject_name=group_name,
+                                categories=cats_dict
+                            )
+                            series_created += 1
+                        
+                        target = record.data[merged_key]
+                        for ts, val in temp_series.dropna().items():
+                            if pd.isna(target.values.get(ts, np.nan)):
+                                target.values[ts] = val
+                    
+                    if temp_values:
+                        record_has_merged = True
+                
+                if record_has_merged:
+                    records_merged += 1
+            
+            result[merged_sid] = sids_with_data
+            
+            if verbose:
+                print(f"    ✓ {records_merged} records, {series_created} merged series created")
+        
+        return result
+    
+    def extract_population(self, subject_names_dict: Dict[str, str],
+                           verbose: bool = True) -> int:
+        """
+        Extract total population for each TERYTRecord from pop__ subjects.
+        
+        For each record with BDL data in subjects with names starting with 'pop__',
+        finds variables where ALL dimension labels are 'ogółem' or 'total',
+        and stores the total population in TERYTRecord.pop as pd.Series.
+        Census data is also added where available.
+        
+        Parameters:
+        - subject_names_dict: Dict mapping subject_id -> human-readable name
+        - verbose: Print progress
+        
+        Returns:
+        - Number of records with population data extracted
+        """
+        pop_subjects = [sid for sid, name in subject_names_dict.items()
+                        if name.startswith('pop__')]
+        
+        total_labels = {'ogółem', 'total', 'Ogółem', 'Total'}
+        count = 0
+        
+        for record in self._records.values():
+            pop_found = False
+            
+            for sid in pop_subjects:
+                subj_data = record.get_data_by_subject(sid)
+                if not subj_data:
+                    continue
+                
+                # Find the "total" variable (all categories are 'ogółem'/'total')
+                for key, series in subj_data.items():
+                    if not series.categories:
+                        continue
+                    
+                    all_total = all(
+                        v in total_labels
+                        for v in series.categories.values()
+                    )
+                    
+                    if all_total:
+                        # Merge values into record.pop
+                        for ts, val in series.values.dropna().items():
+                            if pd.isna(record.pop.get(ts, np.nan)):
+                                record.pop[ts] = val
+                        pop_found = True
+            
+            if pop_found:
+                count += 1
+        
+        if verbose:
+            print(f"  ✓ Extracted population for {count} records")
+        
+        return count
+    
+    def classify_population(self, verbose: bool = True) -> int:
+        """
+        Classify each TERYTRecord by urban/rural based on pop data and rodz.
+        
+        Applied only to level=6 records with at least one year of pop data.
+        Stores result in TERYTRecord.pop_class as pd.DataFrame with columns
+        pop_class_code (int) and pop_class_label (str).
+        
+        Classification:
+        - rodz in ['1','4','8','9'] (urban): classified by population size
+        - rodz in ['2','5'] (rural): always class 1 ('wieś')
+        
+        Parameters:
+        - verbose: Print progress
+        
+        Returns:
+        - Number of records classified
+        """
+        count = 0
+        
+        for record in self._records.values():
+            if record.level != 6:
+                continue
+            if not record.pop.notna().any():
+                continue
+            
+            rows = []
+            for ts in DATETIME_INDEX_FULL:
+                pop_val = record.pop.get(ts, np.nan)
+                
+                if record.rodz in ['2', '5']:
+                    rows.append({
+                        'date': ts,
+                        'pop_class_code': 1,
+                        'pop_class_label': 'wieś'
+                    })
+                elif record.rodz in ['1', '4', '8', '9']:
+                    if pd.isna(pop_val):
+                        rows.append({
+                            'date': ts,
+                            'pop_class_code': np.nan,
+                            'pop_class_label': ''
+                        })
+                    elif pop_val <= 20000:
+                        rows.append({
+                            'date': ts,
+                            'pop_class_code': 2,
+                            'pop_class_label': 'miasto do 20 000'
+                        })
+                    elif pop_val <= 50000:
+                        rows.append({
+                            'date': ts,
+                            'pop_class_code': 3,
+                            'pop_class_label': 'miasto od 20 001 do 50 000'
+                        })
+                    elif pop_val <= 100000:
+                        rows.append({
+                            'date': ts,
+                            'pop_class_code': 4,
+                            'pop_class_label': 'miasto od 50 001 do 100 000'
+                        })
+                    elif pop_val <= 500000:
+                        rows.append({
+                            'date': ts,
+                            'pop_class_code': 5,
+                            'pop_class_label': 'miasto od 100 001 do 500 000'
+                        })
+                    else:
+                        rows.append({
+                            'date': ts,
+                            'pop_class_code': 6,
+                            'pop_class_label': 'miasto 500 001 i więcej'
+                        })
+                else:
+                    continue
+            
+            if rows:
+                record.pop_class = pd.DataFrame(rows).set_index('date')
+                count += 1
+        
+        if verbose:
+            print(f"  ✓ Classified {count} records by urban/rural")
+        
+        return count
+    
+    def code_dimension_labels(self, subject_names_dict: Dict[str, str],
+                              verbose: bool = True) -> int:
+        """
+        Translate categorical string labels to numerical codes for all DataSeries.
+        
+        Rules:
+        - Gender: 'mężczyźni'=1, 'kobiety'=2, 'ogółem'=0
+        - Education: lowest=1 ... highest=max, 'ogółem'=0
+        - Age: sequential codes + extract lower/upper bounds
+        - Household size: labels with numbers get sequential codes,
+          labels without numbers start from 101
+        
+        Stores codes in DataSeries.cat_code and bounds in DataSeries.cat_bounds.
+        
+        Parameters:
+        - subject_names_dict: Dict mapping subject_id -> human-readable name
+        - verbose: Print progress
+        
+        Returns:
+        - Number of DataSeries coded
+        """
+        # First, collect all unique category labels per subject per dimension
+        subject_dims = {}  # subject_id -> {dim_name: set(labels)}
+        for record in self._records.values():
+            for key, series in record.data.items():
+                sid = key[1]
+                if sid not in subject_dims:
+                    subject_dims[sid] = {}
+                for dim, label in series.categories.items():
+                    if dim not in subject_dims[sid]:
+                        subject_dims[sid][dim] = set()
+                    subject_dims[sid][dim].add(str(label))
+        
+        # Build coding maps per subject per dimension
+        coding_maps = {}  # subject_id -> {dim_name: {label: code}}
+        bounds_maps = {}  # subject_id -> {dim_name: {label: {'lower_bound': ..., 'upper_bound': ...}}}
+        
+        for sid, dims in subject_dims.items():
+            subject_name = subject_names_dict.get(sid, '')
+            coding_maps[sid] = {}
+            bounds_maps[sid] = {}
+            
+            for dim, labels in dims.items():
+                labels_sorted = sorted(labels)
+                code_map = {}
+                bound_map = {}
+                
+                # Detect dimension type from labels
+                is_gender = any(l.lower() in ['mężczyźni', 'kobiety'] for l in labels)
+                is_education = 'educ' in subject_name
+                is_age = any(l.lower() in ['pop__age_sex', 'pop__age', 'pop__age_educ'] 
+                            for l in [subject_name])
+                is_hh_size = 'hh_size' in subject_name
+                
+                if is_gender and self._detect_gender_dim(labels):
+                    code_map = self._code_gender(labels_sorted)
+                elif is_age and self._detect_age_dim(labels):
+                    code_map, bound_map = self._code_age(labels_sorted)
+                elif is_education and self._detect_education_dim(labels):
+                    code_map = self._code_education(labels_sorted)
+                elif is_hh_size:
+                    code_map = self._code_hh_size(labels_sorted)
+                else:
+                    # Default: sequential coding
+                    for i, label in enumerate(labels_sorted):
+                        code_map[label] = 0 if label.lower() in ['ogółem', 'total'] else i + 1
+                
+                coding_maps[sid][dim] = code_map
+                if bound_map:
+                    bounds_maps[sid][dim] = bound_map
+        
+        # Apply codes to all DataSeries
+        total_coded = 0
+        for record in self._records.values():
+            for key, series in record.data.items():
+                sid = key[1]
+                if sid not in coding_maps:
+                    continue
+                
+                for dim, label in series.categories.items():
+                    if sid in coding_maps and dim in coding_maps[sid]:
+                        code = coding_maps[sid][dim].get(str(label))
+                        if code is not None:
+                            series.cat_code[dim] = code
+                    
+                    if sid in bounds_maps and dim in bounds_maps[sid]:
+                        bounds = bounds_maps[sid][dim].get(str(label))
+                        if bounds is not None:
+                            series.cat_bounds[dim] = bounds
+                
+                if series.cat_code:
+                    total_coded += 1
+        
+        if verbose:
+            print(f"  ✓ Coded dimension labels for {total_coded} DataSeries "
+                  f"across {len(coding_maps)} subjects")
+        
+        return total_coded
+    
+    @staticmethod
+    def _detect_gender_dim(labels: set) -> bool:
+        """Check if a set of labels represents gender categories."""
+        lower = {l.lower() for l in labels}
+        return bool(lower & {'mężczyźni', 'kobiety', 'mężczyzni'})
+    
+    @staticmethod
+    def _detect_age_dim(labels: set) -> bool:
+        """Check if a set of labels represents age categories."""
+        import re
+        age_pattern = re.compile(r'\d+\s*[-–]\s*\d+|i więcej|i mniej|lat i|roku życia')
+        return sum(1 for l in labels if age_pattern.search(l)) >= 2
+    
+    @staticmethod
+    def _detect_education_dim(labels: set) -> bool:
+        """Check if a set of labels represents education levels."""
+        edu_keywords = {'podstawowe', 'średnie', 'wyższe', 'zasadnicze', 'gimnazjalne',
+                        'policealne', 'zawodowe', 'niepełne'}
+        lower = {l.lower() for l in labels}
+        return bool(lower & edu_keywords)
+    
+    @staticmethod
+    def _code_gender(labels: List[str]) -> Dict[str, int]:
+        """Code gender labels: ogółem=0, mężczyźni=1, kobiety=2."""
+        code_map = {}
+        for label in labels:
+            l = label.lower()
+            if l in ['ogółem', 'total', 'razem']:
+                code_map[label] = 0
+            elif l in ['mężczyźni', 'mężczyzni']:
+                code_map[label] = 1
+            elif l == 'kobiety':
+                code_map[label] = 2
+            else:
+                code_map[label] = 0
+        return code_map
+    
+    @staticmethod
+    def _code_age(labels: List[str]) -> Tuple[Dict[str, int], Dict[str, dict]]:
+        """
+        Code age categories sequentially and extract numeric bounds.
+        ogółem/total → code 0.
+        """
+        import re
+        code_map = {}
+        bound_map = {}
+        
+        # Separate 'ogółem'/'total' from actual age groups
+        age_labels = []
+        total_labels = []
+        for label in labels:
+            if label.lower() in ['ogółem', 'total', 'razem']:
+                total_labels.append(label)
+            else:
+                age_labels.append(label)
+        
+        # Extract numeric info for sorting
+        def extract_lower(label):
+            m = re.search(r'(\d+)', label)
+            return int(m.group(1)) if m else 999
+        
+        age_labels.sort(key=extract_lower)
+        
+        for label in total_labels:
+            code_map[label] = 0
+            bound_map[label] = {'lower_bound': np.nan, 'upper_bound': np.nan}
+        
+        for i, label in enumerate(age_labels, start=1):
+            code_map[label] = i
+            
+            # Extract bounds
+            lower = np.nan
+            upper = np.nan
+            
+            # Pattern: "X-Y" or "X–Y"
+            m = re.search(r'(\d+)\s*[-–]\s*(\d+)', label)
+            if m:
+                lower = int(m.group(1))
+                upper = int(m.group(2))
+            else:
+                # Pattern: "X i więcej" or "X lat i więcej"
+                m = re.search(r'(\d+)\s*(i więcej|lat i więcej|roku życia i więcej|i więc)', label)
+                if m:
+                    lower = int(m.group(1))
+                    upper = np.nan
+                else:
+                    # Pattern: "X i mniej" or "poniżej X"
+                    m = re.search(r'(\d+)\s*(i mniej|lat i mniej)', label)
+                    if m:
+                        lower = np.nan
+                        upper = int(m.group(1))
+                    else:
+                        # Try to extract just a number
+                        m = re.search(r'(\d+)', label)
+                        if m:
+                            lower = int(m.group(1))
+            
+            bound_map[label] = {'lower_bound': lower, 'upper_bound': upper}
+        
+        return code_map, bound_map
+    
+    @staticmethod
+    def _code_education(labels: List[str]) -> Dict[str, int]:
+        """
+        Code education levels from lowest (1) to highest.
+        ogółem/total → 0.
+        """
+        # Education level hierarchy (Polish system, approximate ordering)
+        edu_order = [
+            'niepełne podstawowe', 'bez wykształcenia', 'nieustalone',
+            'podstawowe', 'podstawowe ukończone',
+            'gimnazjalne',
+            'zasadnicze zawodowe', 'zasadnicze',
+            'średnie', 'średnie zawodowe', 'średnie ogólnokształcące',
+            'policealne', 'policealne i średnie zawodowe',
+            'wyższe', 'wyższe ze stopniem',
+        ]
+        
+        code_map = {}
+        other_code = 100
+        
+        for label in labels:
+            l = label.lower().strip()
+            if l in ['ogółem', 'total', 'razem']:
+                code_map[label] = 0
+                continue
+            
+            # Find best match in hierarchy
+            matched = False
+            for rank, edu_level in enumerate(edu_order, start=1):
+                if edu_level in l or l in edu_level:
+                    code_map[label] = rank
+                    matched = True
+                    break
+            
+            if not matched:
+                code_map[label] = other_code
+                other_code += 1
+        
+        return code_map
+    
+    @staticmethod
+    def _code_hh_size(labels: List[str]) -> Dict[str, int]:
+        """
+        Code household size labels.
+        Labels with numbers get sequential codes starting from 1.
+        Labels without numbers get codes starting from 101.
+        """
+        import re
+        
+        numbered = []
+        unnumbered = []
+        
+        for label in labels:
+            m = re.search(r'(\d+)', label)
+            if m and label.lower() not in ['ogółem', 'total', 'razem']:
+                numbered.append((int(m.group(1)), label))
+            elif label.lower() in ['ogółem', 'total', 'razem']:
+                unnumbered.append((0, label))  # ogółem gets special treatment
+            else:
+                unnumbered.append((1, label))
+        
+        numbered.sort(key=lambda x: x[0])
+        
+        code_map = {}
+        for i, (num, label) in enumerate(numbered, start=1):
+            code_map[label] = i
+        
+        next_code = 101
+        for _, label in unnumbered:
+            if label.lower() in ['ogółem', 'total', 'razem']:
+                code_map[label] = 0
+            else:
+                code_map[label] = next_code
+                next_code += 1
+        
+        return code_map
     
     # ==========================================================================
     # PERSISTENCE METHODS (NEW in v3.0, updated in v4.0)
@@ -3334,7 +4314,10 @@ class GeoTERYTDatabase:
                 # Data storage (NEW in v4.0)
                 'data': {f"{k[0]}|{k[1]}|{k[2]}": v.to_dict() for k, v in record.data.items()} if record.data else None,
                 # Cross table storage (NEW in v4.1)
-                'cross_tables': {k: v.to_dict() for k, v in record.cross_tables.items()} if record.cross_tables else None
+                'cross_tables': {k: v.to_dict() for k, v in record.cross_tables.items()} if record.cross_tables else None,
+                # Population and classification (NEW in v4.2)
+                'pop': {ts.year: v for ts, v in record.pop.items() if not pd.isna(v)} if record.pop.notna().any() else None,
+                'pop_class': record.pop_class.to_dict('index') if len(record.pop_class) > 0 else None
             }
             records_data[teryt_id] = rec_dict
         
@@ -3350,7 +4333,7 @@ class GeoTERYTDatabase:
         poland_wkb = self._poland_boundary.wkb if self._poland_boundary else None
         
         save_data = {
-            'version': '4.1',
+            'version': '4.2',
             'records': records_data,
             'by_year': {k: list(v) for k, v in self._by_year.items()},
             'by_name': {k: list(v) for k, v in self._by_name.items()},
@@ -3537,6 +4520,28 @@ def load_complete_database(filepath: Union[str, Path], verbose: bool = True) -> 
             for sid, ct_data in ct_dict.items():
                 record.cross_tables[sid] = CrossTable.from_dict(ct_data)
         
+        # Restore population and classification (NEW in v4.2)
+        pop_dict = rec_dict.get('pop')
+        if pop_dict:
+            for yr, val in pop_dict.items():
+                ts = pd.Timestamp(year=int(yr), month=1, day=1)
+                if ts in record.pop.index:
+                    record.pop[ts] = float(val)
+        
+        pop_class_dict = rec_dict.get('pop_class')
+        if pop_class_dict:
+            rows = []
+            for ts_str, vals in pop_class_dict.items():
+                code = vals['pop_class_code']
+                rows.append({
+                    'date': pd.Timestamp(ts_str),
+                    'pop_class_code': code if not pd.isna(code) else np.nan,
+                    'pop_class_label': str(vals['pop_class_label'])
+                })
+            if rows:
+                pc_df = pd.DataFrame(rows).set_index('date')
+                record.pop_class = pc_df
+        
         db._records[teryt_id] = record
     
     # Restore indices
@@ -3583,5 +4588,11 @@ def load_complete_database(filepath: Union[str, Path], verbose: bool = True) -> 
         ct_count = sum(1 for r in db._records.values() if r.has_cross_tables)
         if ct_count > 0:
             print(f"  ✓ Records with cross tables: {ct_count}")
+        pop_count = sum(1 for r in db._records.values() if r.pop.notna().any())
+        if pop_count > 0:
+            print(f"  ✓ Records with population data: {pop_count}")
+        pc_count = sum(1 for r in db._records.values() if len(r.pop_class) > 0)
+        if pc_count > 0:
+            print(f"  ✓ Records with pop_class: {pc_count}")
     
     return db
