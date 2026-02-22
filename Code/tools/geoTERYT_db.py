@@ -41,7 +41,7 @@ FIXES in v2.0:
 - Adds geometry clipping to Poland boundary (fixes Hel Peninsula water issue)
 - Improved change detection by comparing consecutive years
 
-Author: Jedrzej Slowinski and Claude Opus 4.5
+Author: Jedrzej Slowinski and Claude Opus 4.6
 """
 
 from pathlib import Path
@@ -3472,19 +3472,22 @@ class GeoTERYTDatabase:
     
     @staticmethod
     def _compute_unified_bins(sources_labels: Dict[str, List[str]]
-                              ) -> Tuple[List[str], Dict[str, Dict[str, str]]]:
+                              ) -> Tuple[List[str], Dict[str, Dict[str, str]], Dict[str, Set[str]]]:
         """
         Compute unified bins from multiple sources with possibly different binning.
         
         Uses the "common break points" approach:
         1. Parse each source's labels to extract (lower, upper) bounds
-        2. Compute break points for each source (lower bounds + upper+1)
-        3. Unified break points = intersection of all sources' break points
-        4. Unified bins = consecutive pairs of common break points
-        5. Each source label maps to the unified bin containing its lower bound
+        2. Detect aggregate labels (e.g. "0-14" when "0-4","5-9","10-14" exist)
+        3. Compute break points EXCLUDING aggregates
+        4. Unified break points = intersection of all sources' break points
+        5. Unified bins = consecutive pairs of common break points
+        6. Each source label maps to the unified bin containing its lower bound
         
         Multiple source labels can map to the same unified label when the source
         has finer bins — values should be SUMMED by the caller.
+        Aggregate labels also map to their unified bin but are flagged separately
+        so callers can give priority to fine-bin data (avoid double-counting).
         
         Parameters:
         - sources_labels: {source_id: [list of labels including 'ogółem']}
@@ -3492,6 +3495,7 @@ class GeoTERYTDatabase:
         Returns:
         - unified_labels: List of unified bin labels (including 'ogółem')
         - mapping: {source_id: {source_label: unified_label}}
+        - aggregate_labels: {source_id: set of labels detected as aggregates}
         """
         total_labels_set = {'ogółem', 'total', 'razem'}
         
@@ -3499,6 +3503,7 @@ class GeoTERYTDatabase:
         source_bins = {}       # sid -> [(lower, upper, label)]
         source_non_parseable = {}  # sid -> [labels that aren't numeric bins]
         source_break_points = {}
+        aggregate_labels = {}  # sid -> set of aggregate label strings
         
         for sid, labels in sources_labels.items():
             bins = []
@@ -3517,22 +3522,44 @@ class GeoTERYTDatabase:
             source_bins[sid] = bins
             source_non_parseable[sid] = non_parseable
             
-            # Extract break points
+            # Step 2: Detect aggregates within this source.
+            # A bin is an aggregate if another bin shares its lower bound
+            # but has a strictly narrower range (i.e. the wider bin is redundant).
+            agg = set()
+            for i, (lb_i, ub_i, label_i) in enumerate(bins):
+                for j, (lb_j, ub_j, label_j) in enumerate(bins):
+                    if i == j:
+                        continue
+                    # Same lower bound: the wider bin is the aggregate
+                    if lb_i == lb_j:
+                        # ub_i is None (open-ended) and ub_j is finite → i is wider
+                        if ub_i is None and ub_j is not None:
+                            agg.add(label_i)
+                            break
+                        # Both finite but i is wider
+                        if ub_i is not None and ub_j is not None and ub_i > ub_j:
+                            agg.add(label_i)
+                            break
+            aggregate_labels[sid] = agg
+            
+            # Extract break points EXCLUDING aggregates
             bps = set()
-            for lb, ub, _ in bins:
+            for lb, ub, label in bins:
+                if label in agg:
+                    continue
                 bps.add(lb)
                 if ub is not None:
                     bps.add(ub + 1)
             bps.add(float('inf'))
             source_break_points[sid] = bps
         
-        # Step 2: Common break points
+        # Step 3: Common break points
         if source_break_points:
             common_bps = sorted(set.intersection(*source_break_points.values()))
         else:
             common_bps = [0, float('inf')]
         
-        # Step 3: Build unified bin labels
+        # Step 4: Build unified bin labels
         unified_bin_labels = []
         for i in range(len(common_bps) - 1):
             lb = int(common_bps[i])
@@ -3554,7 +3581,7 @@ class GeoTERYTDatabase:
         # Final: ogółem + bins + non-parseable
         unified_labels = ['ogółem'] + unified_bin_labels + sorted(all_non_parseable)
         
-        # Step 4: Build mapping for each source
+        # Step 5: Build mapping for each source (including aggregates)
         mapping = {}
         for sid in sources_labels:
             m = {}
@@ -3575,7 +3602,7 @@ class GeoTERYTDatabase:
                 m[label] = label
             mapping[sid] = m
         
-        return unified_labels, mapping
+        return unified_labels, mapping, aggregate_labels
     
     def create_merged_subjects(self, subject_names_dict: Dict[str, str],
                                verbose: bool = True) -> Dict[str, List[str]]:
@@ -3685,6 +3712,7 @@ class GeoTERYTDatabase:
             canonical_dim_names = sorted(type_to_canon_dim.values())
             unified_labels = {}
             label_mappings = {}  # canon_dim -> {sid -> {src_label -> unified_label}}
+            agg_labels_per_dim = {}  # canon_dim -> {sid -> set(aggregate_labels)}
             
             for sem_type, canon_dim in type_to_canon_dim.items():
                 if sem_type in ('age', 'hh_size'):
@@ -3695,9 +3723,10 @@ class GeoTERYTDatabase:
                             if st == sem_type:
                                 range_labels_per_source[sid] = sorted(source_dim_labels[sid][n_dim])
                     
-                    unified, mapping = self._compute_unified_bins(range_labels_per_source)
+                    unified, mapping, agg = self._compute_unified_bins(range_labels_per_source)
                     unified_labels[canon_dim] = unified
                     label_mappings[canon_dim] = mapping
+                    agg_labels_per_dim[canon_dim] = agg
                 
                 elif sem_type == 'sex':
                     # Standard sex labels
@@ -3734,6 +3763,11 @@ class GeoTERYTDatabase:
                     labels = unified_labels.get(cdim, [])
                     print(f"    {cdim} ({type_to_canon_dim and [t for t,d in type_to_canon_dim.items() if d==cdim]}): "
                           f"{len(labels)} labels")
+                # Report aggregate labels detected
+                for cdim, agg_dict in agg_labels_per_dim.items():
+                    for s, aggs in agg_dict.items():
+                        if aggs:
+                            print(f"    Aggregates detected in {s} dim {cdim}: {aggs}")
             
             # ---- Step 5: Generate variable IDs for unified categories ----
             cat_combos = list(itertools.product(
@@ -3764,39 +3798,47 @@ class GeoTERYTDatabase:
                     if not subj_data:
                         continue
                     
-                    # Accumulate values per unified category within this source
-                    temp_values = {}  # cats_key -> pd.Series
+                    # Collect aggregate labels for this source across dims
+                    source_agg_labels = set()
+                    for cdim, agg_dict in agg_labels_per_dim.items():
+                        if sid in agg_dict:
+                            source_agg_labels.update(agg_dict[sid])
                     
-                    for key, series in subj_data.items():
-                        if not series.categories:
-                            continue
-                        
-                        # Map source dims to canonical dims + map labels
+                    # Helper to map a series to its unified category key
+                    def _map_series(series_obj):
+                        if not series_obj.categories:
+                            return None, None, False
                         mapped_cats = {}
-                        skip = False
-                        for src_dim, src_label in series.categories.items():
+                        is_agg = False
+                        for src_dim, src_label in series_obj.categories.items():
                             canon_dim = dim_alignment.get((sid, src_dim))
                             if canon_dim is None or canon_dim not in label_mappings:
-                                skip = True
-                                break
-                            
+                                return None, None, False
                             src_mapping = label_mappings.get(canon_dim, {}).get(sid, {})
                             unified_label = src_mapping.get(src_label)
                             if unified_label is None:
-                                skip = True
-                                break
-                            
+                                return None, None, False
                             mapped_cats[canon_dim] = unified_label
-                        
-                        if skip or len(mapped_cats) != len(canonical_dim_names):
-                            continue
-                        
+                            if src_label in source_agg_labels:
+                                is_agg = True
+                        if len(mapped_cats) != len(canonical_dim_names):
+                            return None, None, False
                         cats_key = tuple(sorted(mapped_cats.items()))
                         var_id = var_id_map.get(cats_key)
                         if var_id is None:
+                            return None, None, False
+                        return cats_key, var_id, is_agg
+                    
+                    # Accumulate values per unified category within this source
+                    # TWO-PASS: non-aggregates first (summed), then aggregates (fill-only)
+                    temp_values = {}  # cats_key -> pd.Series
+                    
+                    # Pass 1: Non-aggregate labels → sum into temp_values
+                    for key, series in subj_data.items():
+                        cats_key, var_id, is_agg = _map_series(series)
+                        if cats_key is None or is_agg:
                             continue
                         
-                        # Sum within this source (aggregates finer bins)
                         if cats_key not in temp_values:
                             temp_values[cats_key] = pd.Series(
                                 data=np.nan, index=DATETIME_INDEX_FULL, dtype=float
@@ -3808,6 +3850,10 @@ class GeoTERYTDatabase:
                                 temp_values[cats_key][ts] = val
                             else:
                                 temp_values[cats_key][ts] = existing + val
+                    
+                    # Pass 2 skipped: Aggregate labels (e.g. "70 i więcej") map to
+                    # a single fine bin (e.g. "70-74") but represent a wider range.
+                    # Filling them would place incorrect values. Leave NaN instead.
                     
                     # Merge temp into target (only fill NaN positions)
                     for cats_key, temp_series in temp_values.items():
