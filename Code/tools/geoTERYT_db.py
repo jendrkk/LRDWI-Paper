@@ -418,16 +418,16 @@ class DataSeries:
 # CROSS TABLE CLASS (NEW in v4.1)
 # ==============================================================================
 
-YEAR_RANGE_FULL = list(range(1988, 2026))  # 1988–2025
+YEAR_RANGE_FULL = list(range(1986, 2026))  # 1986–2025 (extended in v5.0)
 
-# DatetimeIndex for the full time span (NEW in v4.2)
+# DatetimeIndex for the full time span (NEW in v4.2, extended in v5.0)
 DATETIME_INDEX_FULL = pd.DatetimeIndex(
     [pd.Timestamp(year=y, month=1, day=1) for y in YEAR_RANGE_FULL]
 )
 
-# Pre-computed constants for fast DataSeries deserialization (NEW in v4.3)
-_YEAR_BASE = YEAR_RANGE_FULL[0]       # 1988
-_N_YEARS_FULL = len(YEAR_RANGE_FULL)  # 38
+# Pre-computed constants for fast DataSeries deserialization (NEW in v4.3, updated v5.0)
+_YEAR_BASE = YEAR_RANGE_FULL[0]       # 1986
+_N_YEARS_FULL = len(YEAR_RANGE_FULL)  # 40
 
 class CrossTable:
     """
@@ -777,6 +777,11 @@ class TERYTRecord:
     def set_children(self, children_ids: List[str]):
         """Set the list of children TERYT IDs."""
         self.children_ids = children_ids
+    
+    def set_old_woj(self, old_woj_name: str, old_woj_id: int):
+        """Set the pre-1999 voivodeship assignment."""
+        self.old_woj = old_woj_name
+        self.old_woj_id = old_woj_id
     
     # ------------------------------------------------------------------
     # Data management methods (NEW in v4.0)
@@ -1985,6 +1990,14 @@ class GeoTERYTDatabase:
             record.set_parent(parent_id)
             child_list = list(children_ids[0].values) if not children_ids.empty else []
             record.set_children(child_list)
+
+            # Make childern records inherit old_woj and old_woj_name from parent if parent is of level 6 and childern_ids is not empty
+            if level == 6 and rodz == '3' and child_list:
+                for child_id in child_list:
+                    child_record = self._records.get(child_id)
+                    if child_record:
+                        child_record.set_old_woj(record.old_woj, record.old_woj_id)
+            
             i += 1 
         
         if verbose:
@@ -4162,6 +4175,377 @@ class GeoTERYTDatabase:
                 print(f"    ✓ {records_merged} records, {series_created} merged series created")
         
         return result
+    
+    # ==========================================================================
+    # HISTORICAL TERYT RESOLUTION (NEW in v5.0)
+    # ==========================================================================
+    
+    def resolve_historical_teryts(self, subject_ids: List[str] = None,
+                                  verbose: bool = True) -> Dict[str, int]:
+        """
+        Resolve missing data by looking up affiliated historical TERYT codes.
+        
+        For each raw subject (P-prefixed by default): for each record where data
+        is missing for some years, check historical_codes for affiliated teryt_ids
+        that have data under a different code.
+        
+        The resolution follows a strict priority order (bottom-up):
+        Level 6 (gminas) first, then level 5 (powiats), then level 2
+        (voivodeships), then level 0 (country).
+        
+        Rules for gminas (level=6, teryt_id[-1] in '123'):
+          1. RODZ change: historical code with same 6-digit prefix but different
+             last digit in '123' → direct replacement (highest priority).
+          2. Rodz 4+5 sum: two historical codes with same 6-digit prefix, one
+             ending '4' and one ending '5' → sum their values.
+          3. POW change: historical code with same last digit (same rodz) but
+             different powiat → direct replacement.
+        
+        Rules for sub-divisions (level=6, teryt_id[-1] in '4589'):
+          - Historical code with same last digit → direct replacement.
+        
+        Rules for powiats (teryt_id[-1] == '0'):
+          - Sum children with rodz in '1','2','3'.
+        
+        Rules for voivodeships (teryt_id[2:] == '00000'):
+          - Sum children with rodz in '1','2','3','0'.
+        
+        Rules for country (teryt_id == '0000000'):
+          - Sum all voivodeships (16 new or 49 old).
+        
+        Parameters:
+        - subject_ids: List of subject IDs to resolve (default: all P-prefixed)
+        - verbose: Print progress
+        
+        Returns:
+        - Dict mapping subject_id -> number of data points recovered
+        """
+        if subject_ids is None:
+            # Collect all P-prefixed subject IDs in the database
+            all_sids = set()
+            for record in self._records.values():
+                for key in record.data.keys():
+                    sid = key[1]
+                    if sid.startswith('P'):
+                        all_sids.add(sid)
+            subject_ids = sorted(all_sids)
+        
+        if verbose:
+            print(f"Resolving historical TERYTs for {len(subject_ids)} subjects...")
+        
+        recovery_counts = {}
+        
+        for sid in subject_ids:
+            recovered = 0
+            
+            # ── Phase 1: Level 6 (gminas) ──
+            for teryt_id, record in self._records.items():
+                if record.level != 6:
+                    continue
+                if not record.historical_codes:
+                    continue
+                
+                subj_data = record.get_data_by_subject(sid)
+                if not subj_data:
+                    continue
+                
+                last_digit = record.teryt_id[-1]
+                prefix6 = record.teryt_id[:-1]  # first 6 digits
+                
+                for key, ds in subj_data.items():
+                    # Find years where this DataSeries has NaN
+                    nan_mask = ds.values.isna()
+                    if not nan_mask.any():
+                        continue
+                    
+                    nan_timestamps = ds.values.index[nan_mask]
+                    
+                    if last_digit in ('1', '2', '3'):
+                        # Rule 1: RODZ change (same prefix, different rodz in 123)
+                        rodz_match = None
+                        for hc in record.historical_codes:
+                            if hc[:-1] == prefix6 and hc[-1] in ('1', '2', '3') and hc != teryt_id:
+                                rodz_match = hc
+                                break
+                        
+                        if rodz_match and rodz_match in self._records:
+                            donor = self._records[rodz_match]
+                            donor_data = donor.get_data_by_subject(sid)
+                            for dkey, dds in donor_data.items():
+                                # Match by categories
+                                if dds.categories == ds.categories:
+                                    for ts in nan_timestamps:
+                                        val = dds.values.get(ts, np.nan)
+                                        if not pd.isna(val):
+                                            ds.values[ts] = val
+                                            recovered += 1
+                                    break
+                            # Recompute nan_timestamps after rule 1
+                            nan_mask = ds.values.isna()
+                            nan_timestamps = ds.values.index[nan_mask]
+                            if not nan_mask.any():
+                                continue
+                        
+                        # Rule 2: Sum of rodz 4+5 parts
+                        r4_id = None
+                        r5_id = None
+                        for hc in record.historical_codes:
+                            if hc[:-1] == prefix6 and hc[-1] == '4':
+                                r4_id = hc
+                            elif hc[:-1] == prefix6 and hc[-1] == '5':
+                                r5_id = hc
+                        
+                        if r4_id and r5_id and r4_id in self._records and r5_id in self._records:
+                            d4 = self._records[r4_id].get_data_by_subject(sid)
+                            d5 = self._records[r5_id].get_data_by_subject(sid)
+                            # Find matching categories
+                            d4_match = None
+                            d5_match = None
+                            for dk, dds in d4.items():
+                                if dds.categories == ds.categories:
+                                    d4_match = dds
+                                    break
+                            for dk, dds in d5.items():
+                                if dds.categories == ds.categories:
+                                    d5_match = dds
+                                    break
+                            
+                            if d4_match and d5_match:
+                                for ts in nan_timestamps:
+                                    v4 = d4_match.values.get(ts, np.nan)
+                                    v5 = d5_match.values.get(ts, np.nan)
+                                    if pd.isna(v4) and pd.isna(v5):
+                                        continue
+                                    total = (0 if pd.isna(v4) else v4) + (0 if pd.isna(v5) else v5)
+                                    ds.values[ts] = total
+                                    recovered += 1
+                                # Recompute
+                                nan_mask = ds.values.isna()
+                                nan_timestamps = ds.values.index[nan_mask]
+                                if not nan_mask.any():
+                                    continue
+                        
+                        # Rule 3: POW change (same rodz, different powiat)
+                        for hc in record.historical_codes:
+                            if hc[-1] == last_digit and hc != teryt_id and hc[:-1] != prefix6:
+                                if hc in self._records:
+                                    donor = self._records[hc]
+                                    donor_data = donor.get_data_by_subject(sid)
+                                    for dkey, dds in donor_data.items():
+                                        if dds.categories == ds.categories:
+                                            for ts in nan_timestamps:
+                                                val = dds.values.get(ts, np.nan)
+                                                if not pd.isna(val):
+                                                    ds.values[ts] = val
+                                                    recovered += 1
+                                            break
+                                    break
+                    
+                    elif last_digit in ('4', '5', '8', '9'):
+                        # Sub-divisions: match by same last digit
+                        for hc in record.historical_codes:
+                            if hc[-1] == last_digit and hc != teryt_id:
+                                if hc in self._records:
+                                    donor = self._records[hc]
+                                    donor_data = donor.get_data_by_subject(sid)
+                                    for dkey, dds in donor_data.items():
+                                        if dds.categories == ds.categories:
+                                            for ts in nan_timestamps:
+                                                val = dds.values.get(ts, np.nan)
+                                                if not pd.isna(val):
+                                                    ds.values[ts] = val
+                                                    recovered += 1
+                                            break
+                                    break
+            
+            # ── Phase 2: Level 5 (powiats) — sum children ──
+            for teryt_id, record in self._records.items():
+                if record.teryt_id[-1] != '0' or record.level != 5:
+                    continue
+                
+                subj_data = record.get_data_by_subject(sid)
+                if not subj_data:
+                    continue
+                
+                for key, ds in subj_data.items():
+                    nan_mask = ds.values.isna()
+                    if not nan_mask.any():
+                        continue
+                    nan_timestamps = ds.values.index[nan_mask]
+                    
+                    for ts in nan_timestamps:
+                        total = 0.0
+                        found_any = False
+                        for cid in record.children_ids:
+                            if cid[-1] not in ('1', '2', '3'):
+                                continue
+                            child = self._records.get(cid)
+                            if child is None:
+                                continue
+                            child_data = child.get_data_by_subject(sid)
+                            for ck, cds in child_data.items():
+                                if cds.categories == ds.categories:
+                                    val = cds.values.get(ts, np.nan)
+                                    if not pd.isna(val):
+                                        total += val
+                                        found_any = True
+                                    break
+                        if found_any:
+                            ds.values[ts] = total
+                            recovered += 1
+            
+            # ── Phase 3: Level 2 (voivodeships) — sum children ──
+            for teryt_id, record in self._records.items():
+                if record.level != 2:
+                    continue
+                if record.teryt_id[2:] != '00000':
+                    continue
+                
+                subj_data = record.get_data_by_subject(sid)
+                if not subj_data:
+                    continue
+                
+                for key, ds in subj_data.items():
+                    nan_mask = ds.values.isna()
+                    if not nan_mask.any():
+                        continue
+                    nan_timestamps = ds.values.index[nan_mask]
+                    
+                    for ts in nan_timestamps:
+                        total = 0.0
+                        found_any = False
+                        for cid in record.children_ids:
+                            if cid[-1] not in ('0', '1', '2', '3'):
+                                continue
+                            child = self._records.get(cid)
+                            if child is None:
+                                continue
+                            child_data = child.get_data_by_subject(sid)
+                            for ck, cds in child_data.items():
+                                if cds.categories == ds.categories:
+                                    val = cds.values.get(ts, np.nan)
+                                    if not pd.isna(val):
+                                        total += val
+                                        found_any = True
+                                    break
+                        if found_any:
+                            ds.values[ts] = total
+                            recovered += 1
+            
+            # ── Phase 4: Level 0 (country) — sum voivodeships ──
+            country_record = self._records.get('0000000')
+            if country_record:
+                subj_data = country_record.get_data_by_subject(sid)
+                if subj_data:
+                    # New voivodeships: all even 02-32 
+                    new_voi_ids = [f"{x:02d}00000" for x in range(2, 34, 2)]
+                    
+                    for key, ds in subj_data.items():
+                        nan_mask = ds.values.isna()
+                        if not nan_mask.any():
+                            continue
+                        nan_timestamps = ds.values.index[nan_mask]
+                        
+                        for ts in nan_timestamps:
+                            total = 0.0
+                            found_any = False
+                            for vid in new_voi_ids:
+                                voi = self._records.get(vid)
+                                if voi is None:
+                                    continue
+                                voi_data = voi.get_data_by_subject(sid)
+                                for vk, vds in voi_data.items():
+                                    if vds.categories == ds.categories:
+                                        val = vds.values.get(ts, np.nan)
+                                        if not pd.isna(val):
+                                            total += val
+                                            found_any = True
+                                        break
+                            if found_any:
+                                ds.values[ts] = total
+                                recovered += 1
+            
+            recovery_counts[sid] = recovered
+            if verbose and recovered > 0:
+                print(f"  {sid}: recovered {recovered} data points")
+        
+        total_recovered = sum(recovery_counts.values())
+        if verbose:
+            print(f"  ✓ Total recovered: {total_recovered} data points across "
+                  f"{sum(1 for v in recovery_counts.values() if v > 0)} subjects")
+        
+        return recovery_counts
+    
+    # ==========================================================================
+    # YEAR RANGE EXTENSION (NEW in v5.0)
+    # ==========================================================================
+    
+    def extend_year_range(self, new_start: int = 1986, new_end: int = 2025,
+                          verbose: bool = True):
+        """
+        Extend all DataSeries, CrossTables, pop, and pop_class to a wider year range.
+        
+        This is a database-wide operation that pads existing data with NaN for
+        the newly added years while preserving all existing data.
+        
+        Parameters:
+        - new_start: New start year (default: 1986)
+        - new_end: New end year (default: 2025)
+        - verbose: Print progress
+        """
+        new_range = list(range(new_start, new_end + 1))
+        new_index = pd.DatetimeIndex(
+            [pd.Timestamp(year=y, month=1, day=1) for y in new_range]
+        )
+        old_index = DATETIME_INDEX_FULL
+        
+        if verbose:
+            print(f"Extending year range from {old_index[0].year}-{old_index[-1].year} "
+                  f"to {new_start}-{new_end}...")
+        
+        records_updated = 0
+        
+        for record in self._records.values():
+            changed = False
+            
+            # Extend DataSeries
+            for key, ds in record.data.items():
+                old_values = ds.values
+                new_values = pd.Series(data=np.nan, index=new_index, dtype=float)
+                # Copy existing values via alignment
+                for ts in old_values.index:
+                    if ts in new_index and not pd.isna(old_values[ts]):
+                        new_values[ts] = old_values[ts]
+                ds.values = new_values
+                changed = True
+            
+            # Extend CrossTable year ranges
+            for sid, ct in record.cross_tables.items():
+                new_tables = {}
+                for year in new_range:
+                    if year in ct.tables:
+                        new_tables[year] = ct.tables[year]
+                    else:
+                        new_tables[year] = np.full(ct._shape, np.nan)
+                ct.tables = new_tables
+                ct.year_range = new_range
+                changed = True
+            
+            # Extend pop series
+            if record.pop is not None:
+                old_pop = record.pop
+                new_pop = pd.Series(data=np.nan, index=new_index, dtype=float)
+                for ts in old_pop.index:
+                    if ts in new_index and not pd.isna(old_pop[ts]):
+                        new_pop[ts] = old_pop[ts]
+                record.pop = new_pop
+                changed = True
+            
+            if changed:
+                records_updated += 1
+        
+        if verbose:
+            print(f"  ✓ Extended {records_updated} records to {new_start}-{new_end}")
     
     def extract_population(self, subject_names_dict: Dict[str, str],
                            verbose: bool = True) -> int:
