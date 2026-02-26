@@ -1,0 +1,14 @@
+country,year,gini_index,indicator,wealth_share_top10,wealth_share_bottom50,top1_wealth_share,top10_wealth_share,wealth_concentration_ratio
+DEU,2020,31.9,SI.POV.GINI,59.0,3.0,,,19.666666666666668
+FRA,2020,32.4,SI.POV.GINI,55.0,5.0,,,11.0
+GBR,2020,35.1,SI.POV.GINI,52.0,9.0,,,5.777777777777778
+JPN,2020,,,48.0,6.0,,,8.0
+USA,1980,,,,,25.0,60.0,
+USA,1985,,,,,28.0,62.0,
+USA,1990,,,,,30.0,65.0,
+USA,1995,,,,,33.0,68.0,
+USA,2000,,,,,35.0,70.0,
+USA,2005,,,,,37.0,72.0,
+USA,2010,,,,,39.0,73.0,
+USA,2015,,,,,40.0,74.0,
+USA,2020,41.5,SI.POV.GINI,70.0,2.0,42.0,75.0,35.0
