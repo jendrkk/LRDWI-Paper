@@ -163,7 +163,16 @@ def nuts_code_to_teryt(nuts_code: str) -> str:
     k = 3
     gmina_id = nuts_code[-k:]
     powiat_id = nuts_code[-(k+2):-k]
-    if len(nuts_code) == 11:
+    if len(nuts_code) == 12:
+        voivodeship_id = nuts_code[2:4]
+        # Edited to remove nuts levels.
+        check_level_0 = nuts_code == '000000000000'
+        check_level_1 = (nuts_code[1] !='0') and (nuts_code[2:] == '0000000000')
+        check_level_2 = (nuts_code[4] !='0') and (nuts_code[5:] == '0000000')
+        check_level_3 = (nuts_code[5:7] !='00') and (nuts_code[7:] == '00000')
+        if (check_level_1 or check_level_2 or check_level_3) and not check_level_0:
+            return None
+    elif len(nuts_code) == 11:
         voivodeship_id = nuts_code[1:3]
     elif len(nuts_code) == 10:
         voivodeship_id = nuts_code[2:4]
@@ -171,6 +180,7 @@ def nuts_code_to_teryt(nuts_code: str) -> str:
         gmina_id = nuts_code[6:9]
     else:
         voivodeship_id = nuts_code[2:4]
+    
     return voivodeship_id + powiat_id + gmina_id
 
 
@@ -3152,6 +3162,7 @@ class GeoTERYTDatabase:
             lambda x: str(int(x)).zfill(12)
         )
         df_expanded['teryt_id'] = df_expanded['nuts_id'].apply(nuts_code_to_teryt)
+        df_expanded = df_expanded[df_expanded['teryt_id'].notna()]
         
         return df_expanded
     
@@ -3894,18 +3905,22 @@ class GeoTERYTDatabase:
     def create_merged_subjects(self, subject_names_dict: Dict[str, str],
                                verbose: bool = True) -> Dict[str, List[str]]:
         """
-        Create new merged subjects from groups of subjects sharing the same topic.
+        Create new merged subjects from loaded raw data.
         
         DOES NOT modify original subjects — keeps all raw data intact.
         Creates new DataSeries under merged subject IDs (prefixed with 'M_').
         
-        For each merge group:
-        1. Detects semantic dimension types (age, sex, education, etc.)
-        2. Aligns dimensions across sources (e.g., BDL n1=age/n2=sex vs Census n1=sex/n2=age)
-        3. For range-based dimensions (age, hh_size): computes unified bins
-           via common break points and sums finer bins
-        4. For exact-match dimensions (sex): matches labels directly
-        5. BDL data takes priority; census fills only NaN years
+        Two phases:
+        
+        Phase 1 — Auto-merge: Groups subjects sharing the same subject_name,
+        detects dimensional semantics, computes unified bins, and merges data.
+        Aggregate labels (e.g., "0-14" when finer bins exist) are properly
+        excluded from the unified bin scheme. BDL data takes priority.
+        
+        Phase 2 — Custom subjects: Creates manually-defined merged subjects
+        with precise label mappings per todo.md specifications:
+        M_hh_size_1990, M_hh_size_2000, M_age_sex, M_age_1990,
+        M_educ_1990, M_educ_2000, M_educ_sex_1990, M_educ_sex_2000.
         
         Parameters:
         - subject_names_dict: Dict mapping subject_id -> subject_name
@@ -3915,24 +3930,26 @@ class GeoTERYTDatabase:
         """
         import itertools
         
-        # Group subjects by name → find merge groups
+        result = {}
+        
+        # ==================================================================
+        # PHASE 1: Auto-merge by shared subject_name
+        # ==================================================================
         name_to_ids = {}
         for sid, name in subject_names_dict.items():
             name_to_ids.setdefault(name, []).append(sid)
         merge_groups = {name: sids for name, sids in name_to_ids.items() if len(sids) > 1}
         
         if verbose:
-            print(f"Found {len(merge_groups)} subject groups to merge:")
+            print(f"Phase 1 — Auto-merge: {len(merge_groups)} subject groups")
             for name, sids in merge_groups.items():
                 print(f"  {name}: {sids}")
-        
-        result = {}
         
         for group_name, sids in merge_groups.items():
             merged_sid = f"M_{group_name}"
             
-            # ---- Step 1: Collect dimension labels per source per n-dim ----
-            source_dim_labels = {}  # sid -> {n_dim -> set(labels)}
+            # Step 1: Collect dimension labels per source per n-dim
+            source_dim_labels = {}
             for sid in sids:
                 source_dim_labels[sid] = {}
                 for record in self._records.values():
@@ -3941,15 +3958,14 @@ class GeoTERYTDatabase:
                         for dim, label in series.categories.items():
                             source_dim_labels[sid].setdefault(dim, set()).add(str(label))
             
-            # Keep only sources that actually have data
             sids_with_data = [s for s in sids if source_dim_labels.get(s)]
-            if len(sids_with_data) < 1:
+            if not sids_with_data:
                 if verbose:
                     print(f"  ⚠ Skipping {group_name}: no sources with data")
                 continue
             
-            # ---- Step 2: Detect semantic type of each n-dim ----
-            source_dim_types = {}  # sid -> {n_dim -> semantic_type}
+            # Step 2: Detect semantic type of each n-dim
+            source_dim_types = {}
             for sid in sids_with_data:
                 source_dim_types[sid] = {}
                 for dim, labels in source_dim_labels[sid].items():
@@ -3960,15 +3976,13 @@ class GeoTERYTDatabase:
                     elif self._detect_education_dim(labels):
                         source_dim_types[sid][dim] = 'education'
                     else:
-                        # Check for hh_size patterns
                         hh_pattern = re.compile(r'\d+\s*[-–]?\s*osob', re.IGNORECASE)
                         if sum(1 for l in labels if hh_pattern.search(l)) >= 2:
                             source_dim_types[sid][dim] = 'hh_size'
                         else:
                             source_dim_types[sid][dim] = 'other'
             
-            # ---- Step 3: Canonical dimension mapping ----
-            # Use BDL subject as canonical (it has the most years of data)
+            # Step 3: Canonical dimension mapping (BDL as reference)
             bdl_sid = None
             for s in sids_with_data:
                 for r in self._records.values():
@@ -3980,43 +3994,31 @@ class GeoTERYTDatabase:
             
             canonical_sid = bdl_sid or sids_with_data[0]
             canonical_types = source_dim_types.get(canonical_sid, {})
+            type_to_canon_dim = {sem_type: n_dim for n_dim, sem_type in canonical_types.items()}
             
-            # Map: semantic_type -> canonical n_dim name
-            type_to_canon_dim = {}
-            for n_dim, sem_type in canonical_types.items():
-                type_to_canon_dim[sem_type] = n_dim
-            
-            # Map: (source_sid, source_n_dim) -> canonical n_dim
             dim_alignment = {}
             for sid in sids_with_data:
                 for n_dim, sem_type in source_dim_types[sid].items():
-                    if sem_type in type_to_canon_dim:
-                        dim_alignment[(sid, n_dim)] = type_to_canon_dim[sem_type]
-                    else:
-                        dim_alignment[(sid, n_dim)] = n_dim
+                    dim_alignment[(sid, n_dim)] = type_to_canon_dim.get(sem_type, n_dim)
             
-            # ---- Step 4: Compute unified labels per canonical dimension ----
+            # Step 4: Compute unified labels per dimension
             canonical_dim_names = sorted(type_to_canon_dim.values())
             unified_labels = {}
-            label_mappings = {}  # canon_dim -> {sid -> {src_label -> unified_label}}
-            agg_labels_per_dim = {}  # canon_dim -> {sid -> set(aggregate_labels)}
+            label_mappings = {}
+            agg_labels_per_dim = {}
             
             for sem_type, canon_dim in type_to_canon_dim.items():
                 if sem_type in ('age', 'hh_size'):
-                    # Range-based: compute unified bins
                     range_labels_per_source = {}
                     for sid in sids_with_data:
                         for n_dim, st in source_dim_types[sid].items():
                             if st == sem_type:
                                 range_labels_per_source[sid] = sorted(source_dim_labels[sid][n_dim])
-                    
                     unified, mapping, agg = self._compute_unified_bins(range_labels_per_source)
                     unified_labels[canon_dim] = unified
                     label_mappings[canon_dim] = mapping
                     agg_labels_per_dim[canon_dim] = agg
-                
                 elif sem_type == 'sex':
-                    # Standard sex labels
                     std_labels = ['ogółem', 'mężczyźni', 'kobiety']
                     unified_labels[canon_dim] = std_labels
                     label_mappings[canon_dim] = {}
@@ -4024,12 +4026,9 @@ class GeoTERYTDatabase:
                         for n_dim, st in source_dim_types[sid].items():
                             if st == 'sex':
                                 label_mappings[canon_dim][sid] = {
-                                    l: l for l in source_dim_labels[sid][n_dim]
-                                    if l in std_labels
+                                    l: l for l in source_dim_labels[sid][n_dim] if l in std_labels
                                 }
-                
                 else:
-                    # Exact match: union of labels
                     all_labels = set()
                     for sid in sids_with_data:
                         for n_dim, st in source_dim_types[sid].items():
@@ -4040,36 +4039,28 @@ class GeoTERYTDatabase:
                     for sid in sids_with_data:
                         for n_dim, st in source_dim_types[sid].items():
                             if st == sem_type:
-                                label_mappings[canon_dim][sid] = {
-                                    l: l for l in source_dim_labels[sid][n_dim]
-                                }
+                                label_mappings[canon_dim][sid] = {l: l for l in source_dim_labels[sid][n_dim]}
             
             if verbose:
                 print(f"\n  Merged subject: {merged_sid}")
                 for cdim in canonical_dim_names:
                     labels = unified_labels.get(cdim, [])
-                    print(f"    {cdim} ({type_to_canon_dim and [t for t,d in type_to_canon_dim.items() if d==cdim]}): "
-                          f"{len(labels)} labels")
-                # Report aggregate labels detected
+                    print(f"    {cdim}: {len(labels)} labels")
                 for cdim, agg_dict in agg_labels_per_dim.items():
                     for s, aggs in agg_dict.items():
                         if aggs:
-                            print(f"    Aggregates detected in {s} dim {cdim}: {aggs}")
+                            print(f"    Aggregates in {s}/{cdim}: {aggs}")
             
-            # ---- Step 5: Generate variable IDs for unified categories ----
-            cat_combos = list(itertools.product(
-                *[unified_labels[d] for d in canonical_dim_names]
-            ))
-            var_id_map = {}  # frozen category tuple -> var_id string
+            # Step 5: Variable IDs
+            cat_combos = list(itertools.product(*[unified_labels[d] for d in canonical_dim_names]))
+            var_id_map = {}
             for i, combo in enumerate(cat_combos):
                 cats = {canonical_dim_names[j]: combo[j] for j in range(len(canonical_dim_names))}
-                cats_key = tuple(sorted(cats.items()))
-                var_id_map[cats_key] = f"M{i+1:04d}"
+                var_id_map[tuple(sorted(cats.items()))] = f"M{i+1:04d}"
             
-            # ---- Step 6: Create merged DataSeries for each record ----
-            # Process BDL source first, then census (BDL takes priority)
-            bdl_sources = [s for s in sids_with_data 
-                          if any(k[0] == 'BDL' for r in self._records.values() 
+            # Step 6: Merge data (BDL priority, then census)
+            bdl_sources = [s for s in sids_with_data
+                          if any(k[0] == 'BDL' for r in self._records.values()
                                 for k in r.data.keys() if k[1] == s)]
             census_sources = [s for s in sids_with_data if s not in bdl_sources]
             ordered_sources = bdl_sources + census_sources
@@ -4079,29 +4070,26 @@ class GeoTERYTDatabase:
             
             for record in self._records.values():
                 record_has_merged = False
-                
                 for sid in ordered_sources:
                     subj_data = record.get_data_by_subject(sid)
                     if not subj_data:
                         continue
                     
-                    # Collect aggregate labels for this source across dims
                     source_agg_labels = set()
                     for cdim, agg_dict in agg_labels_per_dim.items():
                         if sid in agg_dict:
                             source_agg_labels.update(agg_dict[sid])
                     
-                    # Helper to map a series to its unified category key
-                    def _map_series(series_obj):
+                    def _map_series(series_obj, _sid=sid):
                         if not series_obj.categories:
                             return None, None, False
                         mapped_cats = {}
                         is_agg = False
                         for src_dim, src_label in series_obj.categories.items():
-                            canon_dim = dim_alignment.get((sid, src_dim))
+                            canon_dim = dim_alignment.get((_sid, src_dim))
                             if canon_dim is None or canon_dim not in label_mappings:
                                 return None, None, False
-                            src_mapping = label_mappings.get(canon_dim, {}).get(sid, {})
+                            src_mapping = label_mappings.get(canon_dim, {}).get(_sid, {})
                             unified_label = src_mapping.get(src_label)
                             if unified_label is None:
                                 return None, None, False
@@ -4116,21 +4104,15 @@ class GeoTERYTDatabase:
                             return None, None, False
                         return cats_key, var_id, is_agg
                     
-                    # Accumulate values per unified category within this source
-                    # TWO-PASS: non-aggregates first (summed), then aggregates (fill-only)
-                    temp_values = {}  # cats_key -> pd.Series
-                    
-                    # Pass 1: Non-aggregate labels → sum into temp_values
+                    # Pass 1: non-aggregate labels (sum finer bins)
+                    temp_values = {}
                     for key, series in subj_data.items():
                         cats_key, var_id, is_agg = _map_series(series)
                         if cats_key is None or is_agg:
                             continue
-                        
                         if cats_key not in temp_values:
                             temp_values[cats_key] = pd.Series(
-                                data=np.nan, index=DATETIME_INDEX_FULL, dtype=float
-                            )
-                        
+                                data=np.nan, index=DATETIME_INDEX_FULL, dtype=float)
                         for ts, val in series.values.dropna().items():
                             existing = temp_values[cats_key].get(ts, np.nan)
                             if pd.isna(existing):
@@ -4138,24 +4120,30 @@ class GeoTERYTDatabase:
                             else:
                                 temp_values[cats_key][ts] = existing + val
                     
-                    # Pass 2 skipped: Aggregate labels (e.g. "70 i więcej") map to
-                    # a single fine bin (e.g. "70-74") but represent a wider range.
-                    # Filling them would place incorrect values. Leave NaN instead.
+                    # Pass 2: aggregate labels — fill ONLY where fine bins left NaN
+                    # e.g., "70 i więcej" fills the unified "70 i więcej" bin only
+                    # for years where no fine-grained sub-bins (70-74, 75-79, etc.)
+                    # contributed data to that unified bin
+                    for key, series in subj_data.items():
+                        cats_key, var_id, is_agg = _map_series(series)
+                        if cats_key is None or not is_agg:
+                            continue
+                        if cats_key not in temp_values:
+                            temp_values[cats_key] = pd.Series(
+                                data=np.nan, index=DATETIME_INDEX_FULL, dtype=float)
+                        for ts, val in series.values.dropna().items():
+                            if pd.isna(temp_values[cats_key].get(ts, np.nan)):
+                                temp_values[cats_key][ts] = val
                     
                     # Merge temp into target (only fill NaN positions)
                     for cats_key, temp_series in temp_values.items():
                         var_id = var_id_map[cats_key]
                         merged_key = ('Merged', merged_sid, var_id)
-                        
                         if merged_key not in record.data:
-                            cats_dict = dict(cats_key)
                             record.data[merged_key] = DataSeries(
-                                source_type='Merged',
-                                subject_id=merged_sid,
-                                variable_id=var_id,
-                                subject_name=group_name,
-                                categories=cats_dict
-                            )
+                                source_type='Merged', subject_id=merged_sid,
+                                variable_id=var_id, subject_name=group_name,
+                                categories=dict(cats_key))
                             series_created += 1
                         
                         target = record.data[merged_key]
@@ -4170,9 +4158,726 @@ class GeoTERYTDatabase:
                     records_merged += 1
             
             result[merged_sid] = sids_with_data
-            
             if verbose:
-                print(f"    ✓ {records_merged} records, {series_created} merged series created")
+                print(f"    ✓ {records_merged} records, {series_created} merged series")
+        
+        # ==================================================================
+        # PHASE 2: Custom merged subjects (manual label mappings)
+        # ==================================================================
+        if verbose:
+            print(f"\nPhase 2 — Custom merged subjects")
+        
+        phase2_result = self._create_custom_merged_subjects(verbose=verbose)
+        result.update(phase2_result)
+        
+        return result
+    
+    # ------------------------------------------------------------------
+    # Phase 2 helpers for custom merged subjects
+    # ------------------------------------------------------------------
+    
+    @staticmethod
+    def _add_series_inplace(target: pd.Series, source: pd.Series):
+        """Add source values into target; NaN in target becomes source value,
+        existing non-NaN in target gets source added."""
+        for ts in source.index:
+            if not pd.isna(source[ts]):
+                if pd.isna(target[ts]):
+                    target[ts] = source[ts]
+                else:
+                    target[ts] += source[ts]
+    
+    def _get_dim_for_type(self, subject_id: str, semantic_type: str) -> Optional[str]:
+        """Return the n-dim name for a given semantic type in a subject.
+        Uses _SUBJECT_DIMS lookup table."""
+        dims = self._SUBJECT_DIMS.get(subject_id, {})
+        for dim_name, dim_type in dims.items():
+            if dim_type == semantic_type:
+                return dim_name
+        return None
+    
+    # Dimensional structure per subject (dim_name -> semantic type)
+    _SUBJECT_DIMS = {
+        'P2137': {'n1': 'age', 'n2': 'sex'},
+        'P2114': {'n1': 'age', 'n2': 'sex'},
+        'P2884': {'n1': 'age'},
+        'P2885': {'n1': 'educ'},
+        'P2887': {'n1': 'hh_size'},
+        'P2871': {'n2': 'hh_size'},       # stored in n2!
+        'P3420': {'n1': 'hh_size'},
+        'P4287': {'n1': 'hh_size'},
+        'P2402': {'n1': 'sex', 'n2': 'educ'},
+        'P3309': {'n1': 'sex', 'n2': 'educ'},
+        'P4315': {'n1': 'sex', 'n2': 'educ'},
+        'P2350': {'n1': 'educ'},
+        'P4092': {'n1': 'educ'},
+        'H_age_sex': {'n1': 'age', 'n2': 'sex'},
+        'H_sex_educ': {'n1': 'sex', 'n2': 'educ'},
+    }
+    
+    def _extract_1d_labels(self, record, subject_id: str, dim_type: str,
+                           label_map: dict, sum_groups: dict = None) -> dict:
+        """Extract mapped 1D labels from a subject.
+        Returns dict: unified_label -> pd.Series."""
+        subj_data = record.get_data_by_subject(subject_id)
+        if not subj_data:
+            return {}
+        dim_name = self._get_dim_for_type(subject_id, dim_type)
+        if dim_name is None:
+            return {}
+        raw_labels = {}
+        for key, ds in subj_data.items():
+            if ds.categories:
+                label = ds.categories.get(dim_name)
+                if label:
+                    raw_labels[label.strip()] = ds.values
+        unified = {}
+        for src_label, vals in raw_labels.items():
+            mapped = label_map.get(src_label.lower())
+            if mapped:
+                if mapped not in unified:
+                    unified[mapped] = vals.copy()
+                else:
+                    self._add_series_inplace(unified[mapped], vals)
+        if sum_groups:
+            for unified_label, source_labels in sum_groups.items():
+                combined = pd.Series(data=np.nan, index=DATETIME_INDEX_FULL, dtype=float)
+                for src_lbl in source_labels:
+                    for raw_lbl, vals in raw_labels.items():
+                        if raw_lbl.lower() == src_lbl.lower():
+                            self._add_series_inplace(combined, vals)
+                if combined.notna().any():
+                    unified[unified_label] = combined
+        return unified
+    
+    def _extract_2d_filter_sex(self, record, subject_id: str, sex_value: str,
+                               other_type: str, label_map: dict,
+                               sum_groups: dict = None) -> dict:
+        """Extract 1D labels from a 2D subject by filtering on sex.
+        Returns dict: unified_label -> pd.Series."""
+        subj_data = record.get_data_by_subject(subject_id)
+        if not subj_data:
+            return {}
+        sex_dim = self._get_dim_for_type(subject_id, 'sex')
+        other_dim = self._get_dim_for_type(subject_id, other_type)
+        if sex_dim is None or other_dim is None:
+            return {}
+        raw_labels = {}
+        for key, ds in subj_data.items():
+            if not ds.categories:
+                continue
+            if ds.categories.get(sex_dim, '').lower() != sex_value.lower():
+                continue
+            other_lbl = ds.categories.get(other_dim, '')
+            if other_lbl:
+                raw_labels[other_lbl.strip()] = ds.values
+        unified = {}
+        for src_label, vals in raw_labels.items():
+            mapped = label_map.get(src_label.lower())
+            if mapped:
+                if mapped not in unified:
+                    unified[mapped] = vals.copy()
+                else:
+                    self._add_series_inplace(unified[mapped], vals)
+        if sum_groups:
+            for unified_label, source_labels in sum_groups.items():
+                combined = pd.Series(data=np.nan, index=DATETIME_INDEX_FULL, dtype=float)
+                for src_lbl in source_labels:
+                    for raw_lbl, vals in raw_labels.items():
+                        if raw_lbl.lower() == src_lbl.lower():
+                            self._add_series_inplace(combined, vals)
+                if combined.notna().any():
+                    unified[unified_label] = combined
+        return unified
+    
+    def _extract_2d_all_sex(self, record, subject_id: str, other_type: str,
+                            label_map: dict, sum_groups: dict = None) -> dict:
+        """Extract 2D (other_label, sex_label) -> pd.Series from a 2D subject."""
+        subj_data = record.get_data_by_subject(subject_id)
+        if not subj_data:
+            return {}
+        sex_dim = self._get_dim_for_type(subject_id, 'sex')
+        other_dim = self._get_dim_for_type(subject_id, other_type)
+        if sex_dim is None or other_dim is None:
+            return {}
+        raw_pairs = {}
+        for key, ds in subj_data.items():
+            if not ds.categories:
+                continue
+            sex_lbl = ds.categories.get(sex_dim, '').strip().lower()
+            other_lbl = ds.categories.get(other_dim, '').strip()
+            if sex_lbl and other_lbl:
+                raw_pairs[(other_lbl, sex_lbl)] = ds.values
+        unified = {}
+        for (other_lbl, sex_lbl), vals in raw_pairs.items():
+            mapped = label_map.get(other_lbl.lower())
+            if mapped:
+                pk = (mapped, sex_lbl)
+                if pk not in unified:
+                    unified[pk] = vals.copy()
+                else:
+                    self._add_series_inplace(unified[pk], vals)
+        if sum_groups:
+            sex_labels_seen = set(sl for (_, sl) in raw_pairs.keys())
+            for unified_label, source_labels in sum_groups.items():
+                for sex_lbl in sex_labels_seen:
+                    combined = pd.Series(data=np.nan, index=DATETIME_INDEX_FULL, dtype=float)
+                    for src_lbl in source_labels:
+                        for (raw_lbl, raw_sex), vals in raw_pairs.items():
+                            if raw_lbl.lower() == src_lbl.lower() and raw_sex == sex_lbl:
+                                self._add_series_inplace(combined, vals)
+                    if combined.notna().any():
+                        unified[(unified_label, sex_lbl)] = combined
+        return unified
+    
+    def _store_1d_merged(self, record, subject_id: str, labels: list,
+                         data: dict, subject_name: str = '') -> int:
+        """Store unified 1D data as DataSeries. Only fills NaN positions."""
+        count = 0
+        for i, label in enumerate(labels):
+            if label not in data:
+                continue
+            var_id = f'M{i+1:04d}'
+            mkey = ('Merged', subject_id, var_id)
+            if mkey not in record.data:
+                record.data[mkey] = DataSeries(
+                    source_type='Merged', subject_id=subject_id,
+                    variable_id=var_id, subject_name=subject_name,
+                    categories={'n1': label})
+            target = record.data[mkey]
+            for ts, val in data[label].dropna().items():
+                if pd.isna(target.values.get(ts, np.nan)):
+                    target.values[ts] = val
+            count += 1
+        return count
+    
+    def _store_2d_merged(self, record, subject_id: str, dim1_labels: list,
+                         dim2_labels: list, pair_data: dict,
+                         subject_name: str = '') -> int:
+        """Store unified 2D data as DataSeries. Only fills NaN positions."""
+        count = 0
+        var_idx = 0
+        for d1_lbl in dim1_labels:
+            for d2_lbl in dim2_labels:
+                var_idx += 1
+                pk = (d1_lbl, d2_lbl)
+                if pk not in pair_data:
+                    continue
+                vals = pair_data[pk]
+                if not vals.notna().any():
+                    continue
+                var_id = f'M{var_idx:04d}'
+                mkey = ('Merged', subject_id, var_id)
+                if mkey not in record.data:
+                    record.data[mkey] = DataSeries(
+                        source_type='Merged', subject_id=subject_id,
+                        variable_id=var_id, subject_name=subject_name,
+                        categories={'n1': d1_lbl, 'n2': d2_lbl})
+                target = record.data[mkey]
+                for ts, val in vals.dropna().items():
+                    if pd.isna(target.values.get(ts, np.nan)):
+                        target.values[ts] = val
+                count += 1
+        return count
+    
+    def _compute_sum_label(self, unified: dict, labels_to_sum: list,
+                           result_label: str):
+        """Compute a sum label from existing unified labels."""
+        combined = pd.Series(data=np.nan, index=DATETIME_INDEX_FULL, dtype=float)
+        for lbl in labels_to_sum:
+            if lbl in unified:
+                self._add_series_inplace(combined, unified[lbl])
+        if combined.notna().any():
+            unified[result_label] = combined
+    
+    def _compute_residual_label(self, unified: dict, total_label: str,
+                                known_labels: list, result_label: str):
+        """Compute residual = total - sum(known)."""
+        total = unified.get(total_label)
+        if total is None:
+            return
+        residual = pd.Series(data=np.nan, index=DATETIME_INDEX_FULL, dtype=float)
+        for ts in total.index:
+            t_val = total[ts]
+            if pd.isna(t_val):
+                continue
+            parts_sum = 0.0
+            for lbl in known_labels:
+                v = unified.get(lbl, pd.Series(dtype=float)).get(ts, np.nan)
+                if pd.isna(v):
+                    v = 0
+                parts_sum += v
+            res = t_val - parts_sum
+            if res >= 0:
+                residual[ts] = res
+        if residual.notna().any():
+            unified[result_label] = residual
+    
+    def _recompute_ogółem_1d(self, subject_id: str):
+        """Recompute ogółem = sum of non-ogółem sub-categories for a 1D merged subject.
+        
+        Ensures internal consistency: ogółem always equals the sum of all other
+        stored categories, regardless of how ogółem was originally derived.
+        Must be called AFTER all sources have been merged via _store_1d_merged.
+        """
+        for record in self._records.values():
+            m_data = record.get_data_by_subject(subject_id)
+            if not m_data:
+                continue
+            og_ds = None
+            sub_series = []
+            for key, ds in m_data.items():
+                if not ds.categories:
+                    continue
+                label = ds.categories.get('n1', '')
+                if label == 'ogółem':
+                    og_ds = ds
+                else:
+                    sub_series.append(ds)
+            if og_ds is None or not sub_series:
+                continue
+            # Recompute ogółem for each timestamp
+            for ts in DATETIME_INDEX_FULL:
+                vals = [ds.values.get(ts, np.nan) for ds in sub_series]
+                if all(pd.isna(v) for v in vals):
+                    og_ds.values[ts] = np.nan
+                else:
+                    og_ds.values[ts] = np.nansum(vals)
+    
+    def _create_custom_merged_subjects(self, verbose: bool = True) -> Dict[str, List[str]]:
+        """Create all manually-defined merged subjects with precise label mappings.
+        
+        Creates: M_hh_size_1990, M_hh_size_2000, M_age_sex, M_age_1990,
+                 M_educ_1990, M_educ_2000, M_educ_sex_1990, M_educ_sex_2000.
+        """
+        result = {}
+        SEX_LABELS = ['ogółem', 'mężczyźni', 'kobiety']
+        
+        # ── 1. M_hh_size_1990 ──
+        # P2887 (1988, level=6) + P2871 (2002, level=6)
+        # Labels: ogółem, 1-osobowe, 2-osobowe, 3-4-osobowe, 5 i więcej-osobowe
+        SID = 'M_hh_size_1990'
+        LABELS = ['ogółem', '1-osobowe', '2-osobowe', '3-4-osobowe', '5 i więcej-osobowe']
+        P2887_MAP = {'1-osobowe': '1-osobowe', '2-osobowe': '2-osobowe',
+                     '3-4-osobowe': '3-4-osobowe', '5 i więcej-osobowe': '5 i więcej-osobowe'}
+        P2871_1990_MAP = {'1 osoba': '1-osobowe', '2 osoby': '2-osobowe',
+                         '5 osób i więcej': '5 i więcej-osobowe', 'ogółem': 'ogółem'}
+        P2871_1990_SUM = {'3-4-osobowe': ['3 osoby', '4 osoby']}
+        
+        n_created = 0
+        for record in self._records.values():
+            if record.level != LEVEL_GMINA:
+                continue
+            u = self._extract_1d_labels(record, 'P2887', 'hh_size', P2887_MAP)
+            if u:
+                self._compute_sum_label(u, ['1-osobowe', '2-osobowe', '3-4-osobowe',
+                                            '5 i więcej-osobowe'], 'ogółem')
+                n_created += self._store_1d_merged(record, SID, LABELS, u, 'hh_size_1990')
+            u = self._extract_1d_labels(record, 'P2871', 'hh_size', P2871_1990_MAP, P2871_1990_SUM)
+            if u:
+                n_created += self._store_1d_merged(record, SID, LABELS, u, 'hh_size_1990')
+        result[SID] = ['P2887', 'P2871']
+        if verbose:
+            print(f"  {SID}: {n_created} entries stored")
+        
+        # ── 2. M_hh_size_2000 ──
+        # P2871 (2002, level=6) + P3420 (2011, level=5) + P4287 (2021, level=6)
+        SID = 'M_hh_size_2000'
+        LABELS = ['ogółem', '1-osobowe', '2-osobowe', '3-osobowe', '4-osobowe', '5 i więcej-osobowe']
+        P2871_2000_MAP = {'ogółem': 'ogółem', '1 osoba': '1-osobowe', '2 osoby': '2-osobowe',
+                         '3 osoby': '3-osobowe', '4 osoby': '4-osobowe',
+                         '5 osób i więcej': '5 i więcej-osobowe'}
+        P3420_MAP = {'ogółem': 'ogółem', '1-osobowe': '1-osobowe', '2-osobowe': '2-osobowe',
+                     '3-osobowe': '3-osobowe', '4-osobowe': '4-osobowe',
+                     '5-osobowe i większe': '5 i więcej-osobowe'}
+        P4287_MAP = {'ogółem': 'ogółem', 'gospodarstwa domowe 1-osobowe': '1-osobowe',
+                     'gospodarstwa domowe 2-osobowe': '2-osobowe',
+                     'gospodarstwa domowe 3-osobowe': '3-osobowe',
+                     'gospodarstwa domowe 4-osobowe': '4-osobowe',
+                     'gospodarstwa domowe 5-osobowe i większe': '5 i więcej-osobowe'}
+        
+        n_created = 0
+        for record in self._records.values():
+            if record.level == LEVEL_GMINA:
+                u = self._extract_1d_labels(record, 'P2871', 'hh_size', P2871_2000_MAP)
+                if u:
+                    n_created += self._store_1d_merged(record, SID, LABELS, u, 'hh_size_2000')
+                u = self._extract_1d_labels(record, 'P4287', 'hh_size', P4287_MAP)
+                if u:
+                    n_created += self._store_1d_merged(record, SID, LABELS, u, 'hh_size_2000')
+            if record.level == LEVEL_POWIAT:
+                u = self._extract_1d_labels(record, 'P3420', 'hh_size', P3420_MAP)
+                if u:
+                    n_created += self._store_1d_merged(record, SID, LABELS, u, 'hh_size_2000')
+        result[SID] = ['P2871', 'P3420', 'P4287']
+        if verbose:
+            print(f"  {SID}: {n_created} entries stored")
+        
+        # ── 3. M_age_sex ──
+        # P2137 (1995-2024, gmina, age×sex) + H_age_sex (1986-1994, old voivodeships)
+        # Unified age labels: ogółem, 0-4, 5-9, ..., 65-69, 70 i więcej
+        # Excludes overlapping bins (0-14, 70-74, 75-79, 80-84, 85 i więcej)
+        SID = 'M_age_sex'
+        AGE_LABELS = ['ogółem', '0-4', '5-9', '10-14', '15-19', '20-24', '25-29',
+                      '30-34', '35-39', '40-44', '45-49', '50-54', '55-59',
+                      '60-64', '65-69', '70 i więcej']
+        P2137_AGE_MAP = {
+            'ogółem': 'ogółem', '0-4': '0-4', '5-9': '5-9', '10-14': '10-14',
+            '15-19': '15-19', '20-24': '20-24', '25-29': '25-29', '30-34': '30-34',
+            '35-39': '35-39', '40-44': '40-44', '45-49': '45-49', '50-54': '50-54',
+            '55-59': '55-59', '60-64': '60-64', '65-69': '65-69',
+            '70 i więcej': '70 i więcej',
+            # Excluded (overlapping): 0-14, 70-74, 75-79, 80-84, 85 i więcej
+        }
+        # H_age_sex: same labels but '0' + '1-4' → '0-4'
+        HAGE_MAP = {'ogółem': 'ogółem', '5-9': '5-9', '10-14': '10-14',
+                    '15-19': '15-19', '20-24': '20-24', '25-29': '25-29',
+                    '30-34': '30-34', '35-39': '35-39', '40-44': '40-44',
+                    '45-49': '45-49', '50-54': '50-54', '55-59': '55-59',
+                    '60-64': '60-64', '65-69': '65-69', '70 i więcej': '70 i więcej'}
+        HAGE_SUM = {'0-4': ['0', '1-4']}
+        
+        n_created = 0
+        for record in self._records.values():
+            # P2137: level=6, 2D age×sex → all sex groups
+            if record.level == LEVEL_GMINA:
+                pairs = self._extract_2d_all_sex(record, 'P2137', 'age', P2137_AGE_MAP)
+                if pairs:
+                    n_created += self._store_2d_merged(record, SID, AGE_LABELS,
+                                                       SEX_LABELS, pairs, 'age_sex')
+            # H_age_sex: level=2, 2D age×sex → all sex groups
+            h_data = record.get_data_by_subject('H_age_sex')
+            if h_data:
+                pairs = self._extract_2d_all_sex(record, 'H_age_sex', 'age',
+                                                  HAGE_MAP, HAGE_SUM)
+                if pairs:
+                    n_created += self._store_2d_merged(record, SID, AGE_LABELS,
+                                                       SEX_LABELS, pairs, 'age_sex')
+        result[SID] = ['P2137', 'H_age_sex']
+        if verbose:
+            print(f"  {SID}: {n_created} entries stored")
+        
+        # ── 4. M_age_1990 ──
+        # P2884 (1988, gmina) + P2137 (sex=ogółem, 5yr→10yr) + H_age_sex (sex=ogółem, 5yr→10yr)
+        SID = 'M_age_1990'
+        LABELS = ['ogółem', '0-9', '10-19', '20-29', '30-39', '40-49', '50-59',
+                  '60 lat i więcej']
+        P2884_MAP = {'ogółem': 'ogółem', '0-9': '0-9', '10-19': '10-19',
+                     '20-29': '20-29', '30-39': '30-39', '40-49': '40-49',
+                     '50-59': '50-59', '60 lat i więcej': '60 lat i więcej'}
+        P2137_10YR_MAP = {'ogółem': 'ogółem'}
+        P2137_10YR_SUM = {
+            '0-9': ['0-4', '5-9'], '10-19': ['10-14', '15-19'],
+            '20-29': ['20-24', '25-29'], '30-39': ['30-34', '35-39'],
+            '40-49': ['40-44', '45-49'], '50-59': ['50-54', '55-59'],
+            '60 lat i więcej': ['60-64', '65-69', '70 i więcej'],
+        }
+        HAGE_10YR_MAP = {'ogółem': 'ogółem'}
+        HAGE_10YR_SUM = {
+            '0-9': ['0', '1-4', '5-9'], '10-19': ['10-14', '15-19'],
+            '20-29': ['20-24', '25-29'], '30-39': ['30-34', '35-39'],
+            '40-49': ['40-44', '45-49'], '50-59': ['50-54', '55-59'],
+            '60 lat i więcej': ['60-64', '65-69', '70 i więcej'],
+        }
+        
+        n_created = 0
+        for record in self._records.values():
+            if record.level == LEVEL_GMINA:
+                u = self._extract_1d_labels(record, 'P2884', 'age', P2884_MAP)
+                if u:
+                    n_created += self._store_1d_merged(record, SID, LABELS, u, 'age_1990')
+                u = self._extract_2d_filter_sex(record, 'P2137', 'ogółem', 'age',
+                                                 P2137_10YR_MAP, P2137_10YR_SUM)
+                if u:
+                    n_created += self._store_1d_merged(record, SID, LABELS, u, 'age_1990')
+            h_data = record.get_data_by_subject('H_age_sex')
+            if h_data:
+                u = self._extract_2d_filter_sex(record, 'H_age_sex', 'ogółem', 'age',
+                                                 HAGE_10YR_MAP, HAGE_10YR_SUM)
+                if u:
+                    n_created += self._store_1d_merged(record, SID, LABELS, u, 'age_1990')
+        result[SID] = ['P2884', 'P2137', 'H_age_sex']
+        # Recompute ogółem = sum of sub-categories (raw P2884 ogółem ≠ sum of age bins)
+        self._recompute_ogółem_1d(SID)
+        if verbose:
+            print(f"  {SID}: {n_created} entries stored")
+        
+        # ── 5. M_educ_1990 ──
+        # P2885 (1988, gmina) + P2402 (2002, gmina, sex=ogółem) + H_sex_educ (country)
+        SID = 'M_educ_1990'
+        LABELS = ['ogółem', 'wyższe', 'średnie', 'zasadnicze zawodowe',
+                  'podstawowe', 'podstawowe nieukończone i bez wykształcenia']
+        P2885_MAP = {'wyższe': 'wyższe', 'średnie': 'średnie',
+                     'zasadnicze zawodowe': 'zasadnicze zawodowe',
+                     'podstawowe': 'podstawowe'}
+        P2402_1990_MAP = {
+            'wyższe': 'wyższe', 'policealne': 'średnie', 'średnie razem': 'średnie',
+            'zasadnicze zawodowe': 'zasadnicze zawodowe',
+            'podstawowe ukończone': 'podstawowe',
+            'podstawowe nieukończone i bez wykształcenia': 'podstawowe nieukończone i bez wykształcenia',
+        }
+        H_EDUC_1990_MAP = {
+            'ogółem': 'ogółem', 'wyższe': 'wyższe', 'średnie': 'średnie',
+            'zasadnicze zawodowe': 'zasadnicze zawodowe', 'podstawowe': 'podstawowe',
+            'niepełne podstawowe i bez wykształcenia': 'podstawowe nieukończone i bez wykształcenia',
+        }
+        
+        n_created = 0
+        for record in self._records.values():
+            if record.level == LEVEL_GMINA:
+                # P2885 (1988)
+                u = self._extract_1d_labels(record, 'P2885', 'educ', P2885_MAP)
+                if u:
+                    # Compute ogółem from P2884 (population 15+)
+                    p2884_data = record.get_data_by_subject('P2884')
+                    if p2884_data:
+                        ts_1988 = pd.Timestamp(1988, 1, 1)
+                        age_vals = {}
+                        for key, ds in p2884_data.items():
+                            if ds.categories:
+                                lbl = list(ds.categories.values())[0].strip().lower()
+                                v = ds.values.get(ts_1988, np.nan)
+                                if not pd.isna(v):
+                                    age_vals[lbl] = v
+                        total_15plus = 0.0
+                        have_data = False
+                        for lbl, v in age_vals.items():
+                            if '10-19' in lbl:
+                                total_15plus += v * 0.5
+                                have_data = True
+                            elif any(x in lbl for x in ['20-29', '30-39', '40-49', '50-59', '60']):
+                                if lbl != 'ogółem':
+                                    total_15plus += v
+                                    have_data = True
+                        if have_data:
+                            og = pd.Series(data=np.nan, index=DATETIME_INDEX_FULL, dtype=float)
+                            og[ts_1988] = total_15plus
+                            u['ogółem'] = og
+                    if 'ogółem' in u:
+                        self._compute_residual_label(u, 'ogółem',
+                            ['wyższe', 'średnie', 'zasadnicze zawodowe', 'podstawowe'],
+                            'podstawowe nieukończone i bez wykształcenia')
+                    n_created += self._store_1d_merged(record, SID, LABELS, u, 'educ_1990')
+                
+                # P2402 (2002, sex=ogółem)
+                u = self._extract_2d_filter_sex(record, 'P2402', 'ogółem', 'educ', P2402_1990_MAP)
+                if u:
+                    # Compute ogółem from P2137 (pop 15+) or P2114
+                    ts_2002 = pd.Timestamp(2002, 1, 1)
+                    for pop_sid in ['P2114', 'P2137']:
+                        pop_data = record.get_data_by_subject(pop_sid)
+                        if not pop_data:
+                            continue
+                        sex_dim = self._get_dim_for_type(pop_sid, 'sex')
+                        age_dim = self._get_dim_for_type(pop_sid, 'age')
+                        if not (sex_dim and age_dim):
+                            continue
+                        total_15plus = 0.0
+                        have_data = False
+                        for key, ds in pop_data.items():
+                            if not ds.categories:
+                                continue
+                            if ds.categories.get(sex_dim, '').lower() != 'ogółem':
+                                continue
+                            age_lbl = ds.categories.get(age_dim, '').strip().lower()
+                            if age_lbl == 'ogółem':
+                                continue
+                            v = ds.values.get(ts_2002, np.nan)
+                            if pd.isna(v):
+                                continue
+                            try:
+                                lower = int(age_lbl.split('-')[0].split(' ')[0])
+                                if lower >= 15:
+                                    total_15plus += v
+                                    have_data = True
+                            except ValueError:
+                                if 'więcej' in age_lbl:
+                                    total_15plus += v
+                                    have_data = True
+                        if have_data:
+                            og = pd.Series(data=np.nan, index=DATETIME_INDEX_FULL, dtype=float)
+                            og[ts_2002] = total_15plus
+                            u.setdefault('ogółem', og)
+                            break
+                    n_created += self._store_1d_merged(record, SID, LABELS, u, 'educ_1990')
+            
+            # H_sex_educ (country level, sex=ogółem)
+            h_data = record.get_data_by_subject('H_sex_educ')
+            if h_data:
+                u = self._extract_2d_filter_sex(record, 'H_sex_educ', 'ogółem', 'educ', H_EDUC_1990_MAP)
+                if u:
+                    if 'ogółem' in u and 'podstawowe nieukończone i bez wykształcenia' not in u:
+                        self._compute_residual_label(u, 'ogółem',
+                            ['wyższe', 'średnie', 'zasadnicze zawodowe', 'podstawowe'],
+                            'podstawowe nieukończone i bez wykształcenia')
+                    n_created += self._store_1d_merged(record, SID, LABELS, u, 'educ_1990')
+        result[SID] = ['P2885', 'P2402', 'H_sex_educ']
+        # Recompute ogółem = sum of sub-categories (P2884/P2114 pop 15+ estimate ≠ sum of educ cats)
+        self._recompute_ogółem_1d(SID)
+        if verbose:
+            print(f"  {SID}: {n_created} entries stored")
+        
+        # ── 6. M_educ_2000 ──
+        # P2402 (2002) + P3309 (2011, powiat) + P4315 (2021) + P2350 + P4092 (voivodeship)
+        SID = 'M_educ_2000'
+        LABELS = ['wyższe', 'policealne oraz średnie zawodowe/branżowe',
+                  'średnie ogólnokształcące', 'zasadnicze zawodowe/branżowe',
+                  'gimnazjalne, podstawowe i niższe']
+        P2402_2000_MAP = {
+            'wyższe': 'wyższe',
+            'policealne': 'policealne oraz średnie zawodowe/branżowe',
+            'średnie zawodowe': 'policealne oraz średnie zawodowe/branżowe',
+            'średnie ogólnokształcące': 'średnie ogólnokształcące',
+            'zasadnicze zawodowe': 'zasadnicze zawodowe/branżowe',
+            'podstawowe ukończone': 'gimnazjalne, podstawowe i niższe',
+            'podstawowe nieukończone i bez wykształcenia': 'gimnazjalne, podstawowe i niższe',
+        }
+        P3309_2000_MAP = {
+            'wyższe': 'wyższe',
+            'średnie i policealne - średnie zawodowe': 'policealne oraz średnie zawodowe/branżowe',
+            'średnie i policealne - średnie ogólnokształcące': 'średnie ogólnokształcące',
+            'zasadnicze zawodowe': 'zasadnicze zawodowe/branżowe',
+            'gimnazjalne': 'gimnazjalne, podstawowe i niższe',
+            'podstawowe ukończone': 'gimnazjalne, podstawowe i niższe',
+            'podstawowe nieukończone i bez wykształcenia szkolnego': 'gimnazjalne, podstawowe i niższe',
+        }
+        P4315_2000_MAP = {
+            'wyższe': 'wyższe',
+            'średnie i policealne - średnie zawodowe': 'policealne oraz średnie zawodowe/branżowe',
+            'średnie i policealne - średnie ogólnokształcące': 'średnie ogólnokształcące',
+            'zasadnicze zawodowe/branżowe': 'zasadnicze zawodowe/branżowe',
+            'gimnazjalne': 'gimnazjalne, podstawowe i niższe',
+            'podstawowe ukończone': 'gimnazjalne, podstawowe i niższe',
+            'podstawowe nieukończone i bez wykształcenia szkolnego': 'gimnazjalne, podstawowe i niższe',
+            'nieustalony': 'gimnazjalne, podstawowe i niższe',
+        }
+        P2350_MAP = {
+            'wyższe': 'wyższe',
+            'policealne oraz średnie zawodowe/branżowe': 'policealne oraz średnie zawodowe/branżowe',
+            'średnie ogólnokształcące': 'średnie ogólnokształcące',
+            'zasadnicze zawodowe/branżowe': 'zasadnicze zawodowe/branżowe',
+            'gimnazjalne, podstawowe i niższe': 'gimnazjalne, podstawowe i niższe',
+        }
+        
+        n_created = 0
+        # Census priority pass
+        for record in self._records.values():
+            if record.level == LEVEL_GMINA:
+                u = self._extract_2d_filter_sex(record, 'P2402', 'ogółem', 'educ', P2402_2000_MAP)
+                if u:
+                    n_created += self._store_1d_merged(record, SID, LABELS, u, 'educ_2000')
+                u = self._extract_2d_filter_sex(record, 'P4315', 'ogółem', 'educ', P4315_2000_MAP)
+                if u:
+                    n_created += self._store_1d_merged(record, SID, LABELS, u, 'educ_2000')
+            if record.level == LEVEL_POWIAT:
+                u = self._extract_2d_filter_sex(record, 'P3309', 'ogółem', 'educ', P3309_2000_MAP)
+                if u:
+                    n_created += self._store_1d_merged(record, SID, LABELS, u, 'educ_2000')
+        # BDL fill pass
+        for record in self._records.values():
+            if record.level == LEVEL_VOIVODESHIP or record.teryt_id == '0000000':
+                u = self._extract_1d_labels(record, 'P2350', 'educ', P2350_MAP)
+                if u:
+                    n_created += self._store_1d_merged(record, SID, LABELS, u, 'educ_2000')
+                u = self._extract_1d_labels(record, 'P4092', 'educ', P2350_MAP)
+                if u:
+                    n_created += self._store_1d_merged(record, SID, LABELS, u, 'educ_2000')
+        result[SID] = ['P2402', 'P3309', 'P4315', 'P2350', 'P4092']
+        if verbose:
+            print(f"  {SID}: {n_created} entries stored")
+        
+        # ── 7. M_educ_sex_1990 ──
+        # P2402 (2002, gmina, all sex) + H_sex_educ (country, all sex)
+        SID = 'M_educ_sex_1990'
+        EDUC_1990_LABELS = ['ogółem', 'wyższe', 'średnie', 'zasadnicze zawodowe',
+                            'podstawowe', 'podstawowe nieukończone i bez wykształcenia']
+        P2402_SEX1990_MAP = {
+            'wyższe': 'wyższe', 'policealne': 'średnie', 'średnie razem': 'średnie',
+            'zasadnicze zawodowe': 'zasadnicze zawodowe',
+            'podstawowe ukończone': 'podstawowe',
+            'podstawowe nieukończone i bez wykształcenia': 'podstawowe nieukończone i bez wykształcenia',
+        }
+        H_EDUC_SEX1990_MAP = {
+            'ogółem': 'ogółem', 'wyższe': 'wyższe', 'średnie': 'średnie',
+            'zasadnicze zawodowe': 'zasadnicze zawodowe', 'podstawowe': 'podstawowe',
+            'niepełne podstawowe i bez wykształcenia': 'podstawowe nieukończone i bez wykształcenia',
+        }
+        
+        n_created = 0
+        for record in self._records.values():
+            if record.level == LEVEL_GMINA:
+                pairs = self._extract_2d_all_sex(record, 'P2402', 'educ', P2402_SEX1990_MAP)
+                if pairs:
+                    sex_seen = set(sl for (_, sl) in pairs.keys())
+                    for sex_lbl in sex_seen:
+                        og = pd.Series(data=np.nan, index=DATETIME_INDEX_FULL, dtype=float)
+                        for elbl in EDUC_1990_LABELS:
+                            if elbl == 'ogółem':
+                                continue
+                            v = pairs.get((elbl, sex_lbl))
+                            if v is not None:
+                                self._add_series_inplace(og, v)
+                        if og.notna().any():
+                            pairs[('ogółem', sex_lbl)] = og
+                    n_created += self._store_2d_merged(record, SID, EDUC_1990_LABELS,
+                                                       SEX_LABELS, pairs, 'educ_sex_1990')
+            h_data = record.get_data_by_subject('H_sex_educ')
+            if h_data:
+                pairs = self._extract_2d_all_sex(record, 'H_sex_educ', 'educ', H_EDUC_SEX1990_MAP)
+                if pairs:
+                    sex_seen = set(sl for (_, sl) in pairs.keys())
+                    for sex_lbl in sex_seen:
+                        og = pairs.get(('ogółem', sex_lbl))
+                        pn_key = ('podstawowe nieukończone i bez wykształcenia', sex_lbl)
+                        if og is not None and pn_key not in pairs:
+                            residual = pd.Series(data=np.nan, index=DATETIME_INDEX_FULL, dtype=float)
+                            for ts in og.index:
+                                og_val = og.get(ts, np.nan)
+                                if pd.isna(og_val):
+                                    continue
+                                parts = 0.0
+                                for elbl in ['wyższe', 'średnie', 'zasadnicze zawodowe', 'podstawowe']:
+                                    v = pairs.get((elbl, sex_lbl), pd.Series(dtype=float)).get(ts, 0)
+                                    if pd.isna(v):
+                                        v = 0
+                                    parts += v
+                                res = og_val - parts
+                                if res >= 0:
+                                    residual[ts] = res
+                            if residual.notna().any():
+                                pairs[pn_key] = residual
+                    n_created += self._store_2d_merged(record, SID, EDUC_1990_LABELS,
+                                                       SEX_LABELS, pairs, 'educ_sex_1990')
+        result[SID] = ['P2402', 'H_sex_educ']
+        if verbose:
+            print(f"  {SID}: {n_created} entries stored")
+        
+        # ── 8. M_educ_sex_2000 ──
+        # P2402 (2002, gmina) + P3309 (2011, powiat) + P4315 (2021, gmina) — all sex
+        SID = 'M_educ_sex_2000'
+        EDUC_2000_LABELS = ['wyższe', 'policealne oraz średnie zawodowe/branżowe',
+                            'średnie ogólnokształcące', 'zasadnicze zawodowe/branżowe',
+                            'gimnazjalne, podstawowe i niższe']
+        
+        n_created = 0
+        for record in self._records.values():
+            if record.level == LEVEL_GMINA:
+                pairs = self._extract_2d_all_sex(record, 'P2402', 'educ', P2402_2000_MAP)
+                if pairs:
+                    n_created += self._store_2d_merged(record, SID, EDUC_2000_LABELS,
+                                                       SEX_LABELS, pairs, 'educ_sex_2000')
+                pairs = self._extract_2d_all_sex(record, 'P4315', 'educ', P4315_2000_MAP)
+                if pairs:
+                    n_created += self._store_2d_merged(record, SID, EDUC_2000_LABELS,
+                                                       SEX_LABELS, pairs, 'educ_sex_2000')
+            if record.level == LEVEL_POWIAT:
+                pairs = self._extract_2d_all_sex(record, 'P3309', 'educ', P3309_2000_MAP)
+                if pairs:
+                    n_created += self._store_2d_merged(record, SID, EDUC_2000_LABELS,
+                                                       SEX_LABELS, pairs, 'educ_sex_2000')
+        result[SID] = ['P2402', 'P3309', 'P4315']
+        if verbose:
+            print(f"  {SID}: {n_created} entries stored")
         
         return result
     
@@ -5178,6 +5883,96 @@ class GeoTERYTDatabase:
             return f"GeoTERYTDatabase({len(self._records)} records, {self._year_range[0]}-{self._year_range[1]})"
         else:
             return "GeoTERYTDatabase(not built)"
+
+    # ==========================================================================
+    # DEMOGRAPHIC ESTIMATION INTEGRATION  (v5.1 — work chunk B, item 12)
+    # ==========================================================================
+
+    def run_estimation(self, estimator=None, **kwargs):
+        """Run the demographic estimation pipeline and store E_ results.
+
+        This is a thin wrapper that delegates all computation to
+        ``DemographicEstimator``.  If no *estimator* is provided, one is
+        created on the fly.
+
+        Parameters
+        ----------
+        estimator : DemographicEstimator, optional
+            Pre-configured estimator instance.  If ``None``, a new one is
+            created with ``DemographicEstimator(self, **kwargs)``.
+        **kwargs
+            Passed to ``DemographicEstimator.__init__`` when *estimator*
+            is ``None`` (e.g. ``verbose=True``).
+
+        Returns
+        -------
+        DemographicEstimator
+            The estimator instance (for provenance queries, diagnostics, etc.).
+        """
+        from demographic_estimator import DemographicEstimator
+
+        if estimator is None:
+            estimator = DemographicEstimator(self, **kwargs)
+
+        estimator.run_all()
+        return estimator
+
+    def run_single_estimation(self, variable_type: str,
+                              prediction_section: str,
+                              estimator=None, **kwargs):
+        """Run one (variable_type × prediction_section) pipeline.
+
+        Parameters
+        ----------
+        variable_type : str
+            E.g. ``'age_sex'``, ``'educ'``, ``'hh_size'``.
+        prediction_section : str
+            ``'1990'`` or ``'2000'``.
+        estimator : DemographicEstimator, optional
+            Reuse an existing estimator.
+
+        Returns
+        -------
+        DemographicEstimator
+        """
+        from demographic_estimator import DemographicEstimator
+
+        if estimator is None:
+            estimator = DemographicEstimator(self, **kwargs)
+
+        estimator.run_pipeline(variable_type, prediction_section)
+        return estimator
+
+    def get_estimation_provenance(self, e_subject_id: str,
+                                  teryt_id: str, year: int,
+                                  estimator=None):
+        """Query whether cells in an E_ subject are observed or estimated.
+
+        Parameters
+        ----------
+        e_subject_id : str
+            E.g. ``'E_age_sex_2000'``.
+        teryt_id : str
+            7-digit TERYT identifier.
+        year : int
+            Calendar year.
+        estimator : DemographicEstimator
+            The estimator that was used to produce the E_ subject.
+            Required because provenance masks live on the estimator, not
+            in the persistent database.
+
+        Returns
+        -------
+        np.ndarray | None
+            Boolean mask (True = observed, False = estimated), or None
+            if no provenance is recorded.
+        """
+        if estimator is None:
+            raise ValueError(
+                "An estimator instance is required to query provenance.  "
+                "Pass the estimator returned by db.run_estimation()."
+            )
+        return estimator.get_provenance(e_subject_id, teryt_id, year)
 
 
 # ==============================================================================
