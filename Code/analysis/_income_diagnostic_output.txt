@@ -1,0 +1,710 @@
+
+====================================================================================================
+FILE [  0]: CBOS_1_01_1990.sav  (cols=275)
+====================================================================================================
+  [122] q130            type=F1.0     n_labels=  6  | 26. Jak realizacja programu Balcerowicza wpłynie na różne dziedziny życia społeczno-gospodarczego?  Czy, Pana(i) zdaniem: - Zarobki i dochody ludności
+        Labels: {1.0: 'Szybko poprawi się', 2.0: 'Poprawi się, ale dopiero po pewnym czasie', 3.0: 'Niewiele się zmieni'}
+  [166] q174            type=F2.0     n_labels= 34  | 41. Zapowiedziano ograniczenie wzrostu płac i dochodów przy swobodzie ustalania cen. Jakie będą, Pana(i) zdaniem, tego następstwa? Odp1
+        Labels: {1.0: 'obniżenie stopy życiowej, ubożenie społeczeństwa', 2.0: 'brak pieniędzy na podstawowe zakupy, na nic człowieka nie będzie stać', 3.0: 'wzrost cen, szalejące ceny, bardzo wysokie ceny, drożyzna'}
+  [167] q175            type=F2.0     n_labels= 34  | 41. Zapowiedziano ograniczenie wzrostu płac i dochodów przy swobodzie ustalania cen. Jakie będą, Pana(i) zdaniem, tego następstwa? Odp2
+        Labels: {1.0: 'obniżenie stopy życiowej, ubożenie społeczeństwa', 2.0: 'brak pieniędzy na podstawowe zakupy, na nic człowieka nie będzie stać', 3.0: 'wzrost cen, szalejące ceny, bardzo wysokie ceny, drożyzna'}
+  [168] q176            type=F2.0     n_labels= 34  | 41. Zapowiedziano ograniczenie wzrostu płac i dochodów przy swobodzie ustalania cen. Jakie będą, Pana(i) zdaniem, tego następstwa? Odp3
+        Labels: {1.0: 'obniżenie stopy życiowej, ubożenie społeczeństwa', 2.0: 'brak pieniędzy na podstawowe zakupy, na nic człowieka nie będzie stać', 3.0: 'wzrost cen, szalejące ceny, bardzo wysokie ceny, drożyzna'}
+  [170] q178            type=F1.0     n_labels=  5  | 43. Jak Pan(i) przewiduje, co będzie, jeśli zarobki nie będą wystarczać na utrzymanie rodziny? Proszę wskazać zachowania pracowników Pana(i) zakładu pracy. - Rozejrzą się za nową, lepiej płatną pracą
+        Labels: {1.0: 'Wybrał(a)', 2.0: 'Nie wybrał(a)', 7.0: 'Trudno powiedzieć'}
+  [171] q179            type=F1.0     n_labels=  5  | 43. Jak Pan(i) przewiduje, co będzie, jeśli zarobki nie będą wystarczać na utrzymanie rodziny? Proszę wskazać zachowania pracowników Pana(i) zakładu pracy. - Poszukają dodatkowego źródła zarobkowania
+        Labels: {1.0: 'Wybrał(a)', 2.0: 'Nie wybrał(a)', 7.0: 'Trudno powiedzieć'}
+  [172] q180            type=F1.0     n_labels=  5  | 43. Jak Pan(i) przewiduje, co będzie, jeśli zarobki nie będą wystarczać na utrzymanie rodziny? Proszę wskazać zachowania pracowników Pana(i) zakładu pracy. - Będą w swoim zakładzie pracować tak, aby więcej zarobić
+        Labels: {1.0: 'Wybrał(a)', 2.0: 'Nie wybrał(a)', 7.0: 'Trudno powiedzieć'}
+  [173] q181            type=F1.0     n_labels=  5  | 43. Jak Pan(i) przewiduje, co będzie, jeśli zarobki nie będą wystarczać na utrzymanie rodziny? Proszę wskazać zachowania pracowników Pana(i) zakładu pracy. - Będą naciskać na swoich przełożonych, aby podnieśli zarobki
+        Labels: {1.0: 'Wybrał(a)', 2.0: 'Nie wybrał(a)', 7.0: 'Trudno powiedzieć'}
+  [174] q182            type=F1.0     n_labels=  5  | 43. Jak Pan(i) przewiduje, co będzie, jeśli zarobki nie będą wystarczać na utrzymanie rodziny? Proszę wskazać zachowania pracowników Pana(i) zakładu pracy. - Będą domagać się od związków zawodowych załatwienia podwyżki płac
+        Labels: {1.0: 'Wybrał(a)', 2.0: 'Nie wybrał(a)', 7.0: 'Trudno powiedzieć'}
+  [175] q183            type=F1.0     n_labels=  5  | 43. Jak Pan(i) przewiduje, co będzie, jeśli zarobki nie będą wystarczać na utrzymanie rodziny? Proszę wskazać zachowania pracowników Pana(i) zakładu pracy. - Będą domagać się od związków zawodowych zorganizowania strajków i protestów
+        Labels: {1.0: 'Wybrał(a)', 2.0: 'Nie wybrał(a)', 7.0: 'Trudno powiedzieć'}
+  [176] q184            type=F1.0     n_labels=  5  | 43. Jak Pan(i) przewiduje, co będzie, jeśli zarobki nie będą wystarczać na utrzymanie rodziny? Proszę wskazać zachowania pracowników Pana(i) zakładu pracy. - Będą organizować dzikie strajki i demonstracje
+        Labels: {1.0: 'Wybrał(a)', 2.0: 'Nie wybrał(a)', 7.0: 'Trudno powiedzieć'}
+  [177] q185            type=F1.0     n_labels=  5  | 43. Jak Pan(i) przewiduje, co będzie, jeśli zarobki nie będą wystarczać na utrzymanie rodziny? Proszę wskazać zachowania pracowników Pana(i) zakładu pracy. - Będą pocieszać się, że nie jest tak źle
+        Labels: {1.0: 'Wybrał(a)', 2.0: 'Nie wybrał(a)', 7.0: 'Trudno powiedzieć'}
+  [178] q186            type=F1.0     n_labels=  5  | 43. Jak Pan(i) przewiduje, co będzie, jeśli zarobki nie będą wystarczać na utrzymanie rodziny? Proszę wskazać zachowania pracowników Pana(i) zakładu pracy. - Będą narzekać, złorzeczyć rządowi
+        Labels: {1.0: 'Wybrał(a)', 2.0: 'Nie wybrał(a)', 7.0: 'Trudno powiedzieć'}
+  [179] q187            type=F1.0     n_labels=  5  | 43. Jak Pan(i) przewiduje, co będzie, jeśli zarobki nie będą wystarczać na utrzymanie rodziny? Proszę wskazać zachowania pracowników Pana(i) zakładu pracy. - Będę oszczędzać, lepiej gospodarować pieniędzmi, mniej ich wydawać
+        Labels: {1.0: 'Wybrał(a)', 2.0: 'Nie wybrał(a)', 7.0: 'Trudno powiedzieć'}
+  [180] q188            type=F1.0     n_labels=  5  | 43. Jak Pan(i) przewiduje, co będzie, jeśli zarobki nie będą wystarczać na utrzymanie rodziny? Proszę wskazać zachowania pracowników Pana(i) zakładu pracy. - Będą silniej popierać organizacje i partie występujące przeciwko rządowi
+        Labels: {1.0: 'Wybrał(a)', 2.0: 'Nie wybrał(a)', 7.0: 'Trudno powiedzieć'}
+  [181] q189            type=F1.0     n_labels=  5  | 43. Jak Pan(i) przewiduje, co będzie, jeśli zarobki nie będą wystarczać na utrzymanie rodziny? Proszę wskazać zachowania pracowników Pana(i) zakładu pracy. - Można się spodziewać najgorszego
+        Labels: {1.0: 'Wybrał(a)', 2.0: 'Nie wybrał(a)', 7.0: 'Trudno powiedzieć'}
+  [185] q193            type=F1.0     n_labels=  7  | 44. Jak Pan(i) myśli, czy w styczniu będzie Pan(i) zmuszony (a): - Podejmować dodatkową pracę, szukać dodatkowych źródeł dochodu
+        Labels: {1.0: 'Na pewno tak', 2.0: 'Raczej tak', 3.0: 'Raczej nie'}
+  [249] q257            type=F2.0     n_labels= 10  | M6. Czy Pan(i) pracuje obecnie zarobkowo lub prowadzi inną działalność zawodową?
+        Labels: {1.0: 'Pracuję w zakładzie państwowym', 2.0: 'Pracuję w zakładzie spółdzielczym', 3.0: 'Pracuję w organizacji społecznej lub politycznej'}
+  [255] q263            type=F4.0     n_labels=  7  | M10. Ile wynosiły łączne dochody w Pana(i) gospodarstwie domowym w grudniu? [w  tysiącach starych złotych]
+        Labels: {1.0: 'Brak dochodu', 2.0: '1 tys. zł. - 2 tys. zł.', 9991.0: '9 991 tys. zł. lub więcej'}
+  [256] q264            type=F4.0     n_labels=  7  | M11. Ile wynosi średni miesięczny dochód na jedną osobę w Pana(i) gospodarstwie domowym?
+        Labels: {1.0: 'Brak dochodu', 2.0: '1 tys. zł. - 2 tys. zł.', 9991.0: '9 991 tys. zł. lub więcej'}
+
+====================================================================================================
+FILE [  1]: CBOS_2_02_1990.sav  (cols=208)
+====================================================================================================
+  [ 71] q80             type=F1.0     n_labels=  6  | 16. Jak realizacja planu Balcerowicza wpłynie na różne dziedziny życia społeczno-gospodarczego. Czy, Pana(i) zdaniem ….. - Zarobki i dochody ludności
+        Labels: {1.0: 'szybko poprawi się', 2.0: 'poprawi się, ale dopiero po pewnym czasie', 3.0: 'niewiele się zmieni'}
+  [ 82] q91             type=F1.0     n_labels=  4  | 23. Czy, według Pan(i), wzrost dochodów pokrywa podwyżki cen, czy też nie?
+        Labels: {1.0: 'Pokrywa', 2.0: 'Nie pokrywa', 7.0: 'Trudno powiedzieć'}
+  [ 83] q92             type=F1.0     n_labels=  5  | 24. Czy, Pana(i) zdaniem, obecnie można kupić z dochodów:
+        Labels: {1.0: 'więcej niż rok temu', 2.0: 'tyle samo', 3.0: 'mniej'}
+  [ 85] q94             type=F4.0     n_labels=  5  | 25. Ile, Pana(i) zdaniem, powinny wynosić dochody Pana(i) rodziny, aby można było: - żyć dostatnio, bez problemów finansowych [tysiące starych złotych]
+        Labels: {9991.0: '9 991 000 zł. lub więcej', 9994.0: 'Inna odpowiedź', 9995.0: 'Odpowiedź zbyt lakoniczna'}
+  [ 86] q95             type=F4.0     n_labels=  5  | 25. Ile, Pana(i) zdaniem, powinny wynosić dochody Pana(i) rodziny, aby można było: - oszczędzając, żyć na średnim poziomie [tysiące starych złotych]
+        Labels: {9991.0: '9 991 000 zł. lub więcej', 9994.0: 'Inna odpowiedź', 9995.0: 'Odpowiedź zbyt lakoniczna'}
+  [ 87] q96             type=F4.0     n_labels=  5  | 25. Ile, Pana(i) zdaniem, powinny wynosić dochody Pana(i) rodziny, aby można było: - zaspokajać jedynie podstawowe potrzeby [tysiące starych złotych]
+        Labels: {9991.0: '9 991 000 zł. lub więcej', 9994.0: 'Inna odpowiedź', 9995.0: 'Odpowiedź zbyt lakoniczna'}
+  [ 88] q97             type=F1.0     n_labels=  8  | 26. Który z podanych sposobów najbardziej odpowiada sposobowi gospodarowania dochodem w Pana(i) gospodarstwie domowym?
+        Labels: {1.0: 'Starcza nam na wszystko bez specjalnego oszczędzania', 2.0: 'Żyjemy oszczędnie i starcza nam na wszystko', 3.0: 'Żyjemy bardzo oszczędnie, aby odłożyć na poważniejsze zakupy'}
+  [112] q121            type=F1.0     n_labels=  3  | 35. Czy w styczniu Pan(i) lub żona/mąż pracował dodatkowo, brał(a) godziny nadliczbowe, aby dorobić do pensji, renty, emerytury (lub dochodów z gospodarstwa rolnego)?
+        Labels: {1.0: 'tak', 2.0: 'nie', 8.0: 'odmowa odpowiedzi/ brak danych'}
+  [113] q122            type=F1.0     n_labels=  4  | 36. A czy w tym miesiącu, tzn. w lutym, Pan(i) lub żona/mąż dorabia lub będzie dorabiał(a) do pensji, renty, emerytury (lub dochodów z gospodarstwa rolnego)?
+        Labels: {1.0: 'tak', 2.0: 'nie', 7.0: 'trudno powiedzieć'}
+  [114] q123            type=F1.0     n_labels=  6  | 37. Czy dodatkowe dochody można obecnie uzyskać:
+        Labels: {1.0: 'bardzo łatwo', 2.0: 'raczej łatwo', 3.0: 'raczej trudno'}
+  [135] q144            type=F1.0     n_labels=  8  | 45a. Jaką kwotę zdecydowałby się Pan(i) przeznaczyć na tego typu inwestycje?
+        Labels: {-1.0: 'ND: q143>2', 1.0: 'do 500 tys. zł.', 2.0: 'od 500 tys. do 1 mln. zł.'}
+  [169] q178            type=F2.0     n_labels= 10  | M6. Czy Pan(i) pracuje obecnie zarobkowo lub prowadzi inną działalność zawodową?
+        Labels: {1.0: 'Pracuję w zakładzie państwowym', 2.0: 'Pracuję w zakładzie spółdzielczym', 3.0: 'Pracuję w organizacji społecznej lub politycznej'}
+  [175] q184            type=F4.0     n_labels=  7  | M10. Ile wynosiły łączne dochody w Pana(i) gospodarstwie domowym w styczniu? [tysiące starych złotych]
+        Labels: {1.0: 'Brak dochodu', 2.0: '1 tys. - 2 tys.', 9991.0: '9 991 000 zł. lub więcej'}
+  [176] q185            type=F4.0     n_labels=  7  | M11. Ile wynosi średni miesięczny dochód na jedną osobę w Pana(i) gospodarstwie domowym? [tysiące starych złotych]
+        Labels: {1.0: 'Brak dochodu', 2.0: '1 tys. - 2 tys.', 9991.0: '9 991 000 zł. lub więcej'}
+
+====================================================================================================
+FILE [  2]: CBOS_3_03_1990.sav  (cols=240)
+====================================================================================================
+  [ 56] q64             type=F1.0     n_labels=  5  | 15. Czy, Pana(i) zdaniem ….. w wyniku realizacji programu Balcerowicza: - Zarobki i dochody ludności
+        Labels: {1.0: 'poprawia(ją) się', 2.0: 'nie zmienia(ją) się', 3.0: 'pogarsza(ją) się'}
+  [ 74] q82             type=F1.0     n_labels=  4  | 23. Czy w lutym Pan(i) lub żona/mąż pracował(a) dodatkowo, brał(a) godziny nadliczbowe, aby dorobić do pensji, renty, emerytury lub dochodów z gospodarstwa rolnego?
+        Labels: {1.0: 'tak', 2.0: 'nie', 7.0: 'Trudno powiedzieć'}
+  [190] q198            type=F2.0     n_labels= 11  | M5. Czy Pan(i) pracuje obecnie zarobkowo lub prowadzi inną działalność zawodową?
+        Labels: {1.0: 'Pracuję w zakładzie państwowym', 2.0: 'Pracuję w zakładzie spółdzielczym', 3.0: 'Pracuję w organizacji społecznej lub politycznej'}
+  [198] q206            type=F4.0     n_labels=  7  | M9. Ile wyniósł dochód na jedną osobę w Pana(i) gospodarstwie domowym w lutym? [tysiące starych złotych]
+        Labels: {1.0: 'Brak dochodu', 2.0: '1 tys. - 2 tys.', 9991.0: '9 991 000 zł. lub więcej'}
+
+====================================================================================================
+FILE [  3]: CBOS_4_04_1990.sav  (cols=186)
+====================================================================================================
+  [ 53] q62             type=F1.0     n_labels=  5  | 15. Czy, Pana(i) zdaniem ….. w wyniku realizacji programu Balcerowicza: - Zarobki i dochody ludności
+        Labels: {1.0: 'poprawia(ją) się', 2.0: 'nie zmienia(ją) się', 3.0: 'pogarsza(ją) się'}
+  [ 79] q88             type=F1.0     n_labels=  8  | 26. Który z podanych sposobów najbardziej odpowiada sposobowi gospodarowania dochodem w Pana(i) gospodarstwie domowym?
+        Labels: {1.0: 'Starcza nam na wszystko bez specjalnego oszczędzania', 2.0: 'Żyjemy oszczędnie i starcza nam na wszystko', 3.0: 'Żyjemy bardzo oszczędnie, aby odłożyć na poważniejsze zakupy'}
+  [ 84] q93             type=F1.0     n_labels=  3  | 28. Czy w marcu Pan(i) lub żona/mąż pracował(a) dodatkowo, brał(a) godziny nadliczbowe, aby dorobić do pensji, renty, emerytury lub dochodów z gospodarstwa rolnego?
+        Labels: {1.0: 'tak', 2.0: 'nie', 8.0: 'Odmowa odpowiedzi/ brak danych'}
+  [134] q154            type=F1.0     n_labels=  4  | 59. Czy ulokował(a)by Pan(i) pieniądze w akcjach dochodowego przedsiębiorstwa, którego udziałowcami są: - Kapitał zagraniczny
+        Labels: {1.0: 'Wybrał', 2.0: 'Nie wybrał', 7.0: 'Trudno powiedzieć'}
+  [135] q155            type=F1.0     n_labels=  4  | 59. Czy ulokował(a)by Pan(i) pieniądze w akcjach dochodowego przedsiębiorstwa, którego udziałowcami są: - Skarb Państwa
+        Labels: {1.0: 'Wybrał', 2.0: 'Nie wybrał', 7.0: 'Trudno powiedzieć'}
+  [136] q156            type=F1.0     n_labels=  4  | 59. Czy ulokował(a)by Pan(i) pieniądze w akcjach dochodowego przedsiębiorstwa, którego udziałowcami są: - Obywatele polscy, tacy jak Pan(i)
+        Labels: {1.0: 'Wybrał', 2.0: 'Nie wybrał', 7.0: 'Trudno powiedzieć'}
+  [137] q157            type=F1.0     n_labels=  4  | 59. Czy ulokował(a)by Pan(i) pieniądze w akcjach dochodowego przedsiębiorstwa, którego udziałowcami są: - Pracownicy tego przedsiębiorstwa
+        Labels: {1.0: 'Wybrał', 2.0: 'Nie wybrał', 7.0: 'Trudno powiedzieć'}
+  [138] q158            type=F1.0     n_labels=  4  | 59. Czy ulokował(a)by Pan(i) pieniądze w akcjach dochodowego przedsiębiorstwa, którego udziałowcami są: - Polskie prywatne przedsiębiorstwa
+        Labels: {1.0: 'Wybrał', 2.0: 'Nie wybrał', 7.0: 'Trudno powiedzieć'}
+  [139] q159            type=F1.0     n_labels=  4  | 59. Czy ulokował(a)by Pan(i) pieniądze w akcjach dochodowego przedsiębiorstwa, którego udziałowcami są: - Kapitał zagraniczny i Skarb Państwa
+        Labels: {1.0: 'Wybrał', 2.0: 'Nie wybrał', 7.0: 'Trudno powiedzieć'}
+  [140] q160            type=F1.0     n_labels=  4  | 59. Czy ulokował(a)by Pan(i) pieniądze w akcjach dochodowego przedsiębiorstwa, którego udziałowcami są: - Skarb Państwa i polskie prywatne przedsiębiorstwa
+        Labels: {1.0: 'Wybrał', 2.0: 'Nie wybrał', 7.0: 'Trudno powiedzieć'}
+  [141] q161            type=F1.0     n_labels=  4  | 59. Czy ulokował(a)by Pan(i) pieniądze w akcjach dochodowego przedsiębiorstwa, którego udziałowcami są: - Skarb Państwa i obywatele polscy, tacy jak Pan(i)
+        Labels: {1.0: 'Wybrał', 2.0: 'Nie wybrał', 7.0: 'Trudno powiedzieć'}
+  [152] q172            type=F2.0     n_labels= 11  | M5. Czy Pan(i) pracuje obecnie zarobkowo lub prowadzi inną działalność zawodową?
+        Labels: {1.0: 'Pracuję w zakładzie państwowym', 2.0: 'Pracuję w zakładzie spółdzielczym', 3.0: 'Pracuję w organizacji społecznej lub politycznej'}
+  [160] q180            type=F4.0     n_labels=  8  | M9. Ile wyniósł dochód na jedną osobę w Pana(i) gospodarstwie domowym w marcu? [w tysiącach starych złotych]
+        Labels: {1.0: 'Brak dochodu', 2.0: '1 tys. - 2 tys.', 9991.0: '9 991 000 zł. lub więcej'}
+
+====================================================================================================
+FILE [  4]: CBOS_5_05_1990.sav  (cols=229)
+====================================================================================================
+  [ 83] q92             type=F1.0     n_labels=  5  | 15. Czy, Pana(i) zdaniem ….. w wyniku realizacji programu Balcerowicza: - Zarobki i dochody ludności
+        Labels: {1.0: 'poprawia(ją) się', 2.0: 'nie zmienia(ją) się', 3.0: 'pogarsza(ją) się'}
+  [136] q145            type=F1.0     n_labels=  7  | 39. Który z podanych sposobów najbardziej odpowiada sposobowi gospodarowania dochodem w Pana(i) gospodarstwie domowym?
+        Labels: {1.0: 'Starcza nam na wszystko bez specjalnego oszczędzania', 2.0: 'Żyjemy oszczędnie i starcza nam na wszystko', 3.0: 'Żyjemy bardzo oszczędnie, aby odłożyć na poważniejsze zakupy'}
+  [151] q160            type=F1.0     n_labels=  3  | 41. Czy w kwietniu Pan(i) lub żona/mąż pracował(a) dodatkowo, brał(a) godziny nadliczbowe, aby dorobić do pensji, renty, emerytury lub dochodów z gospodarstwa rolnego?
+        Labels: {1.0: 'tak', 2.0: 'nie', 8.0: 'odmowa odpowiedzi/ brak danych'}
+  [200] q209            type=F2.0     n_labels= 11  | M6. Czy Pan(i) pracuje obecnie zarobkowo lub prowadzi inną działalność zawodową?
+        Labels: {1.0: 'Pracuję w zakładzie państwowym', 2.0: 'Pracuję w zakładzie spółdzielczym', 3.0: 'Pracuję w organizacji społecznej lub politycznej'}
+  [209] q218            type=F4.0     n_labels=  8  | M11. Ile wyniósł dochód na jedną osobę w Pana(i) gospodarstwie domowym w kwietniu? [tysiące starych złotych]
+        Labels: {1.0: 'Brak dochodu', 2.0: '1 tys. - 2 tys.', 9991.0: '9 991 000 zł. lub więcej'}
+
+====================================================================================================
+FILE [ 50]: CBOS_53_10_1994.sav  (cols=236)
+====================================================================================================
+  [ 98] q106            type=F1.0     n_labels=  7  | 43. Czy uważa Pan(i), że obecnie dochody Pana(i) rodziny są:
+        Labels: {1.0: 'Znacznie wyższe niż przeciętne dochody rodzin w Polsce', 2.0: 'Raczej wyższe', 3.0: 'Takie same jak innych rodzin w Polsce'}
+  [101] q109            type=F1.0     n_labels=  4  | 45. Czy w poprzednim miesiącu, tzn. we wrześniu, był(a) Pan(i) i Pana(i) gospodarstwo domowe zmuszony, czy też nie, ze względu na sytuację finansową: - podejmować dodatkowe prace zarobkowe
+        Labels: {1.0: 'Tak', 2.0: 'Nie', 7.0: 'Trudno powiedzieć'}
+  [107] q115            type=F5.0     n_labels=  3  | 46. Ile, według Pana(i), powinny wynosić miesięczne dochody na jedną osobę w Pana(i) rodzinie, aby można było: - żyć dostatnio, bez problemów finansowych [tysiące starych złotych]
+        Labels: {99991.0: 'powyżej 99 991 tys. zł.', 99997.0: 'Trudno powiedzieć', 99998.0: 'Odmowa odpowiedzi/ brak danych'}
+  [108] q116            type=F5.0     n_labels=  3  | 46. Ile, według Pana(i), powinny wynosić miesięczne dochody na jedną osobę w Pana(i) rodzinie, aby można było: - żyć na średnim poziomie [tysiące starych złotych]
+        Labels: {99991.0: 'powyżej 99 991 tys. zł.', 99997.0: 'Trudno powiedzieć', 99998.0: 'Odmowa odpowiedzi/ brak danych'}
+  [109] q117            type=F5.0     n_labels=  3  | 46. Ile, według Pana(i), powinny wynosić miesięczne dochody na jedną osobę w Pana(i) rodzinie, aby można było: - zaspokajać jedynie podstawowe potrzeby [tysiące starych złotych]
+        Labels: {99991.0: 'powyżej 99 991 tys. zł.', 99997.0: 'Trudno powiedzieć', 99998.0: 'Odmowa odpowiedzi/ brak danych'}
+  [191] q412            type=F5.0     n_labels=  4  | M12. Ile wynoszą miesięczne dochody na 1 osobę w Pana(i) gospodarstwie domowym? [tysiące starych złotych]
+        Labels: {99991.0: 'dochód powyżej 99 991 tys. zł.', 99992.0: 'brak dochodów', 99997.0: 'respondent nie potrafi określić dochodów'}
+
+====================================================================================================
+FILE [ 51]: CBOS_54_11_1994.sav  (cols=247)
+====================================================================================================
+  [148] q165            type=F2.0     n_labels=  2  | 67. Wyobraźmy sobie, że 25 ziaren fasoli, które Pan(i) wręczyłe(a)m to cała suma, jaką państwo ma do dyspozycji w roku 1995. Jaką część tej kwoty przeznaczył(a)by Pan(i) na poszczególne dziedziny? - OŚWIATA I NAUKA
+        Labels: {97.0: 'Trudno powiedzieć', 98.0: 'Odmowa odpowiedzi/ brak danych'}
+  [149] q166            type=F2.0     n_labels=  2  | 67. Wyobraźmy sobie, że 25 ziaren fasoli, które Pan(i) wręczyłe(a)m to cała suma, jaką państwo ma do dyspozycji w roku 1995. Jaką część tej kwoty przeznaczył(a)by Pan(i) na poszczególne dziedziny? - ZASIŁKI DLA BEZROBOTNYCH
+        Labels: {97.0: 'Trudno powiedzieć', 98.0: 'Odmowa odpowiedzi/ brak danych'}
+  [150] q167            type=F2.0     n_labels=  2  | 67. Wyobraźmy sobie, że 25 ziaren fasoli, które Pan(i) wręczyłe(a)m to cała suma, jaką państwo ma do dyspozycji w roku 1995. Jaką część tej kwoty przeznaczył(a)by Pan(i) na poszczególne dziedziny? - OBRONA NARODOWA  - wojsko
+        Labels: {97.0: 'Trudno powiedzieć', 98.0: 'Odmowa odpowiedzi/ brak danych'}
+  [151] q168            type=F2.0     n_labels=  2  | 67. Wyobraźmy sobie, że 25 ziaren fasoli, które Pan(i) wręczyłe(a)m to cała suma, jaką państwo ma do dyspozycji w roku 1995. Jaką część tej kwoty przeznaczył(a)by Pan(i) na poszczególne dziedziny? - PORZĄDEK PUBLICZNY, PRAWORZĄDNOŚĆ
+        Labels: {97.0: 'Trudno powiedzieć', 98.0: 'Odmowa odpowiedzi/ brak danych'}
+  [152] q169            type=F2.0     n_labels=  2  | 67. Wyobraźmy sobie, że 25 ziaren fasoli, które Pan(i) wręczyłe(a)m to cała suma, jaką państwo ma do dyspozycji w roku 1995. Jaką część tej kwoty przeznaczył(a)by Pan(i) na poszczególne dziedziny? - OCHRONA ZDROWIA
+        Labels: {97.0: 'Trudno powiedzieć', 98.0: 'Odmowa odpowiedzi/ brak danych'}
+  [153] q170            type=F2.0     n_labels=  2  | 67. Wyobraźmy sobie, że 25 ziaren fasoli, które Pan(i) wręczyłe(a)m to cała suma, jaką państwo ma do dyspozycji w roku 1995. Jaką część tej kwoty przeznaczył(a)by Pan(i) na poszczególne dziedziny? - EMERYTURY I RENTY
+        Labels: {97.0: 'Trudno powiedzieć', 98.0: 'Odmowa odpowiedzi/ brak danych'}
+  [154] q171            type=F2.0     n_labels=  2  | 67. Wyobraźmy sobie, że 25 ziaren fasoli, które Pan(i) wręczyłe(a)m to cała suma, jaką państwo ma do dyspozycji w roku 1995. Jaką część tej kwoty przeznaczył(a)by Pan(i) na poszczególne dziedziny? - POMOC SPOŁECZNA, ZASIŁKI SOCJALNE
+        Labels: {97.0: 'Trudno powiedzieć', 98.0: 'Odmowa odpowiedzi/ brak danych'}
+  [155] q172            type=F2.0     n_labels=  2  | 67. Wyobraźmy sobie, że 25 ziaren fasoli, które Pan(i) wręczyłe(a)m to cała suma, jaką państwo ma do dyspozycji w roku 1995. Jaką część tej kwoty przeznaczył(a)by Pan(i) na poszczególne dziedziny? - ADMINISTRACJA PAŃSTWOWA
+        Labels: {97.0: 'Trudno powiedzieć', 98.0: 'Odmowa odpowiedzi/ brak danych'}
+  [156] q173            type=F2.0     n_labels=  2  | 67. Wyobraźmy sobie, że 25 ziaren fasoli, które Pan(i) wręczyłe(a)m to cała suma, jaką państwo ma do dyspozycji w roku 1995. Jaką część tej kwoty przeznaczył(a)by Pan(i) na poszczególne dziedziny? - SPŁATA ZADŁUŻENIA
+        Labels: {97.0: 'Trudno powiedzieć', 98.0: 'Odmowa odpowiedzi/ brak danych'}
+  [218] q412            type=F5.0     n_labels=  4  | M12. Ile wynoszą miesięczne dochody na 1 osobę w Pana(i) gospodarstwie domowym? [tysiące starych złotych]
+        Labels: {99991.0: 'dochód powyżej 99 991 tys. zł.', 99992.0: 'brak dochodów', 99997.0: 'respondent nie potrafi określić dochodów'}
+
+====================================================================================================
+FILE [ 52]: CBOS_55_12_1994.sav  (cols=296)
+====================================================================================================
+  [101] q124            type=F2.0     n_labels= 13  | 45. Co, Pan(i) zdaniem, przede wszystkim decyduje o tym, że niektórzy ludzie w stosunkowo krótkim czasie dochodzą do wielkich pieniędzy?  Proszę z tej karty wybrać nie więcej niż trzy czynniki.  Odp1
+        Labels: {1.0: 'Ich talenty i zdolności', 2.0: 'Bezwzględność w stosunku do innnych ludzi', 3.0: 'Pracowitość, całkowite poświęcenie się temu, co robią'}
+  [102] q125            type=F2.0     n_labels= 13  | 45. Co, Pan(i) zdaniem, przede wszystkim decyduje o tym, że niektórzy ludzie w stosunkowo krótkim czasie dochodzą do wielkich pieniędzy?  Proszę z tej karty wybrać nie więcej niż trzy czynniki.  Odp2
+        Labels: {1.0: 'Ich talenty i zdolności', 2.0: 'Bezwzględność w stosunku do innnych ludzi', 3.0: 'Pracowitość, całkowite poświęcenie się temu, co robią'}
+  [103] q126            type=F2.0     n_labels= 13  | 45. Co, Pan(i) zdaniem, przede wszystkim decyduje o tym, że niektórzy ludzie w stosunkowo krótkim czasie dochodzą do wielkich pieniędzy?  Proszę z tej karty wybrać nie więcej niż trzy czynniki.  Odp3
+        Labels: {1.0: 'Ich talenty i zdolności', 2.0: 'Bezwzględność w stosunku do innnych ludzi', 3.0: 'Pracowitość, całkowite poświęcenie się temu, co robią'}
+  [104] q127            type=F1.0     n_labels=  5  | 46. Jak Pan(i) sądzi, czy różnice pomiędzy najniższymi a najwyższymi płacami (dochodami) są obecnie w naszym kraju:
+        Labels: {1.0: 'zbyt duże', 2.0: 'takie, jak być powinny', 3.0: 'zbyt małe'}
+  [268] q412            type=F5.0     n_labels=  4  | M12. Ile wynoszą miesięczne dochody na 1 osobę w Pana(i) gospodarstwie domowym? [tysiące starych złotych]
+        Labels: {99991.0: 'dochód powyżej 99 991 tys. zł.', 99992.0: 'brak dochodów', 99997.0: 'respondent nie potrafi określić dochodów'}
+
+====================================================================================================
+FILE [ 53]: CBOS_56_01_1995.sav  (cols=283)
+====================================================================================================
+  [ 81] q290            type=F1.0     n_labels=  4  | 36a. Trwa spór między rządem a prezydentem wokół przyjęcia ustawy określającej wielkość podatków od dochodów osobistych za 1995 rok. Prezydent zapowiedział, że będzie płacił niższe podatki, takie jak dwa lata temu.
+        Labels: {1.0: 'Tak, wiele o tym słyszałe(a)m', 2.0: 'Tak, trochę o tym słyszałe(a)m', 3.0: 'Nie'}
+  [141] q138            type=F1.0     n_labels=  4  | 51. Często porównuje się zarobki ludzi pracujących w sferze budżetowej i w przedsię- biorstwach produkcyjnych. Jak Pan(i) sądzi, czy średnie zarobki ludzi pracujących w sferze budżetowej powinny być:
+        Labels: {1.0: 'Wyższe niż zarobki osób pracujących w zakładach produkcyjnych', 2.0: 'Mniej więcej takie same, jak zarobki osób pracujących w zakładach produkcyjnych', 3.0: 'Niższe od zarobków osób pracujących w zakładach produkcyjnych'}
+  [143] q140            type=F1.0     n_labels=  3  | 52. Rząd przewiduje, że w 1995 roku inflacja, czyli spadek wartości pieniądza, wyniesie 17%. Czy, Pana(i) zdaniem, ...  powinny:  - dochody ludności
+        Labels: {1.0: 'Wzrosnąć tyle samo, ile wyniesie inflacja', 2.0: 'Wzrosnąć więcej niż wyniesie inflacja', 7.0: 'Trudno powiedzieć'}
+  [144] q141            type=F1.0     n_labels=  8  | 53. Czyje dochody, Pana(i) zdaniem, powinny w tym roku rosnąć najszybciej?
+        Labels: {1.0: 'Pracowników państwowych zakładów pracy', 2.0: 'Pracowników prywatnych zakładów pracy', 3.0: 'Pracowników sfery budżetowej'}
+  [255] q412            type=F5.0     n_labels=  4  | M12. Ile wynoszą W STARYCH ZŁOTYCH miesięczne dochody na 1 osobę w Pana(i) gospodarstwie domowym? (TYS. STARYCH ZŁOTYCH)
+        Labels: {99991.0: 'powyżej 99 991 tys. zł', 99992.0: 'Brak dochodów', 99997.0: 'Trudno powiedzieć'}
+
+====================================================================================================
+FILE [ 54]: CBOS_57_02_1995.sav  (cols=243)
+====================================================================================================
+  [148] q155            type=F1.0     n_labels=  8  | 53. Jaką część miesięcznych dochodów Pana(i) gospodarstwa domowego stanowią opłaty za mieszkanie?
+        Labels: {1.0: 'Do 10%', 2.0: '11% - 20%', 3.0: '21% - 30%'}
+  [189] q412            type=F5.0     n_labels=  4  | M12. Ile wynoszą W STARYCH ZŁOTYCH miesięczne dochody na 1 osobę w Pana(i) gospodarstwie domowym? (TYS. STARYCH ZŁOTYCH)
+        Labels: {99991.0: 'powyżej 99 991 tys. zł', 99992.0: 'Brak dochodów', 99997.0: 'Trudno powiedzieć'}
+
+====================================================================================================
+FILE [100]: CBOS_103_12_1998.sav  (cols=251)
+====================================================================================================
+  [113] q115            type=F2.0     n_labels=  7  | 33. Czy jest Pan(i) zadowolony(a) z tego, że zaniechano wprowadzenia w przyszłym roku proponowanych wówczas zmian w podatku od dochodów osobistych?
+        Labels: {-1.0: 'ND: q114 (32) = 2', 1.0: 'Zdecydowanie tak', 2.0: 'Raczej tak'}
+  [114] q116            type=F1.0     n_labels=  4  | P34. Czy, Pana(i) zdaniem, podatki dochodowe powinny być:
+        Labels: {1.0: 'trochę niższe, ale bez ulg i odpisów', 2.0: 'trochę wyższe, ale za to z większą  możliwością odpisów', 7.0: 'Trudno powiedzieć'}
+  [119] q121            type=F1.0     n_labels=  6  | 36. Rząd zamierza przeznaczyć z budżetu państwa określoną kwotę na wsparcie budownictwa mieszkaniowego. Jak Pan(i) sądzi, na co należałoby przeznaczyć te pieniędze, żeby je jak najlepiej wykorzystać? Na co rząd powinien przede wszystkim prze
+        Labels: {1.0: 'Tanie kredyty bankowe, pożyczki na budownictwo mieszkaniowe', 2.0: 'Budowę mieszkań komunalnych przez władze lokalne', 3.0: 'Podatkowe ulgi budowlane'}
+  [213] q410            type=F4.0     n_labels=  4  | M10. Ile wynoszą W NOWYCH ZŁOTYCH miesięczne dochody na 1 osobę w Pana(i) gospodarstwie domowym? - średnia za ostatnie 3 miesiące.
+        Labels: {9991.0: 'powyżej 9 991zł', 9992.0: 'Brak dochodów', 9997.0: 'Trudno powiedzieć'}
+
+====================================================================================================
+FILE [101]: CBOS_104_01_1999.sav  (cols=289)
+====================================================================================================
+  [146] q132            type=F1.0     n_labels=  5  | 48. Jak Pan(i) ocenia, czy różnice pomiędzy najniższymi a najwyższymi dochodami w kraju są:
+        Labels: {1.0: 'za duże', 2.0: 'takie, jakie powinny być', 3.0: 'za małe'}
+  [150] q136            type=F1.0     n_labels=  6  | P52. Czy uważa Pan(i), że obecnie dochody Pana(i) rodziny w porównaniu z przeciętnymi dochodami rodzin w Polsce są:
+        Labels: {1.0: 'znacznie wyższe', 2.0: 'raczej wyższe', 3.0: 'takie same'}
+  [153] q139            type=F4.0     n_labels=  2  | P55. Ile, według Pana(i), powinny wynosić miesięczne dochody na jedną osobę w Pana(i) rodzinie, aby mógł(a) Pan(i) powiedzieć o sobie:  Jestem  spokojny(a), że finansowo dam (damy) sobie radę"?:
+        Labels: {9991.0: '9991 zł i więcej', 9997.0: 'trudno powiedzieć'}
+  [157] q143            type=F4.0     n_labels=  1  | P59. Jak Pan(i) sądzi, poniżej jakiego dochodu zaczyna się już bieda? Chodzi nam o wysokość dochodu na jedną osobę w rodzinie.
+        Labels: {9997.0: 'trudno powiedzieć'}
+  [205] q179            type=F2.0     n_labels= 13  | P71. Co, Pana(i) zdaniem, przede wszystkim decyduje o tym, że niektórzy ludzie w stosunkowo krótkim czasie dochodzą do wielkich pieniędzy? Proszę z tej karty wybrać nie więcej niż trzy czynniki. - odp. 1
+        Labels: {0.0: 'BRAK WSKAZANIA', 1.0: 'Ich talenty i zdolności', 2.0: 'Bezwzględność w stosunku do innych ludzi'}
+  [206] q180            type=F2.0     n_labels= 13  | P71. Co, Pana(i) zdaniem, przede wszystkim decyduje o tym, że niektórzy ludzie w stosunkowo krótkim czasie dochodzą do wielkich pieniędzy? Proszę z tej karty wybrać nie więcej niż trzy czynniki. - odp. 2
+        Labels: {0.0: 'BRAK WSKAZANIA', 1.0: 'Ich talenty i zdolności', 2.0: 'Bezwzględność w stosunku do innych ludzi'}
+  [207] q181            type=F2.0     n_labels= 13  | P71. Co, Pana(i) zdaniem, przede wszystkim decyduje o tym, że niektórzy ludzie w stosunkowo krótkim czasie dochodzą do wielkich pieniędzy? Proszę z tej karty wybrać nie więcej niż trzy czynniki. - odp. 3
+        Labels: {0.0: 'BRAK WSKAZANIA', 1.0: 'Ich talenty i zdolności', 2.0: 'Bezwzględność w stosunku do innych ludzi'}
+  [208] q179i1          type=F1.0     n_labels=  3  | P71. Co, Pana(i) zdaniem, przede wszystkim decyduje o tym, że niektórzy ludzie w stosunkowo krótkim czasie dochodzą do wielkich pieniędzy? - Ich talenty i zdolności
+        Labels: {0.0: 'nie wybrano', 1.0: 'wybrano', 8.0: 'BRAK DANYCH\\odmowa odpowiedzi'}
+  [209] q179i2          type=F1.0     n_labels=  3  | P71. Co, Pana(i) zdaniem, przede wszystkim decyduje o tym, że niektórzy ludzie w stosunkowo krótkim czasie dochodzą do wielkich pieniędzy? - Bezwzględność w stosunku do innych ludzi
+        Labels: {0.0: 'nie wybrano', 1.0: 'wybrano', 8.0: 'BRAK DANYCH\\odmowa odpowiedzi'}
+  [210] q179i3          type=F1.0     n_labels=  3  | P71. Co, Pana(i) zdaniem, przede wszystkim decyduje o tym, że niektórzy ludzie w stosunkowo krótkim czasie dochodzą do wielkich pieniędzy? - Pracowitość, całkowite poświęcenie się temu, co robią
+        Labels: {0.0: 'nie wybrano', 1.0: 'wybrano', 8.0: 'BRAK DANYCH\\odmowa odpowiedzi'}
+  [211] q179i4          type=F1.0     n_labels=  3  | P71. Co, Pana(i) zdaniem, przede wszystkim decyduje o tym, że niektórzy ludzie w stosunkowo krótkim czasie dochodzą do wielkich pieniędzy? - Lekceważenie lub omijanie prawa
+        Labels: {0.0: 'nie wybrano', 1.0: 'wybrano', 8.0: 'BRAK DANYCH\\odmowa odpowiedzi'}
+  [212] q179i5          type=F1.0     n_labels=  3  | P71. Co, Pana(i) zdaniem, przede wszystkim decyduje o tym, że niektórzy ludzie w stosunkowo krótkim czasie dochodzą do wielkich pieniędzy? - Odwaga i gotowość do ryzyka
+        Labels: {0.0: 'nie wybrano', 1.0: 'wybrano', 8.0: 'BRAK DANYCH\\odmowa odpowiedzi'}
+  [213] q179i6          type=F1.0     n_labels=  3  | P71. Co, Pana(i) zdaniem, przede wszystkim decyduje o tym, że niektórzy ludzie w stosunkowo krótkim czasie dochodzą do wielkich pieniędzy? - Szczęście, ślepy los
+        Labels: {0.0: 'nie wybrano', 1.0: 'wybrano', 8.0: 'BRAK DANYCH\\odmowa odpowiedzi'}
+  [214] q179i7          type=F1.0     n_labels=  3  | P71. Co, Pana(i) zdaniem, przede wszystkim decyduje o tym, że niektórzy ludzie w stosunkowo krótkim czasie dochodzą do wielkich pieniędzy? - Luki prawne
+        Labels: {0.0: 'nie wybrano', 1.0: 'wybrano', 8.0: 'BRAK DANYCH\\odmowa odpowiedzi'}
+  [215] q179i8          type=F1.0     n_labels=  3  | P71. Co, Pana(i) zdaniem, przede wszystkim decyduje o tym, że niektórzy ludzie w stosunkowo krótkim czasie dochodzą do wielkich pieniędzy? - Pomoc rodziny
+        Labels: {0.0: 'nie wybrano', 1.0: 'wybrano', 8.0: 'BRAK DANYCH\\odmowa odpowiedzi'}
+  [216] q179i9          type=F1.0     n_labels=  3  | P71. Co, Pana(i) zdaniem, przede wszystkim decyduje o tym, że niektórzy ludzie w stosunkowo krótkim czasie dochodzą do wielkich pieniędzy? - Przekupstwo urzędników
+        Labels: {0.0: 'nie wybrano', 1.0: 'wybrano', 8.0: 'BRAK DANYCH\\odmowa odpowiedzi'}
+  [217] q179i10         type=F1.0     n_labels=  3  | P71. Co, Pana(i) zdaniem, przede wszystkim decyduje o tym, że niektórzy ludzie w stosunkowo krótkim czasie dochodzą do wielkich pieniędzy? - Coś innego
+        Labels: {0.0: 'nie wybrano', 1.0: 'wybrano', 8.0: 'BRAK DANYCH\\odmowa odpowiedzi'}
+  [218] q179i97         type=F1.0     n_labels=  3  | P71. Co, Pana(i) zdaniem, przede wszystkim decyduje o tym, że niektórzy ludzie w stosunkowo krótkim czasie dochodzą do wielkich pieniędzy? - Trudno powiedzieć
+        Labels: {0.0: 'nie wybrano', 1.0: 'wybrano', 8.0: 'BRAK DANYCH\\odmowa odpowiedzi'}
+  [251] q410            type=F4.0     n_labels=  4  | M10. Ile wynoszą W NOWYCH ZŁOTYCH miesięczne dochody na 1 osobę w Pana(i) gospodar- stwie domowym? - średnia za ostatnie 3 miesiące.
+        Labels: {9991.0: 'powyżej 9 991zł', 9992.0: 'Brak dochodów', 9997.0: 'Trudno powiedzieć'}
+
+====================================================================================================
+FILE [102]: CBOS_105_02_1999.sav  (cols=303)
+====================================================================================================
+  [264] q410            type=F4.0     n_labels=  4  | M10. Ile wynoszą W NOWYCH ZŁOTYCH miesięczne dochody na 1 osobę w Pana(i) gospodar- stwie domowym? - średnia za ostatnie 3 miesiące.
+        Labels: {9991.0: 'powyżej 9 991zł', 9992.0: 'Brak dochodów', 9997.0: 'Trudno powiedzieć'}
+
+====================================================================================================
+FILE [103]: CBOS_106_03_1999.sav  (cols=258)
+====================================================================================================
+  [ 82] q84             type=F1.0     n_labels=  7  | 29D. Czy, Pana(i) zdaniem, w tym roku w porównaniu z ubiegłym rokiem - Realne dochody ludzi w Polsce w porównaniu z rokiem ubiegłym będą:
+        Labels: {1.0: 'znacznie wyższe', 2.0: 'trochę wyższe', 3.0: 'takie same'}
+  [112] q114            type=F1.0     n_labels=  3  | P45. Czy w poprzednim miesiącu, tzn. w lutym, Pan(i) i Pana(i) gospodarstwo domowe było zmuszone, czy też nie, ze względu na sytuację finansową: - podejmować dodatkowe prace zarobkowe
+        Labels: {1.0: 'Tak', 2.0: 'Nie', 8.0: 'BRAK DANYCH\\odmowa odpowiedzi'}
+  [208] q410            type=F4.0     n_labels=  4  | M10. Ile wynoszą W NOWYCH ZŁOTYCH miesięczne dochody na 1 osobę w Pana(i) gospodar- stwie domowym? - średnia za ostatnie 3 miesiące.
+        Labels: {9991.0: 'powyżej 9 991zł', 9992.0: 'Brak dochodów', 9997.0: 'Trudno powiedzieć'}
+
+====================================================================================================
+FILE [104]: CBOS_107_04_1999.sav  (cols=274)
+====================================================================================================
+  [ 79] q81             type=F1.0     n_labels=  6  | 22. Czy, Pana(i) zdaniem, w przedsiębiorstwach państwowych: - zarobki są wysokie
+        Labels: {1.0: 'Prawie zawsze', 2.0: 'Stosunkowo często', 3.0: 'Czaem tak, czasem nie'}
+  [ 82] q84             type=F1.0     n_labels=  6  | 23. Czy, Pana(i) zdaniem, w przedsiębiorstwach prywatnych: - zarobki są wysokie
+        Labels: {1.0: 'Prawie zawsze', 2.0: 'Stosunkowo często', 3.0: 'Czaem tak, czasem nie'}
+  [ 94] q96             type=F1.0     n_labels=  7  | P31. Czy na ogół jest Pan(i) zadowolony(a) ...  - ze swoich dochodów i sytuacji finansowej
+        Labels: {1.0: 'Bardzo zadowolony(a)', 2.0: 'Raczej zadowolony(a)', 3.0: 'Średnio zadowolony(a)'}
+  [146] q148            type=F1.0     n_labels=  5  | P52. Proszę powiedzieć, czy należy Pan(i) do osób, które powinny do 30 kwietnia złożyć zeznanie w urzędzie skarbowym w sprawie rozliczenia podatku od dochodów osobistych za rok  1998?
+        Labels: {1.0: 'Tak, już to zrobiłe(a)m', 2.0: 'Tak, ale jeszcze tego nie zrobiłe(a)m', 3.0: 'Nie, ponieważ zeznania składa za mnie mój zakład pracy bądź ZUS'}
+  [148] q150            type=F2.0     n_labels=  4  | P54. A czy swoje tegoroczne rozliczenia z podatku od dochodów osobistych wykonał(a)/ wykona Pan(i) sam(a), bez niczyjej pomocy, czy też skorzystał(a)/skorzysta Pan(i) z pomocy lub rady kogoś  z rodziny, znajomych lub fachowych doradców?
+        Labels: {-1.0: 'ND: q148 (P52) >= 3', 1.0: 'Rozliczam się i wypełniam zeznania podatkowe sam(a), bez niczyjej  pomocy', 2.0: 'Moje sprawy podatkowe załatwił/załatwi za mnie ktoś z najbliższej rodziny (mąż, żona, syn, córka, wnuk/wnuczka)'}
+  [163] q165            type=F2.0     n_labels=  7  | P58. Według którego progu podatkowego rozlicza Pan(i) swoje dochody osobiste za rok 1998?
+        Labels: {-1.0: 'ND: q148 (P52) >= 4', 1.0: 'Według pierwszego progu podatkowego - 19%', 2.0: 'Według drugiego progu podatkowego - 30%'}
+  [164] q166            type=F1.0     n_labels=  3  | P59. Jak Pan(i) sądzi, czy podatki dochodowe powinny być:
+        Labels: {1.0: 'trochę niższe, ale bez ulg i odpisów', 2.0: 'trochę wyższe, ale za to z większą możliwością ulg i odpisów  2', 7.0: 'Trudno powiedzieć'}
+  [211] q410            type=F4.0     n_labels=  4  | M10. Ile wynoszą W NOWYCH ZŁOTYCH miesięczne dochody na 1 osobę w Pana(i) gospodar- stwie domowym? - średnia za ostatnie 3 miesiące.
+        Labels: {9991.0: 'powyżej 9 991zł', 9992.0: 'Brak dochodów', 9997.0: 'Trudno powiedzieć'}
+
+====================================================================================================
+FILE [150]: CBOS_153_02_2003.sav  (cols=268)
+====================================================================================================
+  [108] q114            type=F1.0     n_labels=  5  | P31. Czy, Pana(i) zdaniem, po przystąpieniu Polski do Unii Europejskiej ...  wzrośnie(ną), spadnie(ną), czy też pozostanie(ną) bez zmian? - podatek od dochodów osobistych (PIT)
+        Labels: {1.0: 'wzrośnie(ną)', 2.0: 'spadnie(ną)', 3.0: 'pozostanie(ną) bez zmian'}
+  [232] q407            type=F1.0     n_labels=  4  | M7. Czy obecnie pracuje Pan(i) zarobkowo (na etacie, we własnym zakładzie lub gospodarstwie albo na pracach zleconych), niezależnie od tego, czy jest to Pana(i) główne źródło utrzymania?
+        Labels: {1.0: 'Tak, w pełnym wymiarze czasu', 2.0: 'Tak, w niepełnym wymiarze czasu', 3.0: 'Tak, dorywczo'}
+  [237] q412            type=F5.0     n_labels=  0  | M12. Ile wynoszą W NOWYCH ZŁOTYCH Pana(i) miesięczne dochody?
+  [238] q413            type=F5.0     n_labels=  0  | M13. Ile wynoszą W NOWYCH ZŁOTYCH miesięczne dochody na 1 osobę w Pana(i) gospodarstwie domowym?
+
+====================================================================================================
+FILE [151]: CBOS_154_03_2003.sav  (cols=267)
+====================================================================================================
+  [190] q245            type=F1.0     n_labels=  5  | P70. Czy, odkąd jest Pan(i) bezrobotny(a), to: ... ? - częściej dochodzi do nieporozumień w Pana(i) rodzinie
+        Labels: {-1.0: 'ND: q218 (63) <> 4', 1.0: 'Tak', 2.0: 'Nie'}
+  [227] q407            type=F1.0     n_labels=  4  | M7. Czy obecnie pracuje Pan(i) zarobkowo (na etacie, we własnym zakładzie lub gospodarstwie albo na pracach zleconych), niezależnie od tego, czy jest to Pana(i) główne źródło utrzymania?
+        Labels: {1.0: 'Tak, w pełnym wymiarze czasu', 2.0: 'Tak, w niepełnym wymiarze czasu', 3.0: 'Tak, dorywczo'}
+  [232] q412            type=F5.0     n_labels=  0  | M12. Ile wynoszą W NOWYCH ZŁOTYCH Pana(i) miesięczne dochody?
+  [233] q413            type=F5.0     n_labels=  0  | M13. Ile wynoszą W NOWYCH ZŁOTYCH miesięczne dochody na 1 osobę w Pana(i) gospodarstwie domowym?
+
+====================================================================================================
+FILE [152]: CBOS_155_04_2003.sav  (cols=252)
+====================================================================================================
+  [212] q406            type=F1.0     n_labels=  4  | M6. Czy obecnie pracuje Pan(i) zarobkowo (na etacie, we własnym zakładzie lub gospodarstwie albo na pracach zleconych), niezależnie od tego, czy jest to Pana(i) główne źródło utrzymania?
+        Labels: {1.0: 'Tak, w pełnym wymiarze czasu', 2.0: 'Tak, w niepełnym wymiarze czasu', 3.0: 'Tak, dorywczo'}
+  [217] q411            type=F5.0     n_labels=  0  | M11. Ile wynoszą W NOWYCH ZŁOTYCH Pana(i) miesięczne dochody?
+  [218] q412            type=F5.0     n_labels=  0  | M12. Ile wynoszą W NOWYCH ZŁOTYCH miesięczne dochody na 1 osobę w Pana(i) gospodar- stwie domowym?
+
+====================================================================================================
+FILE [153]: CBOS_156_05_2003.sav  (cols=200)
+====================================================================================================
+  [ 92] q98             type=F1.0     n_labels=  6  | P43. Czy, ogólnie rzecz biorąc, zgadza się Pan(i), że:...  - Duże różnice dochodów są niezbędne, aby w Polsce zapanował dobrobyt
+        Labels: {1.0: 'Zdecydowanie zgadzam się', 2.0: 'Raczej zgadzam się', 3.0: 'I tak, i nie'}
+  [ 95] q101            type=F1.0     n_labels=  6  | P43. Czy, ogólnie rzecz biorąc, zgadza się Pan(i), że:...  - Nierówności dochodów są niezbędne dla postępu gospodarczego
+        Labels: {1.0: 'Zdecydowanie zgadzam się', 2.0: 'Raczej zgadzam się', 3.0: 'I tak, i nie'}
+  [ 96] q102            type=F1.0     n_labels=  7  | P44. Czy zgadza się Pan(i) czy też nie zgadza z następującymi stwierdzeniami? - Różnice zarobków w Polsce są zbyt duże
+        Labels: {1.0: 'Zdecydowanie zgadzam się', 2.0: 'Raczej zgadzam się', 3.0: 'I tak, i nie'}
+  [ 99] q105            type=F1.0     n_labels=  7  | P44. Czy zgadza się Pan(i) czy też nie zgadza z następującymi stwierdzeniami? - Dochody i bogactwo powinny być w większej mierze rozdzielone
+        Labels: {1.0: 'Zdecydowanie zgadzam się', 2.0: 'Raczej zgadzam się', 3.0: 'I tak, i nie'}
+  [127] q133            type=F1.0     n_labels=  5  | P48. Proszę powiedzieć, czy należy Pan(i) do osób, które powinny do 30 kwietnia złożyć zeznanie w urzędzie skarbowym w sprawie rozliczenia podatku od dochodów osobistych za rok 2002?
+        Labels: {1.0: 'Tak', 2.0: 'Nie, ponieważ zeznania składa za mnie mój zakład pracy bądź ZUS', 3.0: 'Nie, ponieważ nie muszę płacić podatku'}
+  [128] q134            type=F1.0     n_labels=  5  | P49. A czy swoje dochody osobiste za rok 2002 rozliczał(a) Pan(i):
+        Labels: {-1.0: 'ND: 133 (P48) <>1', 1.0: 'sam(a)', 2.0: 'wspólnie z małżonkiem'}
+  [131] q137            type=F1.0     n_labels=  4  | P52. A czy swoje coroczne rozliczenia z podatku od dochodów osobistych wykonał(a) Pan(i) sam(a) bez niczyjej pomocy, czy też korzystał(a) Pan(i) z pomocy lub rady kogoś z rodziny, znajomych lub fachowych doradców?
+        Labels: {-1.0: 'ND: 133 (P48) <>1', 1.0: 'Rozliczam się i wypełniam zeznania podatkowe sam, bez niczyjej pomocy', 2.0: 'Moje sprawy podatkowe załatwia za mnie zwykle ktoś z najbliższej rodziny (mąż, żona, syn, córka, wnuk, wnuczka)'}
+  [145] q151            type=F1.0     n_labels=  7  | P57. Według którego progu podatkowego rozlicza Pan(i) swoje dochody osobiste za rok 2002?
+        Labels: {-1.0: 'ND: 133 (P48) <>1', 1.0: 'Według pierwszego progu podatkowego - 19%', 2.0: 'Według drugiego progu podatkowego - 30%'}
+  [146] q152            type=F1.0     n_labels=  6  | P58. A czy po rozliczeniu swoich dochodów osobistych za rok 2002 z uwzględnieniem wszystkich ulg i odpisów miał(a) Pan(i):
+        Labels: {-1.0: 'ND: 133 (P48) <3', 1.0: 'podatek zerowy, tzn. zaliczki pokrywały się z podatkiem rocznym', 2.0: 'podatek do zapłaty'}
+  [168] q406            type=F1.0     n_labels=  4  | M6. Czy obecnie pracuje Pan(i) zarobkowo (na etacie, we własnym zakładzie lub gospodarstwie albo na pracach zleconych), niezależnie od tego, czy jest to Pana(i) główne źródło utrzymania?
+        Labels: {1.0: 'Tak, w pełnym wymiarze czasu', 2.0: 'Tak, w niepełnym wymiarze czasu', 3.0: 'Tak, dorywczo'}
+  [173] q411            type=F5.0     n_labels=  0  | M11. Ile wynoszą W NOWYCH ZŁOTYCH Pana(i) miesięczne dochody? Proszę wziąć pod uwagę Pana(i) dochody z pracy głównej wraz z premiami, nagrodami, dodatkami, także dorywczych i obliczyć średnią za ostatnie 3 miesiące.
+  [174] q412            type=F5.0     n_labels=  0  | M12. Ile wynoszą W NOWYCH ZŁOTYCH miesięczne dochody na 1 osobę w Pana(i) gospodar- stwie domowym? Proszę wziąć pod uwagę dochody z pracy głównej wraz z premiami, nagodami, prace dorywcze i obliczyć średnią za ostatnie 3 miesiące.
+
+====================================================================================================
+FILE [154]: CBOS_157_06_2003.sav  (cols=193)
+====================================================================================================
+  [144] q406            type=F1.0     n_labels=  4  | M6. Czy obecnie pracuje Pan(i) zarobkowo (na etacie, we własnym zakładzie lub gospodarstwie albo na pracach zleconych), niezależnie od tego, czy jest to Pana(i) główne źródło utrzymania?
+        Labels: {1.0: 'Tak, w pełnym wymiarze czasu', 2.0: 'Tak, w niepełnym wymiarze czasu', 3.0: 'Tak, dorywczo'}
+  [149] q411            type=F5.0     n_labels=  0  | M11. Ile wynoszą W NOWYCH ZŁOTYCH Pana(i) miesięczne dochody? Proszę wziąć pod uwagę Pana(i) dochody z pracy głównej wraz z premiami, nagrodami, dodatkami, także dorywczych i obliczyć średnią za ostatnie 3 miesiące.
+  [150] q412            type=F5.0     n_labels=  0  | M12. Ile wynoszą W NOWYCH ZŁOTYCH miesięczne dochody na 1 osobę w Pana(i) gospodar- stwie domowym? Proszę wziąć pod uwagę dochody z pracy głównej wraz z premiami, nagodami, prace dorywcze i obliczyć średnią za ostatnie 3 miesiące.
+
+====================================================================================================
+FILE [200]: CBOS_203_04_2007.sav  (cols=307)
+====================================================================================================
+  [267] M8              type=F1.0     n_labels=  3  | Czy kiedykolwiek pracował(a) Pan(i) zarobkowo?
+        Labels: {0.0: 'Brak danych', 1.0: 'Tak', 2.0: 'Nie'}
+  [268] M9              type=F1.0     n_labels=  4  | Czy obecnie pracuje Pan(i) zarobkowo (na etacie, we własnym zakładzie lub gospodarstwie albo na pracach zleconych), niezależnie od tego, czy jest to Pana(i) główne źródło utrzymania?
+        Labels: {1.0: 'Tak, w pełnym wymiarze czasu', 2.0: 'Tak, w niepełnym wymiarze czasu', 3.0: 'Tak, dorywczo'}
+  [269] M10_A           type=F1.0     n_labels=  4  | Gdzie pracuje Pan(i) zarobkowo, czy … A) na wsi
+        Labels: {0.0: 'Brak danych', 1.0: 'Tak', 2.0: 'Nie'}
+  [270] M10_B           type=F1.0     n_labels=  4  | Gdzie pracuje Pan(i) zarobkowo, czy … B) w małym miasteczku
+        Labels: {0.0: 'Brak danych', 1.0: 'Tak', 2.0: 'Nie'}
+  [271] M10_C           type=F1.0     n_labels=  4  | Gdzie pracuje Pan(i) zarobkowo, czy … C) w średniej wielkości mieście
+        Labels: {0.0: 'Brak danych', 1.0: 'Tak', 2.0: 'Nie'}
+  [272] M10_D           type=F1.0     n_labels=  4  | Gdzie pracuje Pan(i) zarobkowo, czy … D) w dużym mieście
+        Labels: {0.0: 'Brak danych', 1.0: 'Tak', 2.0: 'Nie'}
+  [280] M18             type=F5.0     n_labels=  3  | Ile wynoszą W ZŁOTYCH Pana(i) miesięczne dochody NETTO (na rękę)? Proszę wziąć pod uwagę Pana(i) dochody z pracy głównej wraz z premiami, nagrodami, dodatkami, dochody z prac dodatkowych, także dorywczych, renty i emerytury, stypendia oraz inne dodatkowe d
+        Labels: {99992.0: 'Nie ma dochodów', 99997.0: 'Trudno powiedzieć', 99998.0: 'Odmowa odpowiedzi'}
+  [281] M19             type=F5.0     n_labels=  3  | Ile wynoszą W ZŁOTYCH miesięczne dochody NETTO na 1 osobę w Pana(i) gospodarstwie domowym? Proszę wziąć pod uwagę dochody z pracy głównej wraz z premiami, nagrodami, dodatkami, dochody z prac dodatkowych, także dorywczych, renty i emerytury, stypendia i in
+        Labels: {99992.0: 'Nie ma dochodów', 99997.0: 'Trudno powiedzieć', 99998.0: 'Odmowa odpowiedzi'}
+
+====================================================================================================
+FILE [201]: CBOS_204_05_2007.sav  (cols=356)
+====================================================================================================
+  [105] P38             type=F1.0     n_labels=  4  | Proszę powiedzieć, czy należy Pan(i) do osób, które powinny do 30 kwietnia samodzielnie złożyć zeznanie w urzędzie skarbowym w sprawie rozliczenia podatku od dochodów osobistych za rok 2006?
+        Labels: {1.0: 'Tak', 2.0: 'Nie, ponieważ zeznanie składa za mnie mój zakład pracy bądź ZUS [przejść do pyt. 47]', 3.0: 'Nie, ponieważ nie muszę płacić podatku [przejść do pyt. 47]'}
+  [106] P39             type=F1.0     n_labels=  5  | A czy swoje dochody osobiste za rok 2006 rozliczał(a) Pan(i):
+        Labels: {1.0: 'sam(a)', 2.0: 'wspólnie z małżonkiem', 3.0: 'wspólnie z dzieckiem/dziećmi'}
+  [108] P41             type=F1.0     n_labels=  5  | A czy swoje coroczne rozliczenia z podatku od dochodów osobistych wykonał(a) Pan(i) sam(a) bez niczyjej pomocy, czy też korzystał(a) Pan(i) z pomocy lub rady kogoś z rodziny, znajomych lub fachowych doradców?
+        Labels: {1.0: 'Rozliczam się i wypełniam zeznania podatkowe sam, bez niczyjej pomocy', 2.0: 'Moje sprawy podatkowe załatwia za mnie zwykle ktoś z najbliższej rodziny (mąż, żona, syn, córka, wnuk, wnuczka)', 3.0: 'Przy wypełnianiu zeznań podatkowych korzystam z pomocy, porad innych osób'}
+  [122] P45             type=F1.0     n_labels=  7  | Według którego progu podatkowego rozlicza Pan(i) swoje dochody osobiste za rok 2006?
+        Labels: {1.0: 'Według pierwszego progu podatkowego - 19%', 2.0: 'Według drugiego progu podatkowego - 30%', 3.0: 'Według trzeciego progu podatkowego - 40%'}
+  [123] P46             type=F1.0     n_labels=  6  | A czy po rozliczeniu swoich dochodów osobistych za rok 2006 z uwzględnieniem wszystkich ulg i odpisów miał(a) Pan(i):
+        Labels: {1.0: 'podatek zerowy, tzn. zaliczki pokrywały się z podatkiem rocznym', 2.0: 'podatek do zapłaty', 3.0: 'nadpłatę, tzn. może Pan(i) liczyć na zwrot pieniędzy'}
+  [211] P80odp1         type=F2.0     n_labels= 11  | Co, Pana(i) zdaniem, przede wszystkim decyduje o tym, że niektórzy ludzie w stosunkowo krótkim czasie dochodzą do wielkich pieniędzy? Proszę z tej karty wybrać nie więcej niż trzy czynniki
+        Labels: {1.0: 'Ich talenty i zdolności', 2.0: 'Bezwzględność w stosunku do innych ludzi', 3.0: 'Pracowitość, całkowite poświęcenie się temu, co robią'}
+  [212] P80odp2         type=F2.0     n_labels= 12  | Co, Pana(i) zdaniem, przede wszystkim decyduje o tym, że niektórzy ludzie w stosunkowo krótkim czasie dochodzą do wielkich pieniędzy? Proszę z tej karty wybrać nie więcej niż trzy czynniki
+        Labels: {1.0: 'Ich talenty i zdolności', 2.0: 'Bezwzględność w stosunku do innych ludzi', 3.0: 'Pracowitość, całkowite poświęcenie się temu, co robią'}
+  [213] P80odp3         type=F2.0     n_labels= 12  | Co, Pana(i) zdaniem, przede wszystkim decyduje o tym, że niektórzy ludzie w stosunkowo krótkim czasie dochodzą do wielkich pieniędzy? Proszę z tej karty wybrać nie więcej niż trzy czynniki
+        Labels: {1.0: 'Ich talenty i zdolności', 2.0: 'Bezwzględność w stosunku do innych ludzi', 3.0: 'Pracowitość, całkowite poświęcenie się temu, co robią'}
+  [288] P84H            type=F1.0     n_labels=  5  | Przeczytam teraz listę różnych praw, działań i zjawisk. Proszę powiedzieć, czy zawsze jest właściwe, czasem jest właściwe, czy też nigdy nie jest właściwe?  H) Rządowe gwarancje minimalnego dochodu dla wszystkich
+        Labels: {0.0: 'Brak danych', 1.0: 'Zawsze jest właściwe', 2.0: 'Czasem jest właściwe'}
+  [311] M8              type=F1.0     n_labels=  3  | Czy kiedykolwiek pracował(a) Pan(i) zarobkowo?
+        Labels: {0.0: 'Brak danych', 1.0: 'Tak', 2.0: 'Nie'}
+  [312] M9              type=F1.0     n_labels=  5  | Czy obecnie pracuje Pan(i) zarobkowo (na etacie, we własnym zakładzie lub gospodarstwie albo na pracach zleconych), niezależnie od tego, czy jest to Pana(i) główne źródło utrzymania?
+        Labels: {0.0: 'Brak danych', 1.0: 'Tak, w pełnym wymiarze czasu', 2.0: 'Tak, w niepełnym wymiarze czasu'}
+  [313] M10_A           type=F1.0     n_labels=  4  | Gdzie pracuje Pan(i) zarobkowo, czy … A) na wsi
+        Labels: {0.0: 'Brak danych', 1.0: 'Tak', 2.0: 'Nie'}
+  [314] M10_B           type=F1.0     n_labels=  4  | Gdzie pracuje Pan(i) zarobkowo, czy … B) w małym miasteczku
+        Labels: {0.0: 'Brak danych', 1.0: 'Tak', 2.0: 'Nie'}
+  [315] M10_C           type=F1.0     n_labels=  4  | Gdzie pracuje Pan(i) zarobkowo, czy … C) w średniej wielkości mieście
+        Labels: {0.0: 'Brak danych', 1.0: 'Tak', 2.0: 'Nie'}
+  [316] M10_D           type=F1.0     n_labels=  4  | Gdzie pracuje Pan(i) zarobkowo, czy … D) w dużym mieście
+        Labels: {0.0: 'Brak danych', 1.0: 'Tak', 2.0: 'Nie'}
+  [324] M18             type=F5.0     n_labels=  3  | Ile wynoszą W ZŁOTYCH Pana(i) miesięczne dochody NETTO (na rękę)? Proszę wziąć pod uwagę Pana(i) dochody z pracy głównej wraz z premiami, nagrodami, dodatkami, dochody z prac dodatkowych, także dorywczych, renty i emerytury, stypendia oraz in ne dodatkowe
+        Labels: {99992.0: 'Nie ma dochodów', 99997.0: 'Trudno powiedzieć', 99998.0: 'Odmowa odpowiedzi'}
+  [325] M19             type=F5.0     n_labels=  3  | Ile wynoszą W ZŁOTYCH miesięczne dochody NETTO na 1 osobę w Pana(i) gospodarstwie domowym? Proszę wziąć pod uwagę dochody z pracy głównej wraz z premiami, nagrodami, dodatkami, dochody z prac dodatkowych, także dorywczych, renty i emerytury, stypendia i in
+        Labels: {99992.0: 'Nie ma dochodów', 99997.0: 'Trudno powiedzieć', 99998.0: 'Odmowa odpowiedzi'}
+
+====================================================================================================
+FILE [202]: CBOS_205_06_2007.sav  (cols=271)
+====================================================================================================
+  [ 90] P30_A           type=F1.0     n_labels=  7  | Czy zgadza się Pan(i) czy też nie zgadza z następującymi stwierdzeniami? … A) Różnice zarobków w Polsce są zbyt duże
+        Labels: {1.0: 'Zdecydowanie zgadzam się', 2.0: 'Raczej zgadzam się', 3.0: 'I tak, i nie'}
+  [ 93] P30_D           type=F1.0     n_labels=  7  | Czy zgadza się Pan(i) czy też nie zgadza z następującymi stwierdzeniami? … D) Dochody i bogactwo powinny być bardziej równomiernie rozdzielone pomiędzy pracujących
+        Labels: {1.0: 'Zdecydowanie zgadzam się', 2.0: 'Raczej zgadzam się', 3.0: 'I tak, i nie'}
+  [239] M8              type=F1.0     n_labels=  3  | Czy kiedykolwiek pracował(a) Pan(i) zarobkowo?
+        Labels: {0.0: 'Brak danych', 1.0: 'Tak', 2.0: 'Nie'}
+  [240] M9              type=F1.0     n_labels=  5  | Czy obecnie pracuje Pan(i) zarobkowo (na etacie, we własnym zakładzie lub gospodarstwie albo na pracach zleconych), niezależnie od tego, czy jest to Pana(i) główne źródło utrzymania?
+        Labels: {0.0: 'Brak danych', 1.0: 'Tak, w pełnym wymiarze czasu', 2.0: 'Tak, w niepełnym wymiarze czasu'}
+  [241] M10_A           type=F1.0     n_labels=  4  | Gdzie pracuje Pan(i) zarobkowo, czy … A) na wsi
+        Labels: {0.0: 'Brak danych', 1.0: 'Tak', 2.0: 'Nie'}
+  [242] M10_B           type=F1.0     n_labels=  4  | Gdzie pracuje Pan(i) zarobkowo, czy … B) w małym miasteczku
+        Labels: {0.0: 'Brak danych', 1.0: 'Tak', 2.0: 'Nie'}
+  [243] M10_C           type=F1.0     n_labels=  4  | Gdzie pracuje Pan(i) zarobkowo, czy … C) w średniej wielkości mieście
+        Labels: {0.0: 'Brak danych', 1.0: 'Tak', 2.0: 'Nie'}
+  [244] M10_D           type=F1.0     n_labels=  4  | Gdzie pracuje Pan(i) zarobkowo, czy … D) w dużym mieście
+        Labels: {0.0: 'Brak danych', 1.0: 'Tak', 2.0: 'Nie'}
+  [252] M18             type=F5.0     n_labels=  3  | Ile wynoszą W ZŁOTYCH Pana(i) miesięczne dochody NETTO (na rękę)? Proszę wziąć pod uwagę Pana(i) dochody z pracy głównej wraz z premiami, nagrodami, dodatkami, dochody z prac dodatkowych, także dorywczych, renty i emerytury, stypendia oraz inne dodatkowe d
+        Labels: {99992.0: 'Nie ma dochodów', 99997.0: 'Trudno powiedzieć', 99998.0: 'Odmowa odpowiedzi'}
+  [253] M19             type=F5.0     n_labels=  3  | Ile wynoszą W ZŁOTYCH miesięczne dochody NETTO na 1 osobę w Pana(i) gospodarstwie domowym? Proszę wziąć pod uwagę dochody z pracy głównej wraz z premiami, nagrodami, dodatkami, dochody z prac dodatkowych, także dorywczych, renty i emerytury, stypendia i in
+        Labels: {99992.0: 'Nie ma dochodów', 99997.0: 'Trudno powiedzieć', 99998.0: 'Odmowa odpowiedzi'}
+
+====================================================================================================
+FILE [203]: CBOS_206_07_2007.sav  (cols=169)
+====================================================================================================
+  [135] M8              type=F1.0     n_labels=  3  | Czy kiedykolwiek pracował(a) Pan(i) zarobkowo?
+        Labels: {0.0: 'Brak danych', 1.0: 'Tak', 2.0: 'Nie'}
+  [136] M9              type=F1.0     n_labels=  5  | Czy obecnie pracuje Pan(i) zarobkowo (na etacie, we własnym zakładzie lub gospodarstwie albo na pracach zleconych), niezależnie od tego, czy jest to Pana(i) główne źródło utrzymania?
+        Labels: {0.0: 'Brak danych', 1.0: 'Tak, w pełnym wymiarze czasu', 2.0: 'Tak, w niepełnym wymiarze czasu'}
+  [137] M10_A           type=F1.0     n_labels=  4  | Gdzie pracuje Pan(i) zarobkowo, czy … A) na wsi
+        Labels: {0.0: 'Brak danych', 1.0: 'Tak', 2.0: 'Nie'}
+  [138] M10_B           type=F1.0     n_labels=  4  | Gdzie pracuje Pan(i) zarobkowo, czy … B) w małym miastecz
+        Labels: {0.0: 'Brak danych', 1.0: 'Tak', 2.0: 'Nie'}
+  [139] M10_C           type=F1.0     n_labels=  4  | Gdzie pracuje Pan(i) zarobkowo, czy … C) w średniej wielkości mieście
+        Labels: {0.0: 'Brak danych', 1.0: 'Tak', 2.0: 'Nie'}
+  [140] M10_D           type=F1.0     n_labels=  4  | Gdzie pracuje Pan(i) zarobkowo, czy … D) w dużym mieście
+        Labels: {0.0: 'Brak danych', 1.0: 'Tak', 2.0: 'Nie'}
+  [148] M18             type=F5.0     n_labels=  3  | Ile wynoszą W ZŁOTYCH Pana(i) miesięczne dochody NETTO (na rękę)? Proszę wziąć pod uwagę Pana(i) dochody z pracy głównej wraz z premiami, nagrodami, dodatkami, dochody z prac dodatkowych, także dorywczych, renty i emerytury, stypendia oraz inne dodatkowe d
+        Labels: {99992.0: 'Nie ma dochodów', 99997.0: 'Trudno powiedzieć', 99998.0: 'Odmowa odpowiedzi'}
+  [149] M19             type=F5.0     n_labels=  3  | Ile wynoszą W ZŁOTYCH miesięczne dochody NETTO na 1 osobę w Pana(i) gospodarstwie domowym? Proszę wziąć pod uwagę dochody z pracy głównej wraz z premiami, nagrodami, dodatkami, dochody z prac dodatkowych, także dorywczych, renty i emerytury, stypendia i in
+        Labels: {99992.0: 'Nie ma dochodów', 99997.0: 'Trudno powiedzieć', 99998.0: 'Odmowa odpowiedzi'}
+
+====================================================================================================
+FILE [204]: CBOS_207_08_2007.sav  (cols=213)
+====================================================================================================
+  [181] M8              type=F1.0     n_labels=  2  | Czy kiedykolwiek pracował(a) Pan(i) zarobkowo?
+        Labels: {1.0: 'Tak', 2.0: 'Nie'}
+  [182] M9              type=F1.0     n_labels=  4  | Czy obecnie pracuje Pan(i) zarobkowo (na etacie, we własnym zakładzie lub gospodarstwie albo na pracach zleconych), niezależnie od tego, czy jest to Pana(i) główne źródło utrzymania?
+        Labels: {1.0: 'Tak, w pełnym wymiarze czasu', 2.0: 'Tak, w niepełnym wymiarze czasu', 3.0: 'Tak, dorywczo'}
+  [183] M10_A           type=F1.0     n_labels=  4  | Gdzie pracuje Pan(i) zarobkowo, czy … A) na wsi
+        Labels: {0.0: 'Brak danych', 1.0: 'Tak', 2.0: 'Nie'}
+  [184] M10_B           type=F1.0     n_labels=  4  | Gdzie pracuje Pan(i) zarobkowo, czy … B) w małym miastecz
+        Labels: {0.0: 'Brak danych', 1.0: 'Tak', 2.0: 'Nie'}
+  [185] M10_C           type=F1.0     n_labels=  4  | Gdzie pracuje Pan(i) zarobkowo, czy … C) w średniej wielkości mieście
+        Labels: {0.0: 'Brak danych', 1.0: 'Tak', 2.0: 'Nie'}
+  [186] M10_D           type=F1.0     n_labels=  4  | Gdzie pracuje Pan(i) zarobkowo, czy … D) w dużym mieście
+        Labels: {0.0: 'Brak danych', 1.0: 'Tak', 2.0: 'Nie'}
+  [194] M18             type=F5.0     n_labels=  3  | Ile wynoszą W ZŁOTYCH Pana(i) miesięczne dochody NETTO (na rękę)? Proszę wziąć pod uwagę Pana(i) dochody z pracy głównej wraz z premiami, nagrodami, dodatkami, dochody z prac dodatkowych, także dorywczych, renty i emerytury, stypendia oraz inne dodatkowe d
+        Labels: {99992.0: 'Nie ma dochodów', 99997.0: 'Trudno powiedzieć', 99998.0: 'Odmowa odpowiedzi'}
+  [195] M19             type=F5.0     n_labels=  3  | Ile wynoszą W ZŁOTYCH miesięczne dochody NETTO na 1 osobę w Pana(i) gospodarstwie domowym? Proszę wziąć pod uwagę dochody z pracy głównej wraz z premiami, nagrodami, dodatkami, dochody z prac dodatkowych, także dorywczych, renty i emerytury, stypendia i in
+        Labels: {99992.0: 'Nie ma dochodów', 99997.0: 'Trudno powiedzieć', 99998.0: 'Odmowa odpowiedzi'}
+
+====================================================================================================
+FILE [250]: CBOS_253_06_2011.sav  (cols=198)
+====================================================================================================
+  [  9] q11             type=F1.0     n_labels=  4  | M4. Czy obecnie pracuje Pan(i) zarobkowo (na etacie, we własnym zakładzie lub gospodarstwie albo bierze Pan(i) prace zlecone), niezależnie od tego, czy jest to Pana(i) główne źródło utrzymania?
+        Labels: {1.0: 'Tak, w pełnym wymiarze czasu', 2.0: 'Tak, w niepełnym wymiarze czasu', 3.0: 'Tak, dorywczo'}
+  [170] q119            type=F1.0     n_labels=  5  | M18. Ile wynoszą PANA(I) MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ)? Proszę wziąć pod uwagę Pana(i) dochody z pracy głównej wraz z premiami, nagrodami, dodatkami, dochody z prac dodatkowych, także dorywczych, renty i emerytury, stypendia oraz inne dodatkowe do...
+        Labels: {1.0: 'Respondent podaje konkretną kwotę', 2.0: 'Kwota powyżej 50 001 zł', 3.0: 'Respondent deklaruje brak dochodów'}
+  [171] q120            type=F8.2     n_labels=  1  | ANKIETER: Poniżej wpisać podaną przez respondenta kwotę
+        Labels: {-1.0: 'q119<>1'}
+  [172] q121            type=F8.2     n_labels=  8  | M18_2. A czy mógłby(mogłaby) Pan(i) podać przybliżone dochody? Proszę spojrzeć na ekran. Czy mógłby(mogłaby) Pan(i) wskazać, w którym przedziale mieszczą się PANA(I) MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ)?
+        Labels: {-1.0: 'ND: q119<4', 1.0: 'Do 750 złotych', 2.0: 'Od 751 do 1000 złotych'}
+  [173] q122            type=F1.0     n_labels=  5  | M19. Ile wynoszą PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W PANA(I) GOSPODARSTWIE DOMOWYM? Proszę wziąć pod uwagę dochody z pracy głównej wraz z premiami, nagrodami, dodatkami, dochody z prac dodatkowych, także dorywczy...
+        Labels: {1.0: 'Respondent podaje konkretną kwotę', 2.0: 'Kwota powyżej 50 001 zł', 3.0: 'Respondent deklaruje brak dochodów'}
+  [174] q123            type=F8.2     n_labels=  1  | ANKIETER: Poniżej wpisać podaną przez respondenta kwotę
+        Labels: {-1.0: 'q122<>1'}
+  [175] q124            type=F8.2     n_labels=  8  | M19_2. A czy mógłby(mogłaby) Pan(i) podać przybliżone dochody? Czy mógłby(mogłaby) Pan(i) wskazać, w którym przedziale mieszczą się PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W PANA(I) GOSPODARST...
+        Labels: {-1.0: 'ND: q122<4', 1.0: 'Do 500 złotych', 2.0: 'Od 501 do 750 złotych'}
+
+====================================================================================================
+FILE [251]: CBOS_254_07_2011.sav  (cols=269)
+====================================================================================================
+  [  9] q10             type=F1.0     n_labels=  4  | M4. Czy obecnie pracuje Pan(i) zarobkowo (na etacie, we własnym zakładzie lub gospodarstwie albo bierze Pan(i) prace zlecone), niezależnie od tego, czy jest to Pana(i) główne źródło utrzymania?
+        Labels: {1.0: 'Tak, w pełnym wymiarze czasu', 2.0: 'Tak, w niepełnym wymiarze czasu', 3.0: 'Tak, dorywczo'}
+  [241] q162            type=F1.0     n_labels=  5  | M18. Ile wynoszą PANA(I) MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ)? Proszę wziąć pod uwagę Pana(i) dochody z pracy głównej wraz z premiami, nagrodami, dodatkami, dochody z prac dodatkowych, także dorywczych, renty i emerytury, stypendia oraz inne dodatkowe do...
+        Labels: {1.0: 'Respondent podaje konkretną kwotę', 2.0: 'Kwota powyżej 50 001 zł', 3.0: 'Respondent deklaruje brak dochodów'}
+  [242] q163            type=F8.2     n_labels=  1  | ANKIETER: Poniżej wpisać podaną przez respondenta kwotę
+        Labels: {-1.0: 'q162<>1'}
+  [243] q164            type=F8.2     n_labels=  8  | M18_2. A czy mógłby(mogłaby) Pan(i) podać przybliżone dochody? Proszę spojrzeć na ekran. Czy mógłby(mogłaby) Pan(i) wskazać, w którym przedziale mieszczą się PANA(I) MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ)?
+        Labels: {-1.0: 'ND: q162<4', 1.0: 'Do 750 złotych', 2.0: 'Od 751 do 1000 złotych'}
+  [244] q165            type=F1.0     n_labels=  5  | M19. Ile wynoszą PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W PANA(I) GOSPODARSTWIE DOMOWYM? Proszę wziąć pod uwagę dochody z pracy głównej wraz z premiami, nagrodami, dodatkami, dochody z prac dodatkowych, także dorywczy...
+        Labels: {1.0: 'Respondent podaje konkretną kwotę', 2.0: 'Kwota powyżej 50 001 zł', 3.0: 'Respondent deklaruje brak dochodów'}
+  [245] q166            type=F8.2     n_labels=  1  | ANKIETER: Poniżej wpisać podaną przez respondenta kwotę
+        Labels: {-1.0: 'q165<>1'}
+  [246] q167            type=F8.2     n_labels=  8  | M19_2. A czy mógłby(mogłaby) Pan(i) podać przybliżone dochody? Czy mógłby(mogłaby) Pan(i) wskazać, w którym przedziale mieszczą się PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W PANA(I) GOSPODARST...
+        Labels: {-1.0: 'ND: q165<4', 1.0: 'Do 500 złotych', 2.0: 'Od 501 do 750 złotych'}
+
+====================================================================================================
+FILE [252]: CBOS_255_08_2011.sav  (cols=221)
+====================================================================================================
+  [ 12] q14             type=F1.0     n_labels=  4  | M4. Czy obecnie pracuje Pan(i) zarobkowo (na etacie, we własnym zakładzie lub gospodarstwie albo bierze Pan(i) prace zlecone), niezależnie od tego, czy jest to Pana(i) główne źródło utrzymania?
+        Labels: {1.0: 'Tak, w pełnym wymiarze czasu', 2.0: 'Tak, w niepełnym wymiarze czasu', 3.0: 'Tak, dorywczo'}
+  [194] q176            type=F1.0     n_labels=  5  | M18. Ile wynoszą PANA(I) MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ)? Proszę wziąć pod uwagę Pana(i) dochody z pracy głównej wraz z premiami, nagrodami, dodatkami, dochody z prac dodatkowych, także dorywczych, renty i emerytury, stypendia oraz inne dodatkowe do...
+        Labels: {1.0: 'Respondent podaje konkretną kwotę', 2.0: 'Kwota powyżej 50 001 zł', 3.0: 'Respondent deklaruje brak dochodów'}
+  [195] q177            type=F8.2     n_labels=  1  | ANKIETER: Poniżej wpisać podaną przez respondenta kwotę
+        Labels: {-1.0: 'q176<>1'}
+  [196] q178            type=F8.2     n_labels=  8  | M18_2. A czy mógłby(mogłaby) Pan(i) podać przybliżone dochody? Proszę spojrzeć na ekran. Czy mógłby(mogłaby) Pan(i) wskazać, w którym przedziale mieszczą się PANA(I) MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ)?
+        Labels: {-1.0: 'ND: q176<4', 1.0: 'Do 750 złotych', 2.0: 'Od 751 do 1000 złotych'}
+  [197] q179            type=F1.0     n_labels=  5  | M19. Ile wynoszą PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W PANA(I) GOSPODARSTWIE DOMOWYM? Proszę wziąć pod uwagę dochody z pracy głównej wraz z premiami, nagrodami, dodatkami, dochody z prac dodatkowych, także dorywczy...
+        Labels: {1.0: 'Respondent podaje konkretną kwotę', 2.0: 'Kwota powyżej 50 001 zł', 3.0: 'Respondent deklaruje brak dochodów'}
+  [198] q180            type=F8.2     n_labels=  1  | ANKIETER: Poniżej wpisać podaną przez respondenta kwotę
+        Labels: {-1.0: 'q179<>1'}
+  [199] q181            type=F8.2     n_labels=  8  | M19_2. A czy mógłby(mogłaby) Pan(i) podać przybliżone dochody? Czy mógłby(mogłaby) Pan(i) wskazać, w którym przedziale mieszczą się PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W PANA(I) GOSPODARST...
+        Labels: {-1.0: 'ND: q179<4', 1.0: 'Do 500 złotych', 2.0: 'Od 501 do 750 złotych'}
+
+====================================================================================================
+FILE [253]: CBOS_256_09_2011.sav  (cols=256)
+====================================================================================================
+  [  9] q10             type=F1.0     n_labels=  4  | M4. Czy obecnie pracuje Pan(i) zarobkowo (na etacie, we własnym zakładzie lub gospodarstwie albo bierze Pan(i) prace zlecone), niezależnie od tego, czy jest to Pana(i) główne źródło utrzymania?
+        Labels: {1.0: 'Tak, w pełnym wymiarze czasu', 2.0: 'Tak, w niepełnym wymiarze czasu', 3.0: 'Tak, dorywczo'}
+  [202] q125            type=F1.0     n_labels=  5  | M18. Ile wynoszą PANA(I) MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ)? Proszę wziąć pod uwagę Pana(i) dochody z pracy głównej wraz z premiami, nagrodami, dodatkami, dochody z prac dodatkowych, także dorywczych, renty i emerytury, stypendia oraz inne dodatkowe do...
+        Labels: {1.0: 'Respondent podaje konkretną kwotę', 2.0: 'Kwota powyżej 50 001 zł', 3.0: 'Respondent deklaruje brak dochodów'}
+  [203] q126            type=F8.2     n_labels=  1  | ANKIETER: Poniżej wpisać podaną przez respondenta kwotę
+        Labels: {-1.0: 'q125<>1'}
+  [204] q127            type=F8.2     n_labels=  8  | M18_2. A czy mógłby(mogłaby) Pan(i) podać przybliżone dochody? Proszę spojrzeć na ekran. Czy mógłby(mogłaby) Pan(i) wskazać, w którym przedziale mieszczą się PANA(I) MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ)?
+        Labels: {-1.0: 'ND: q125<4', 1.0: 'Do 750 złotych', 2.0: 'Od 751 do 1000 złotych'}
+  [205] q128            type=F1.0     n_labels=  5  | M19. Ile wynoszą PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W PANA(I) GOSPODARSTWIE DOMOWYM? Proszę wziąć pod uwagę dochody z pracy głównej wraz z premiami, nagrodami, dodatkami, dochody z prac dodatkowych, także dorywczy...
+        Labels: {1.0: 'Respondent podaje konkretną kwotę', 2.0: 'Kwota powyżej 50 001 zł', 3.0: 'Respondent deklaruje brak dochodów'}
+  [206] q129            type=F8.2     n_labels=  1  | ANKIETER: Poniżej wpisać podaną przez respondenta kwotę
+        Labels: {-1.0: 'q128<>1'}
+  [207] q130            type=F8.2     n_labels=  8  | M19_2. A czy mógłby(mogłaby) Pan(i) podać przybliżone dochody? Czy mógłby(mogłaby) Pan(i) wskazać, w którym przedziale mieszczą się PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W PANA(I) GOSPODARST...
+        Labels: {-1.0: 'ND: q128<4', 1.0: 'Do 500 złotych', 2.0: 'Od 501 do 750 złotych'}
+
+====================================================================================================
+FILE [254]: CBOS_257_10_2011.sav  (cols=313)
+====================================================================================================
+  [  9] q10             type=F1.0     n_labels=  4  | M4. Czy obecnie pracuje Pan(i) zarobkowo (na etacie, we własnym zakładzie lub gospodarstwie albo bierze Pan(i) prace zlecone), niezależnie od tego, czy jest to Pana(i) główne źródło utrzymania?
+        Labels: {1.0: 'Tak, w pełnym wymiarze czasu', 2.0: 'Tak, w niepełnym wymiarze czasu', 3.0: 'Tak, dorywczo'}
+  [182] q79s1           type=F1.0     n_labels=  4  | FP12. Czy parafianie w parafii działającej w Pana(i) osiedlu|wsi są oficjalnie informowani o - dochodach parafii
+        Labels: {1.0: 'Tak', 2.0: 'Nie', 7.0: 'Trudno powiedzieć'}
+  [213] q88             type=F1.0     n_labels=  7  | I4. Jak długo pracował(a) Pan(i) za granicą (chodzi o ostatni Pana(i) wyjazd zarobkowy)?
+        Labels: {-1.0: 'ND: q85<>1', 1.0: 'Trzy miesiące lub krócej', 2.0: 'Od ponad trzech miesięcy do roku'}
+  [240] q95s9           type=F1.0     n_labels=  4  | NP3. Dlaczego uczniowie ci nie wyjechali na co najmniej tygodniowy wypoczynek wakacyjny? Czy dlatego, że:- pracowali zarobkowo
+        Labels: {-1.0: 'ND: q94<>2 & q94<>3', 1.0: 'Tak', 2.0: 'Nie'}
+  [243] q97s1           type=F1.0     n_labels=  6  | NP5. Czy uczniowie z Pana(i) gospodarstwa domowego pracowali zarobkowo w czasie wakacji? - w wieku od 7 do 12 lat
+        Labels: {-1.0: 'ND: q93<>1', 1.0: 'Tak', 2.0: 'Nie'}
+  [244] q97s2           type=F1.0     n_labels=  6  | NP5. Czy uczniowie z Pana(i) gospodarstwa domowego pracowali zarobkowo w czasie wakacji? - w wieku od 13 do 15 lat
+        Labels: {-1.0: 'ND: q93<>1', 1.0: 'Tak', 2.0: 'Nie'}
+  [245] q97s3           type=F1.0     n_labels=  6  | NP5. Czy uczniowie z Pana(i) gospodarstwa domowego pracowali zarobkowo w czasie wakacji? - w wieku od 16 do 19 lat
+        Labels: {-1.0: 'ND: q93<>1', 1.0: 'Tak', 2.0: 'Nie'}
+  [246] q98s1           type=F1.0     n_labels=  4  | NP6. Czy uważa Pan(i), że uczniowie powinni czy raczej nie powinni pracować zarobkowo podczas wakacji? - w wieku od 7 do 12 lat
+        Labels: {1.0: 'Powinni', 2.0: 'Nie powinni', 7.0: 'Trudno powiedzieć'}
+  [247] q98s2           type=F1.0     n_labels=  4  | NP6. Czy uważa Pan(i), że uczniowie powinni czy raczej nie powinni pracować zarobkowo podczas wakacji? - w wieku od 13 do 15 lat
+        Labels: {1.0: 'Powinni', 2.0: 'Nie powinni', 7.0: 'Trudno powiedzieć'}
+  [248] q98s3           type=F1.0     n_labels=  4  | NP6. Czy uważa Pan(i), że uczniowie powinni czy raczej nie powinni pracować zarobkowo podczas wakacji? - w wieku od 16 do 19 lat
+        Labels: {1.0: 'Powinni', 2.0: 'Nie powinni', 7.0: 'Trudno powiedzieć'}
+  [279] q132            type=F1.0     n_labels=  5  | M18. Ile wynoszą PANA(I) MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ)? Proszę wziąć pod uwagę Pana(i) dochody z pracy głównej wraz z premiami, nagrodami, dodatkami, dochody z prac dodatkowych, także dorywczych, renty i emerytury, stypendia oraz inne dodatkowe do...
+        Labels: {1.0: 'Respondent podaje konkretną kwotę', 2.0: 'Kwota powyżej 50 001 zł', 3.0: 'Respondent deklaruje brak dochodów'}
+  [280] q133            type=F8.2     n_labels=  1  | ANKIETER: Poniżej wpisać podaną przez respondenta kwotę
+        Labels: {-1.0: 'q132<>1'}
+  [281] q134            type=F8.2     n_labels=  8  | M18_2. A czy mógłby(mogłaby) Pan(i) podać przybliżone dochody? Proszę spojrzeć na ekran. Czy mógłby(mogłaby) Pan(i) wskazać, w którym przedziale mieszczą się PANA(I) MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ)?
+        Labels: {-1.0: 'ND: q132<4', 1.0: 'Do 750 złotych', 2.0: 'Od 751 do 1000 złotych'}
+  [282] q135            type=F1.0     n_labels=  5  | M19. Ile wynoszą PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W PANA(I) GOSPODARSTWIE DOMOWYM? Proszę wziąć pod uwagę dochody z pracy głównej wraz z premiami, nagrodami, dodatkami, dochody z prac dodatkowych, także dorywczy...
+        Labels: {1.0: 'Respondent podaje konkretną kwotę', 2.0: 'Kwota powyżej 50 001 zł', 3.0: 'Respondent deklaruje brak dochodów'}
+  [283] q136            type=F8.2     n_labels=  1  | ANKIETER: Poniżej wpisać podaną przez respondenta kwotę
+        Labels: {-1.0: 'q135<>1'}
+  [284] q137            type=F8.2     n_labels=  8  | M19_2. A czy mógłby(mogłaby) Pan(i) podać przybliżone dochody? Czy mógłby(mogłaby) Pan(i) wskazać, w którym przedziale mieszczą się PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W PANA(I) GOSPODARST...
+        Labels: {-1.0: 'ND: q135<4', 1.0: 'Do 500 złotych', 2.0: 'Od 501 do 750 złotych'}
+
+====================================================================================================
+FILE [300]: CBOS_303_08_2015.sav  (cols=198)
+====================================================================================================
+  [ 12] q17             type=F1.0     n_labels=  4  | M1. Czy obecnie pracuje Pan(i) zarobkowo (na etacie, we własnym zakładzie lub gospodarstwie albo bierze Pan(i) prace zlecone), niezależnie od tego, czy jest to Pana(i) główne źródło utrzymania?
+        Labels: {1.0: 'Tak, w pełnym wymiarze czasu', 2.0: 'Tak, w niepełnym wymiarze czasu', 3.0: 'Tak, dorywczo'}
+  [151] q138            type=F2.0     n_labels= 11  | M6. A który z wyżej wymienionych sposobów zatrudnienia stanowi główne źródło Pana(i) dochodów?
+        Labels: {-1.0: 'q17!=1o-3 or q135!=1-9', 1.0: 'Własna działalność gospodarcza', 2.0: 'Własne gospodarstwo rolne'}
+  [163] q147            type=F1.0     n_labels=  5  | M11. Ile wynoszą PANA(I) MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ)? Proszę wziąć pod uwagę Pana(i) dochody z pracy głównej wraz z premiami, nagrodami, dodatkami, dochody z prac dodatkowych, także dorywczych, renty i emerytury, stypendia oraz inne dodatkowe do...
+        Labels: {1.0: 'Respondent podaje konkretną kwotę', 2.0: 'Kwota powyżej 50 001 zł', 3.0: 'Respondent deklaruje brak dochodów'}
+  [164] q148            type=F5.0     n_labels=  1  | ANKIETER: Poniżej wpisać podaną przez respondenta kwotę
+        Labels: {-1.0: 'ND'}
+  [165] q149            type=F1.0     n_labels=  8  | M12. A czy mógłby(mogłaby) Pan(i) podać przybliżone dochody? Proszę spojrzeć na ekran. Czy mógłby(mogłaby) Pan(i) wskazać, w którym przedziale mieszczą się PANA(I) MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ)?
+        Labels: {-1.0: 'q147!=4o-5', 1.0: 'Do 999 złotych', 2.0: 'Od 1000 do 1399 złotych'}
+  [166] q150            type=F1.0     n_labels=  5  | M13. Ile wynoszą PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W PANA(I) GOSPODARSTWIE DOMOWYM? Proszę wziąć pod uwagę dochody z pracy głównej wraz z premiami, nagrodami, dodatkami, dochody z prac dodatkowych, także dorywczy...
+        Labels: {1.0: 'Respondent podaje konkretną kwotę', 2.0: 'Kwota powyżej 50 001 zł', 3.0: 'Respondent deklaruje brak dochodów'}
+  [167] q151            type=F5.0     n_labels=  1  | ANKIETER: Poniżej wpisać podaną przez respondenta kwotę
+        Labels: {-1.0: 'ND'}
+  [168] q152            type=F1.0     n_labels=  8  | M14. A czy mógłby(mogłaby) Pan(i) podać przybliżone dochody? Proszę spojrzeć na ekran. Czy mógłby(mogłaby) Pan(i) wskazać, w którym przedziale mieszczą się PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W PANA(I) GOSPODARSTWI...
+        Labels: {-1.0: 'ND: q150!=4/5', 1.0: 'Do 649 złotych', 2.0: 'Od 650 do 999 złotych'}
+
+====================================================================================================
+FILE [301]: CBOS_304_09_2015.sav  (cols=221)
+====================================================================================================
+  [ 12] q17             type=F1.0     n_labels=  4  | M1. Czy obecnie pracuje Pan(i) zarobkowo (na etacie, we własnym zakładzie lub gospodarstwie albo bierze Pan(i) prace zlecone), niezależnie od tego, czy jest to Pana(i) główne źródło utrzymania?
+        Labels: {1.0: 'Tak, w pełnym wymiarze czasu', 2.0: 'Tak, w niepełnym wymiarze czasu', 3.0: 'Tak, dorywczo'}
+  [134] q81s9           type=F1.0     n_labels=  4  | NP3. Dlaczego uczniowie ci nie wyjechali na co najmniej tygodniowy wypoczynek wakacyjny? Czy dlatego, że: ...  - pracowali zarobkowo
+        Labels: {-1.0: 'ND', 1.0: 'Tak', 2.0: 'Nie'}
+  [137] q83s1           type=F1.0     n_labels=  6  | NP5. Czy uczniowie z Pana(i) gospodarstwa domowego  ...  pracowali zarobkowo w czasie wakacji? - w wieku od 6 do 12 lat
+        Labels: {-1.0: 'q79 != 1', 1.0: 'Tak', 2.0: 'Nie'}
+  [138] q83s2           type=F1.0     n_labels=  6  | NP5. Czy uczniowie z Pana(i) gospodarstwa domowego  ...  pracowali zarobkowo w czasie wakacji? - w wieku od 13 do 15 lat
+        Labels: {-1.0: 'q79 != 1', 1.0: 'Tak', 2.0: 'Nie'}
+  [139] q83s3           type=F1.0     n_labels=  6  | NP5. Czy uczniowie z Pana(i) gospodarstwa domowego  ...  pracowali zarobkowo w czasie wakacji? - w wieku od 16 do 19 lat
+        Labels: {-1.0: 'q79 != 1', 1.0: 'Tak', 2.0: 'Nie'}
+  [140] q84s1           type=F1.0     n_labels=  4  | NP6. Czy uważa Pan(i), że uczniowie  ...  powinni czy raczej nie powinni pracować zarobkowo podczas wakacji? - w wieku od 6 do 12 lat
+        Labels: {1.0: 'Powinni', 2.0: 'Nie powinni', 7.0: 'Trudno powiedzieć'}
+  [141] q84s2           type=F1.0     n_labels=  4  | NP6. Czy uważa Pan(i), że uczniowie  ...  powinni czy raczej nie powinni pracować zarobkowo podczas wakacji? - w wieku od 13 do 15 lat
+        Labels: {1.0: 'Powinni', 2.0: 'Nie powinni', 7.0: 'Trudno powiedzieć'}
+  [142] q84s3           type=F1.0     n_labels=  4  | NP6. Czy uważa Pan(i), że uczniowie  ...  powinni czy raczej nie powinni pracować zarobkowo podczas wakacji? - w wieku od 16 do 19 lat
+        Labels: {1.0: 'Powinni', 2.0: 'Nie powinni', 7.0: 'Trudno powiedzieć'}
+  [147] q92             type=F1.0     n_labels=  7  | 47. Czy, Pana(i) zdaniem, większość osób z Bliskiego Wschodu i Afryki przybywających do Unii Europejskiej to uchodźcy uciekający przed wojnami i konfliktami zbrojnymi czy też imigranci zarobkowi, poszukujący lepszego życia w Europie?
+        Labels: {1.0: 'Prawie wszyscy przybysze do UE to uchodźcy poszukujący schronienia', 2.0: 'Większość przybyszy to uchodźcy, ale są wśród nich także imigranci zarobkowi', 3.0: 'Przybysze to niemal równie często uchodźcy, co imigranci zarobkowi'}
+  [166] q157            type=F2.0     n_labels= 11  | M5. A który z wyżej wymienionych sposobów zatrudnienia stanowi główne źródło Pana(i) dochodów?
+        Labels: {-1.0: 'q17!=1o-3 or q154!=1-9', 1.0: 'Własna działalność gospodarcza', 2.0: 'Własne gospodarstwo rolne'}
+  [178] q166            type=F1.0     n_labels=  5  | M14. Ile wynoszą PANA(I) MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ)? Proszę wziąć pod uwagę Pana(i) dochody z pracy głównej wraz z premiami, nagrodami, dodatkami, dochody z prac dodatkowych, także dorywczych, renty i emerytury, stypendia oraz inne dodatkowe do...
+        Labels: {1.0: 'Respondent podaje konkretną kwotę', 2.0: 'Kwota powyżej 50 001 zł', 3.0: 'Respondent deklaruje brak dochodów'}
+  [179] q167            type=F5.0     n_labels=  1  | ANKIETER: Poniżej wpisać podaną przez respondenta kwotę
+        Labels: {-1.0: 'ND'}
+  [180] q168            type=F1.0     n_labels=  8  | M15. A czy mógłby(mogłaby) Pan(i) podać przybliżone dochody? Proszę spojrzeć na ekran. Czy mógłby(mogłaby) Pan(i) wskazać, w którym przedziale mieszczą się PANA(I) MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ)?
+        Labels: {-1.0: 'q166!=4o-5', 1.0: 'Do 999 złotych', 2.0: 'Od 1000 do 1399 złotych'}
+  [181] q169            type=F1.0     n_labels=  5  | M16. Ile wynoszą PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W PANA(I) GOSPODARSTWIE DOMOWYM? Proszę wziąć pod uwagę dochody z pracy głównej wraz z premiami, nagrodami, dodatkami, dochody z prac dodatkowych, także dorywczy...
+        Labels: {1.0: 'Respondent podaje konkretną kwotę', 2.0: 'Kwota powyżej 50 001 zł', 3.0: 'Respondent deklaruje brak dochodów'}
+  [182] q170            type=F5.0     n_labels=  1  | ANKIETER: Poniżej wpisać podaną przez respondenta kwotę
+        Labels: {-1.0: 'ND'}
+  [183] q171            type=F1.0     n_labels=  8  | M17. A czy mógłby(mogłaby) Pan(i) podać przybliżone dochody? Proszę spojrzeć na ekran. Czy mógłby(mogłaby) Pan(i) wskazać, w którym przedziale mieszczą się PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W PANA(I) GOSPODARSTWI...
+        Labels: {-1.0: 'q166!=4o-5', 1.0: 'Do 649 złotych', 2.0: 'Od 650 do 999 złotych'}
+  [184] q173            type=F6.0     n_labels=  1  | M18. Ile, według Pana(i) powinny wynosić miesięczne dochody NETTO (na rękę) wszystkich członków Pana(i) gospodarstwa domowego łącznie aby żyć dostatnio, bez żadnych problemów finansowych
+        Labels: {-1.0: 'ND'}
+  [186] q176            type=F6.0     n_labels=  1  | M19. Ile, według Pana(i) powinny wynosić miesięczne dochody NETTO (na rękę) wszystkich członków Pana(i) gospodarstwa domowego łącznie aby żyć na średnim poziomie
+        Labels: {-1.0: 'ND'}
+  [188] q179            type=F6.0     n_labels=  1  | M20. Ile, według Pana(i) powinny wynosić miesięczne dochody NETTO (na rękę) wszystkich członków Pana(i) gospodarstwa domowego łącznie aby zaspokajać jedynie podstawowe potrzeby
+        Labels: {-1.0: 'ND'}
+
+====================================================================================================
+FILE [302]: CBOS_305_10_2015.sav  (cols=187)
+====================================================================================================
+  [ 12] q17             type=F1.0     n_labels=  4  | M1. Czy obecnie pracuje Pan(i) zarobkowo (na etacie, we własnym zakładzie lub gospodarstwie albo bierze Pan(i) prace zlecone), niezależnie od tego, czy jest to Pana(i) główne źródło utrzymania?
+        Labels: {1.0: 'Tak, w pełnym wymiarze czasu', 2.0: 'Tak, w niepełnym wymiarze czasu', 3.0: 'Tak, dorywczo'}
+  [128] q78             type=F1.0     n_labels=  7  | 36. Jak długo trwał Pana(i) najdłuższy wyjazd zarobkowy za granicę?
+        Labels: {-1.0: 'q76!=1o-2', 1.0: 'Kilka tygodni lub krócej', 2.0: 'Kilka miesięcy'}
+  [168] q112            type=F1.0     n_labels=  5  | M3. Ile wynoszą PANA(I) MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ)? Proszę wziąć pod uwagę Pana(i) dochody z pracy głównej wraz z premiami, nagrodami, dodatkami, dochody z prac dodatkowych, także dorywczych, renty i emerytury, stypendia oraz inne dodatkowe doc...
+        Labels: {1.0: 'Respondent podaje konkretną kwotę', 2.0: 'Kwota powyżej 50 001 zł', 3.0: 'Respondent deklaruje brak dochodów'}
+  [169] q113            type=F5.0     n_labels=  1  | ANKIETER: Poniżej wpisać podaną przez respondenta kwotę
+        Labels: {-1.0: 'q112 != 1'}
+  [170] q114            type=F1.0     n_labels=  8  | M4. A czy mógłby(mogłaby) Pan(i) podać przybliżone dochody? Proszę spojrzeć na ekran. Czy mógłby(mogłaby) Pan(i) wskazać, w którym przedziale mieszczą się PANA(I) MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ)?
+        Labels: {-1.0: 'q112 != 4o-5', 1.0: 'Do 999 złotych', 2.0: 'Od 1000 do 1399 złotych'}
+  [171] q115            type=F1.0     n_labels=  5  | M5. Ile wynoszą PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W PANA(I) GOSPODARSTWIE DOMOWYM? Proszę wziąć pod uwagę dochody z pracy głównej wraz z premiami, nagrodami, dodatkami, dochody z prac dodatkowych, także dorywczyc...
+        Labels: {1.0: 'Respondent podaje konkretną kwotę', 2.0: 'Kwota powyżej 50 001 zł', 3.0: 'Respondent deklaruje brak dochodów'}
+  [172] q116            type=F5.0     n_labels=  1  | ANKIETER: Poniżej wpisać podaną przez respondenta kwotę
+        Labels: {-1.0: 'q115 != 1'}
+  [173] q117            type=F1.0     n_labels=  8  | M6. A czy mógłby(mogłaby) Pan(i) podać przybliżone dochody? Proszę spojrzeć na ekran. Czy mógłby(mogłaby) Pan(i) wskazać, w którym przedziale mieszczą się PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W PANA(I) GOSPODARSTWIE...
+        Labels: {-1.0: 'q115 != 4o-5', 1.0: 'Do 649 złotych', 2.0: 'Od 650 do 999 złotych'}
+
+====================================================================================================
+FILE [303]: CBOS_306_11_2015.sav  (cols=205)
+====================================================================================================
+  [ 12] q17             type=F1.0     n_labels=  4  | M1. Czy obecnie pracuje Pan(i) zarobkowo (na etacie, we własnym zakładzie lub gospodarstwie albo bierze Pan(i) prace zlecone), niezależnie od tego, czy jest to Pana(i) główne źródło utrzymania?
+        Labels: {1.0: 'Tak, w pełnym wymiarze czasu', 2.0: 'Tak, w niepełnym wymiarze czasu', 3.0: 'Tak, dorywczo'}
+  [155] q101            type=F1.0     n_labels=  5  | M3. Ile wynoszą PANA(I) MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ)? Proszę wziąć pod uwagę Pana(i) dochody z pracy głównej wraz z premiami, nagrodami, dodatkami, dochody z prac dodatkowych, także dorywczych, renty i emerytury, stypendia oraz inne dodatkowe doc...
+        Labels: {1.0: 'Respondent podaje konkretną kwotę', 2.0: 'Kwota powyżej 50 001 zł', 3.0: 'Respondent deklaruje brak dochodów'}
+  [156] q102            type=F5.0     n_labels=  1  | ANKIETER: Poniżej wpisać podaną przez respondenta kwotę
+        Labels: {-1.0: 'ND'}
+  [157] q103            type=F1.0     n_labels=  8  | M4. A czy mógłby(mogłaby) Pan(i) podać przybliżone dochody? Proszę spojrzeć na ekran. Czy mógłby(mogłaby) Pan(i) wskazać, w którym przedziale mieszczą się PANA(I) MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ)?
+        Labels: {-1.0: 'q101!=4o-5', 1.0: 'Do 999 złotych', 2.0: 'Od 1000 do 1399 złotych'}
+  [158] q104            type=F1.0     n_labels=  5  | M5. Ile wynoszą PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W PANA(I) GOSPODARSTWIE DOMOWYM? Proszę wziąć pod uwagę dochody z pracy głównej wraz z premiami, nagrodami, dodatkami, dochody z prac dodatkowych, także dorywczyc...
+        Labels: {1.0: 'Respondent podaje konkretną kwotę', 2.0: 'Kwota powyżej 50 001 zł', 3.0: 'Respondent deklaruje brak dochodów'}
+  [159] q105            type=F5.0     n_labels=  1  | ANKIETER: Poniżej wpisać podaną przez respondenta kwotę
+        Labels: {-1.0: 'ND'}
+  [160] q106            type=F1.0     n_labels=  8  | M6. A czy mógłby(mogłaby) Pan(i) podać przybliżone dochody? Proszę spojrzeć na ekran. Czy mógłby(mogłaby) Pan(i) wskazać, w którym przedziale mieszczą się PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W PANA(I) GOSPODARSTWIE...
+        Labels: {-1.0: 'q104!=4o-5', 1.0: 'Do 649 złotych', 2.0: 'Od 650 do 999 złotych'}
+
+====================================================================================================
+FILE [304]: CBOS_307_12_2015.sav  (cols=264)
+====================================================================================================
+  [ 12] q17             type=F1.0     n_labels=  4  | M1. Czy obecnie pracuje Pan(i) zarobkowo (na etacie, we własnym zakładzie lub gospodarstwie albo bierze Pan(i) prace zlecone), niezależnie od tego, czy jest to Pana(i) główne źródło utrzymania?
+        Labels: {1.0: 'Tak, w pełnym wymiarze czasu', 2.0: 'Tak, w niepełnym wymiarze czasu', 3.0: 'Tak, dorywczo'}
+  [103] q73s1           type=F1.0     n_labels=  8  | 38. Czy na ogół jest Pan(i) zadowolony(a)  ...  - ze swoich dochodów i sytuacji finansowej
+        Labels: {1.0: 'Bardzo zadowolony(a)', 2.0: 'Raczej zadowolony(a)', 3.0: 'Średnio zadowolony(a)'}
+  [216] q153            type=F1.0     n_labels=  5  | M3. Ile wynoszą PANA(I) MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ)? Proszę wziąć pod uwagę Pana(i) dochody z pracy głównej wraz z premiami, nagrodami, dodatkami, dochody z prac dodatkowych, także dorywczych, renty i emerytury, stypendia oraz inne dodatkowe doc...
+        Labels: {1.0: 'Respondent podaje konkretną kwotę', 2.0: 'Kwota powyżej 50 001 zł', 3.0: 'Respondent deklaruje brak dochodów'}
+  [217] q154            type=F5.0     n_labels=  1  | ANKIETER: Poniżej wpisać podaną przez respondenta kwotę
+        Labels: {-1.0: 'q153 != 1'}
+  [218] q155            type=F1.0     n_labels=  8  | M4. A czy mógłby(mogłaby) Pan(i) podać przybliżone dochody? Proszę spojrzeć na ekran. Czy mógłby(mogłaby) Pan(i) wskazać, w którym przedziale mieszczą się PANA(I) MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ)?
+        Labels: {-1.0: 'q153!=4o-5', 1.0: 'Do 999 złotych', 2.0: 'Od 1000 do 1399 złotych'}
+  [219] q156            type=F1.0     n_labels=  5  | M5. Ile wynoszą PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W PANA(I) GOSPODARSTWIE DOMOWYM? Proszę wziąć pod uwagę dochody z pracy głównej wraz z premiami, nagrodami, dodatkami, dochody z prac dodatkowych, także dorywczyc...
+        Labels: {1.0: 'Respondent podaje konkretną kwotę', 2.0: 'Kwota powyżej 50 001 zł', 3.0: 'Respondent deklaruje brak dochodów'}
+  [220] q157            type=F5.0     n_labels=  1  | ANKIETER: Poniżej wpisać podaną przez respondenta kwotę
+        Labels: {-1.0: 'q156 != 1'}
+  [221] q158            type=F1.0     n_labels=  8  | M6. A czy mógłby(mogłaby) Pan(i) podać przybliżone dochody? Proszę spojrzeć na ekran. Czy mógłby(mogłaby) Pan(i) wskazać, w którym przedziale mieszczą się PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W PANA(I) GOSPODARSTWIE...
+        Labels: {-1.0: 'q156!=4o-5', 1.0: 'Do 649 złotych', 2.0: 'Od 650 do 999 złotych'}

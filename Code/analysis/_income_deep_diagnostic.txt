@@ -1,0 +1,1510 @@
+
+[  0] CBOS_1_01_1990.sav (year=1990, cols=275, income_cols=2)
+    [255] q263            type=F4.0     n_labs=  7  [TOTAL_HH            ]  | M10. Ile wynosiły łączne dochody w Pana(i) gospodarstwie domowym w grudniu? [w  tysiącach starych złotych]
+    [256] q264            type=F4.0     n_labs=  7  [HH_PC               ]  | M11. Ile wynosi średni miesięczny dochód na jedną osobę w Pana(i) gospodarstwie domowym?
+
+[  1] CBOS_2_02_1990.sav (year=1990, cols=208, income_cols=2)
+    [175] q184            type=F4.0     n_labs=  7  [TOTAL_HH            ]  | M10. Ile wynosiły łączne dochody w Pana(i) gospodarstwie domowym w styczniu? [tysiące starych złotych]
+    [176] q185            type=F4.0     n_labs=  7  [HH_PC               ]  | M11. Ile wynosi średni miesięczny dochód na jedną osobę w Pana(i) gospodarstwie domowym? [tysiące starych złotych]
+
+[  2] CBOS_3_03_1990.sav (year=1990, cols=240, income_cols=1)
+    [198] q206            type=F4.0     n_labs=  7  [HH_PC               ]  | M9. Ile wyniósł dochód na jedną osobę w Pana(i) gospodarstwie domowym w lutym? [tysiące starych złotych]
+
+[  3] CBOS_4_04_1990.sav (year=1990, cols=186, income_cols=1)
+    [160] q180            type=F4.0     n_labs=  8  [HH_PC               ]  | M9. Ile wyniósł dochód na jedną osobę w Pana(i) gospodarstwie domowym w marcu? [w tysiącach starych złotych]
+
+[  4] CBOS_5_05_1990.sav (year=1990, cols=229, income_cols=1)
+    [209] q218            type=F4.0     n_labs=  8  [HH_PC               ]  | M11. Ile wyniósł dochód na jedną osobę w Pana(i) gospodarstwie domowym w kwietniu? [tysiące starych złotych]
+
+[  5] CBOS_6_06_1990.sav (year=1990, cols=210, income_cols=1)
+    [189] q198            type=F4.0     n_labs=  8  [HH_PC               ]  | M11. Ile wyniósł dochód na jedną osobę w Pana(i) gospodarstwie domowym w maju? [tysiące starych złotych]
+
+[  6] CBOS_7_07_1990.sav (year=1990) -- NO INCOME COLUMNS FOUND
+
+[  7] CBOS_8_09_1990.sav (year=1990) -- NO INCOME COLUMNS FOUND
+
+[  8] CBOS_9_10_1990.sav (year=1990) -- NO INCOME COLUMNS FOUND
+
+[  9] CBOS_10_11_1990.sav (year=1990) -- NO INCOME COLUMNS FOUND
+
+[ 10] CBOS_11_12_1990.sav (year=1990) -- NO INCOME COLUMNS FOUND
+
+[ 11] CBOS_12_01_1991.sav (year=1991, cols=172, income_cols=1)
+    [150] q159            type=F2.0     n_labs= 10  [PERSONAL            ]  | M10. Proszę powiedzieć do której grupy dochodowej można zaliczyć Pana(i) miesięczne dochody netto. Jeżeli P. nie pracuje
+
+[ 12] CBOS_13_02_1991.sav (year=1991, cols=124, income_cols=1)
+    [ 97] q196            type=F2.0     n_labs= 10  [PERSONAL            ]  | M10. Proszę powiedzieć do której grupy dochodowej można zaliczyć Pana(i) miesięczne dochody netto. Jeżeli P. nie pracuje
+
+[ 13] CBOS_14_03_1991.sav (year=1991, cols=128, income_cols=1)
+    [106] q209            type=F2.0     n_labs= 10  [PERSONAL            ]  | M10. Proszę powiedzieć do której grupy dochodowej można zaliczyć Pana(i) miesięczne dochody netto. Jeżeli P. nie pracuje
+
+[ 14] CBOS_15_04_1991.sav (year=1991, cols=120, income_cols=1)
+    [ 93] q108            type=F2.0     n_labs= 10  [PERSONAL            ]  | M10. Proszę powiedzieć do której grupy dochodowej można zaliczyć Pana(i) miesięczne dochody netto. Jeżeli P. nie pracuje
+
+[ 15] CBOS_16_05_1991.sav (year=1991, cols=140, income_cols=1)
+    [118] q130            type=F2.0     n_labs= 10  [PERSONAL            ]  | M10. Proszę powiedzieć do której grupy dochodowej można zaliczyć Pana(i) miesięczne dochody netto. Jeżeli P. nie pracuje
+
+[ 16] CBOS_17_06_1991.sav (year=1991, cols=131, income_cols=1)
+    [109] q118            type=F2.0     n_labs= 10  [PERSONAL            ]  | M10. Proszę powiedzieć do której grupy dochodowej można zaliczyć Pana(i) miesięczne dochody netto. Jeżeli P. nie pracuje
+
+[ 17] CBOS_18_07_1991.sav (year=1991, cols=160, income_cols=1)
+    [113] q124            type=F2.0     n_labs=  8  [PERSONAL            ]  | M10. Proszę powiedzieć do której grupy dochodowej można zaliczyć Pana(i) miesięczne dochody netto. Jeżeli P. nie pracuje
+
+[ 18] CBOS_19_08_1991.sav (year=1991, cols=225, income_cols=1)
+    [199] q205            type=F2.0     n_labs=  8  [PERSONAL            ]  | M9. Proszę powiedzieć do której grupy dochodowej można zaliczyć Pana(i) miesięczne dochody netto. Jeżeli P. nie pracuje,
+
+[ 19] CBOS_20_09_1991.sav (year=1991, cols=208, income_cols=1)
+    [181] q219            type=F2.0     n_labs=  8  [PERSONAL            ]  | M12. Proszę powiedzieć do której grupy dochodowej można zaliczyć Pana(i) miesięczne dochody netto. Jeżeli P. nie pracuje
+
+[ 20] CBOS_21_10_1991.sav (year=1991, cols=183, income_cols=1)
+    [160] q166            type=F2.0     n_labs=  8  [PERSONAL            ]  | M12. Proszę powiedzieć do której grupy dochodowej można zaliczyć Pana(i) miesięczne dochody netto. Jeżeli P. nie pracuje
+
+[ 21] CBOS_22_11_1991.sav (year=1991, cols=172, income_cols=1)
+    [151] q157            type=F2.0     n_labs=  8  [PERSONAL            ]  | M10. Proszę powiedzieć do której grupy dochodowej można zaliczyć Pana(i) miesięczne dochody netto. Jeżeli P. nie pracuje
+
+[ 22] CBOS_23_01_1992.sav (year=1992, cols=177, income_cols=1)
+    [152] q161            type=F1.0     n_labs=  8  [PERSONAL            ]  | M14. Do której grupy dochodowej można zaliczyć Pana(i) miesięczne dochody netto (szersza treść w kwestionariuszu)
+
+[ 23] CBOS_24_03_1992.sav (year=1992, cols=175, income_cols=1)
+    [159] q168            type=F5.0     n_labs=  0  [HH_PC               ]  | M8. Ile wynoszą miesięczne dochody na 1 osobę w Pana(i) gospodarstwie domowym?
+
+[ 24] CBOS_25_05_1992.sav (year=1992, cols=190, income_cols=1)
+    [157] q166            type=F5.0     n_labs=  0  [HH_PC               ]  | M11.Ile wynoszą miesięczne dochody na 1 osobę w Pana(i) gospodarstwie domowym? Proszę wziąć pod uwagę dochody z pracy gł
+
+[ 25] CBOS_26_07_1992.sav (year=1992, cols=215, income_cols=1)
+    [191] q200            type=F5.0     n_labs=  0  [HH_PC               ]  | M12. Ile wynoszą miesięczne dochody na 1 osobę w Pana(i) gospodarstwie domowym? Proszę wziąć pod uwagę dochody z pracy g
+
+[ 26] CBOS_27_09_1992.sav (year=1992, cols=198, income_cols=4)
+    [ 19] q28             type=F5.0     n_labs=  2  [HH_PC               ]  | P9. Ile, według Pana(i), powinny wynosić miesięczne dochody na jedną osobę w Pana(i) rodzinie, aby można było: - żyć dos
+    [ 20] q29             type=F5.0     n_labs=  2  [HH_PC               ]  | P9. Ile, według Pana(i), powinny wynosić miesięczne dochody na jedną osobę w Pana(i) rodzinie, aby można było: - żyć na 
+    [ 21] q30             type=F5.0     n_labs=  2  [HH_PC               ]  | P9. Ile, według Pana(i), powinny wynosić miesięczne dochody na jedną osobę w Pana(i) rodzinie, aby można było: - zaspoka
+    [163] q172            type=F5.0     n_labs=  0  [HH_PC               ]  | M12. Ile wynoszą miesięczne dochody na 1 osobę w Pana(i) gospodarstwie domowym? Proszę wziąć pod uwagę dochody z pracy g
+
+[ 27] CBOS_28_10_1992.sav (year=1992, cols=144, income_cols=1)
+    [111] q138            type=F5.0     n_labs=  0  [HH_PC               ]  | M12. Ile wynoszą miesięczne dochody na 1 osobę w Pana(i) gospodarstwie domowym? Proszę wziąć pod uwagę dochody z pracy g
+
+[ 28] CBOS_29_11_1992.sav (year=1992, cols=204, income_cols=1)
+    [175] q184            type=F5.0     n_labs=  0  [HH_PC               ]  | M12. Ile wynoszą miesięczne dochody na 1 osobę w Pana(i) gospodarstwie domowym? Proszę wziąć pod uwagę dochody z pracy g
+
+[ 29] CBOS_30_12_1992.sav (year=1992, cols=143, income_cols=1)
+    [116] q150            type=F5.0     n_labs=  0  [HH_PC               ]  | M10. Ile wynoszą miesięczne dochody na 1 osobę w Pana(i) gospodarstwie domowym? (...) obliczyć średnią za ostatnie 3 mie
+
+[ 30] CBOS_31_01_1993.sav (year=1993, cols=201, income_cols=4)
+    [154] q162            type=F5.0     n_labs=  2  [HH_PC               ]  | 46. Ile, według Pana(i), powinny wynosić miesięczne dochody na jedną osobę w Pana(i) rodzinie, aby można było (w tys. zł
+    [155] q163            type=F5.0     n_labs=  2  [HH_PC               ]  | 46. Ile, według Pana(i), powinny wynosić miesięczne dochody na jedną osobę w Pana(i) rodzinie, aby można było (w tys. zł
+    [156] q164            type=F5.0     n_labs=  2  [HH_PC               ]  | 46. Ile, według Pana(i), powinny wynosić miesięczne dochody na jedną osobę w Pana(i) rodzinie, aby można było (w tys. zł
+    [180] q201            type=F5.0     n_labs=  4  [HH_PC               ]  | M12. Ile wynoszą miesięczne dochody na 1 osobę w Pana(i) gospodarstwie domowym? (w tys. zł)
+
+[ 31] CBOS_32_02_1993.sav (year=1993, cols=183, income_cols=1)
+    [164] q225            type=F5.0     n_labs=  4  [HH_PC               ]  | M12. Ile wynoszą miesięczne dochody na 1 osobę w Pana(i) gospodarstwie domowym? (w tys. zł)
+
+[ 32] CBOS_33_03_1993.sav (year=1993, cols=261, income_cols=1)
+    [221] q224            type=F5.0     n_labs=  4  [HH_PC               ]  | M12. Ile wynoszą miesięczne dochody na 1 osobę w Pana(i) gospodarstwie domowym? (w tys. zł)
+
+[ 33] CBOS_34_04_1993.sav (year=1993, cols=182, income_cols=1)
+    [158] q412            type=F5.0     n_labs=  4  [HH_PC               ]  | M12. Ile wynoszą miesięczne dochody na 1 osobę w Pana(i) gospodarstwie domowym? (w tys. zł)
+
+[ 34] CBOS_35_05_1993.sav (year=1993, cols=199, income_cols=1)
+    [180] q419            type=F5.0     n_labs=  4  [HH_PC               ]  | M14. Ile wynoszą miesięczne dochody na 1 osobę w Pana(i) gospodarstwie domowym?  (w tys. zł)
+
+[ 35] CBOS_36_06_1993.sav (year=1993, cols=219, income_cols=1)
+    [200] q413            type=F5.0     n_labs=  4  [HH_PC               ]  | M13. Ile wynoszą miesięczne dochody na 1 osobę w Pana(i) gospodarstwie domowym? (w tys. zł)
+
+[ 36] CBOS_37_07_1993.sav (year=1993, cols=158, income_cols=1)
+    [139] q413            type=F5.0     n_labs=  4  [HH_PC               ]  | M13. Ile wynoszą miesięczne dochody na 1 osobę w Pana(i) gospodarstwie domowym? (w tys. zł)
+
+[ 37] CBOS_38_08_1993.sav (year=1993, cols=132, income_cols=1)
+    [112] q413            type=F5.0     n_labs=  4  [HH_PC               ]  | M13. Ile wynoszą miesięczne dochody na 1 osobę w Pana(i) gospodarstwie domowym? (w tys. zł)
+
+[ 38] CBOS_39_09_1993.sav (year=1993, cols=125, income_cols=1)
+    [104] q413            type=F5.0     n_labs=  4  [HH_PC               ]  | M13. Ile wynoszą miesięczne dochody na 1 osobę w Pana(i) gospodarstwie domowym? (w tys. zł)
+
+[ 39] CBOS_40_10_1993.sav (year=1993, cols=131, income_cols=1)
+    [ 83] q416            type=F5.0     n_labs=  4  [HH_PC               ]  | M16. Ile wynoszą miesięczne dochody na 1 osobę w Pana(i) gospodarstwie domowym? (w tys. zł).
+
+[ 40] CBOS_41_11_1993.sav (year=1993, cols=158, income_cols=4)
+    [ 99] q105            type=F5.0     n_labs=  2  [HH_PC               ]  | 34. Ile, według Pana(i), powinny wynosić miesięczne dochody na jedną osobę w Pana(i) rodzinie, aby można było (w tys zł)
+    [100] q106            type=F5.0     n_labs=  2  [HH_PC               ]  | 34. Ile, według Pana(i), powinny wynosić miesięczne dochody na jedną osobę w Pana(i) rodzinie, aby można było (w tys zł)
+    [101] q107            type=F5.0     n_labs=  2  [HH_PC               ]  | 34. Ile, według Pana(i), powinny wynosić miesięczne dochody na jedną osobę w Pana(i) rodzinie, aby można było (w tys zł)
+    [138] q413            type=F5.0     n_labs=  4  [HH_PC               ]  | M13. Ile wynoszą miesięczne dochody na 1 osobę w Pana(i) gospodarstwie domowym? (w tys. zł)
+
+[ 41] CBOS_42_12_1993.sav (year=1993, cols=221, income_cols=1)
+    [190] q413            type=F5.0     n_labs=  4  [HH_PC               ]  | M13. Ile wynoszą miesięczne dochody na 1 osobę w Pana(i) gospodarstwie domowym? (w tys. zł)
+
+[ 42] CBOS_43_01_1994.sav (year=1994, cols=212, income_cols=1)
+    [185] q413            type=F5.0     n_labs=  4  [HH_PC               ]  | M13. Ile wynoszą miesięczne dochody na 1 osobę w Pana(i) gospodarstwie domowym? [tysiące starych złotych]
+
+[ 43] CBOS_45_02_1994.sav (year=1994, cols=165, income_cols=1)
+    [143] q413            type=F5.0     n_labs=  4  [HH_PC               ]  | M13. Ile wynoszą miesięczne dochody na 1 osobę w Pana(i) gospodarstwie domowym? [tysiące starych złotych]
+
+[ 44] CBOS_46_03_1994.sav (year=1994, cols=194, income_cols=1)
+    [172] q412            type=F5.0     n_labs=  4  [HH_PC               ]  | M12. Ile wynoszą miesięczne dochody na 1 osobę w Pana(i) gospodarstwie domowym? [tysiące starych złotych]
+
+[ 45] CBOS_48_04_1994.sav (year=1994, cols=251, income_cols=4)
+    [165] q173            type=F5.0     n_labs=  2  [HH_PC               ]  | 68. Ile, według Pana(i), powinny wynosić miesięczne dochody na jedną osobę w Pana(i) rodzinie, aby można było:  - żyć do
+    [166] q174            type=F5.0     n_labs=  2  [HH_PC               ]  | 68. Ile, według Pana(i), powinny wynosić miesięczne dochody na jedną osobę w Pana(i) rodzinie, aby można było:  - żyć na
+    [167] q175            type=F5.0     n_labs=  2  [HH_PC               ]  | 68. Ile, według Pana(i), powinny wynosić miesięczne dochody na jedną osobę w Pana(i) rodzinie, aby można było:  - zaspok
+    [195] q412            type=F5.0     n_labs=  4  [HH_PC               ]  | M12. Ile wynoszą miesięczne dochody na 1 osobę w Pana(i) gospodarstwie domowym? [tysiące starych złotych]
+
+[ 46] CBOS_49_05_1994.sav (year=1994, cols=178, income_cols=1)
+    [161] q421            type=F5.0     n_labs=  4  [HH_PC               ]  | M20. Ile wynoszą miesięczne dochody na 1 osobę w Pana(i) gospodarstwie domowym? [tysiące starych złotych]
+
+[ 47] CBOS_50_06_1994.sav (year=1994, cols=191, income_cols=1)
+    [159] q412            type=F5.0     n_labs=  4  [HH_PC               ]  | M12. Ile wynoszą miesięczne dochody na 1 osobę w Pana(i) gospodarstwie domowym? [tysiące starych złotych]
+
+[ 48] CBOS_51_07_1994.sav (year=1994, cols=283, income_cols=1)
+    [256] q413            type=F5.0     n_labs=  4  [HH_PC               ]  | M13. Ile wynoszą miesięczne dochody na 1 osobę w Pana(i) gospodarstwie domowym?
+
+[ 49] CBOS_52_09_1994.sav (year=1994, cols=248, income_cols=1)
+    [213] q413            type=F5.0     n_labs=  4  [HH_PC               ]  | M12. Ile wynoszą miesięczne dochody na 1 osobę w Pana(i) gospodarstwie domowym? [tysiące starych złotych]
+
+[ 50] CBOS_53_10_1994.sav (year=1994, cols=236, income_cols=4)
+    [107] q115            type=F5.0     n_labs=  3  [HH_PC               ]  | 46. Ile, według Pana(i), powinny wynosić miesięczne dochody na jedną osobę w Pana(i) rodzinie, aby można było: - żyć dos
+    [108] q116            type=F5.0     n_labs=  3  [HH_PC               ]  | 46. Ile, według Pana(i), powinny wynosić miesięczne dochody na jedną osobę w Pana(i) rodzinie, aby można było: - żyć na 
+    [109] q117            type=F5.0     n_labs=  3  [HH_PC               ]  | 46. Ile, według Pana(i), powinny wynosić miesięczne dochody na jedną osobę w Pana(i) rodzinie, aby można było: - zaspoka
+    [191] q412            type=F5.0     n_labs=  4  [HH_PC               ]  | M12. Ile wynoszą miesięczne dochody na 1 osobę w Pana(i) gospodarstwie domowym? [tysiące starych złotych]
+
+[ 51] CBOS_54_11_1994.sav (year=1994, cols=247, income_cols=1)
+    [218] q412            type=F5.0     n_labs=  4  [HH_PC               ]  | M12. Ile wynoszą miesięczne dochody na 1 osobę w Pana(i) gospodarstwie domowym? [tysiące starych złotych]
+
+[ 52] CBOS_55_12_1994.sav (year=1994, cols=296, income_cols=1)
+    [268] q412            type=F5.0     n_labs=  4  [HH_PC               ]  | M12. Ile wynoszą miesięczne dochody na 1 osobę w Pana(i) gospodarstwie domowym? [tysiące starych złotych]
+
+[ 53] CBOS_56_01_1995.sav (year=1995, cols=283, income_cols=1)
+    [255] q412            type=F5.0     n_labs=  4  [HH_PC               ]  | M12. Ile wynoszą W STARYCH ZŁOTYCH miesięczne dochody na 1 osobę w Pana(i) gospodarstwie domowym? (TYS. STARYCH ZŁOTYCH)
+
+[ 54] CBOS_57_02_1995.sav (year=1995, cols=243, income_cols=1)
+    [189] q412            type=F5.0     n_labs=  4  [HH_PC               ]  | M12. Ile wynoszą W STARYCH ZŁOTYCH miesięczne dochody na 1 osobę w Pana(i) gospodarstwie domowym? (TYS. STARYCH ZŁOTYCH)
+
+[ 55] CBOS_58_03_1995.sav (year=1995, cols=187, income_cols=1)
+    [161] q413            type=F5.0     n_labs=  4  [HH_PC               ]  | M13. Ile wynoszą W STARYCH ZŁOTYCH miesięczne dochody na 1 osobę w Pana(i) gospodarstwie domowym?  (TYS. STARYCH ZŁOTYCH
+
+[ 56] CBOS_59_04_1995.sav (year=1995, cols=190, income_cols=1)
+    [165] q413            type=F5.0     n_labs=  4  [HH_PC               ]  | M13. Ile wynoszą W STARYCH ZŁOTYCH miesięczne dochody na 1 osobę w Pana(i) gospodarstwie domowym?  (TYS. STARYCH ZŁOTYCH
+
+[ 57] CBOS_60_05_1995.sav (year=1995, cols=152, income_cols=1)
+    [127] q412            type=F5.0     n_labs=  4  [HH_PC               ]  | M12. Ile wynoszą W STARYCH ZŁOTYCH miesięczne dochody na 1 osobę w Pana(i) gospodar- stwie domowym? (TYS. STARYCH ZŁOTYC
+
+[ 58] CBOS_61_06_1995.sav (year=1995, cols=151, income_cols=1)
+    [119] q412            type=F5.0     n_labs=  4  [HH_PC               ]  | M12. Ile wynoszą W STARYCH ZŁOTYCH miesięczne dochody na 1 osobę w Pana(i) gospodar- stwie domowym? (TYS. STARYCH ZŁOTYC
+
+[ 59] CBOS_62_07_1995.sav (year=1995, cols=156, income_cols=1)
+    [130] q412            type=F5.0     n_labs=  4  [HH_PC               ]  | M12. Ile wynoszą W STARYCH ZŁOTYCH miesięczne dochody na 1 osobę w Pana(i) gospodar- stwie domowym? (TYS. STARYCH ZŁOTYC
+
+[ 60] CBOS_63_08_1995.sav (year=1995, cols=137, income_cols=1)
+    [111] q412            type=F5.0     n_labs=  4  [HH_PC               ]  | M12. Ile wynoszą W STARYCH ZŁOTYCH miesięczne dochody na 1 osobę w Pana(i) gospodar- stwie domowym? (TYS. STARYCH ZŁOTYC
+
+[ 61] CBOS_64_09_1995.sav (year=1995, cols=186, income_cols=1)
+    [161] q413            type=F5.0     n_labs=  4  [HH_PC               ]  | M13. Ile wynoszą W STARYCH ZŁOTYCH miesięczne dochody na 1 osobę w Pana(i) gospodarstwie domowym? (TYS. STARYCH ZŁOTYCH)
+
+[ 62] CBOS_65_10_1995.sav (year=1995, cols=220, income_cols=1)
+    [173] q413            type=F5.0     n_labs=  4  [HH_PC               ]  | M13. Ile wynoszą W STARYCH ZŁOTYCH miesięczne dochody na 1 osobę w Pana(i) gospodarstwie domowym? (TYS. STARYCH ZŁOTYCH)
+
+[ 63] CBOS_66_11_1995.sav (year=1995, cols=288, income_cols=4)
+    [161] q168            type=F5.0     n_labs=  2  [HH_PC               ]  | P64. Ile, według Pana(i), powinny wynosić miesięczne dochody na jedną osobę w Pana(i) rodzinie, aby można było [W TYS. S
+    [162] q169            type=F5.0     n_labs=  2  [HH_PC               ]  | P64. Ile, według Pana(i), powinny wynosić miesięczne dochody na jedną osobę w Pana(i) rodzinie, aby można było [W TYS. S
+    [163] q170            type=F5.0     n_labs=  2  [HH_PC               ]  | P64. Ile, według Pana(i), powinny wynosić miesięczne dochody na jedną osobę w Pana(i) rodzinie, aby można było [W TYS. S
+    [208] q415            type=F5.0     n_labs=  4  [HH_PC               ]  | M13. Ile wynoszą W STARYCH ZŁOTYCH miesięczne dochody na 1 osobę w Pana(i) gospodarstwie domowym? (TYS. STARYCH ZŁOTYCH)
+
+[ 64] CBOS_67_12_1995.sav (year=1995, cols=195, income_cols=1)
+    [167] q412            type=F5.0     n_labs=  4  [HH_PC               ]  | M12. Ile wynoszą W STARYCH ZŁOTYCH miesięczne dochody na 1 osobę w Pana(i) gospodarstwie domowym? (TYS. STARYCH ZŁOTYCH)
+
+[ 65] CBOS_68_01_1996.sav (year=1996, cols=234, income_cols=1)
+    [207] q412            type=F5.0     n_labs=  4  [HH_PC               ]  | M12. Ile wynoszą W STARYCH ZŁOTYCH miesięczne dochody na 1 osobę w Pana(i) gospodarstwie domowym? [tysiące starych złoty
+
+[ 66] CBOS_69_02_1996.sav (year=1996, cols=148, income_cols=1)
+    [116] q412            type=F5.0     n_labs=  4  [HH_PC               ]  | M12. Ile wynoszą W STARYCH ZŁOTYCH miesięczne dochody na 1 osobę w Pana(i) gospodarstwie domowym?  [tysiące starych złot
+
+[ 67] CBOS_70_03_1996.sav (year=1996, cols=178, income_cols=1)
+    [145] q412            type=F5.0     n_labs=  4  [HH_PC               ]  | M12. Ile wynoszą W STARYCH ZŁOTYCH miesięczne dochody na 1 osobę w Pana(i) gospodarstwie domowym?  [tysiące starych złot
+
+[ 68] CBOS_71_04_1996.sav (year=1996, cols=178, income_cols=4)
+    [112] q120            type=F5.0     n_labs=  2  [HH_PC               ]  | P53. Ile, według Pana(i), powinny wynosić miesięczne dochody na jedną osobę w Pana(i) rodzinie, aby można było:  żyć dos
+    [113] q121            type=F5.0     n_labs=  2  [HH_PC               ]  | P53. Ile, według Pana(i), powinny wynosić miesięczne dochody na jedną osobę w Pana(i) rodzinie, aby można było: żyć na ś
+    [114] q122            type=F5.0     n_labs=  2  [HH_PC               ]  | P53. Ile, według Pana(i), powinny wynosić miesięczne dochody na jedną osobę w Pana(i) rodzinie, aby można było: zaspokaj
+    [145] q412            type=F5.0     n_labs=  4  [HH_PC               ]  | M12. Ile wynoszą W STARYCH ZŁOTYCH miesięczne dochody na 1 osobę w Pana(i) gospodarstwie domowym?  [tysiące starych złot
+
+[ 69] CBOS_72_05_1996.sav (year=1996, cols=286, income_cols=1)
+    [253] q412            type=F5.0     n_labs=  4  [HH_PC               ]  | M12. Ile wynoszą W STARYCH ZŁOTYCH miesięczne dochody na 1 osobę w Pana(i) gospodarstwie domowym?  [tysiące starych złot
+
+[ 70] CBOS_73_06_1996.sav (year=1996, cols=282, income_cols=2)
+    [245] q412            type=F2.0     n_labs=  1  [UNCLASSIFIED        ]  | M12. Ile osób w Pana(ni) gospodarstwie domowym jest na utrzymaniu pozostałych członków rodziny? Chodzi o osoby, które ni
+    [246] q413            type=F5.0     n_labs=  4  [HH_PC               ]  | M13. Ile wynoszą W STARYCH ZŁOTYCH miesięczne dochody na 1 osobę w Pana(i) gospodarstwie domowym?  [tysiące starych złot
+
+[ 71] CBOS_74_07_1996.sav (year=1996, cols=291, income_cols=1)
+    [253] q412            type=F5.0     n_labs=  4  [HH_PC               ]  | M12. Ile wynoszą W STARYCH ZŁOTYCH miesięczne dochody na 1 osobę w Pana(i) gospodarstwie domowym? [tysiące starych złoty
+
+[ 72] CBOS_75_08_1996.sav (year=1996, cols=242, income_cols=1)
+    [209] q412            type=F5.0     n_labs=  4  [HH_PC               ]  | M12. Ile wynoszą W STARYCH ZŁOTYCH miesięczne dochody na 1 osobę w Pana(i) gospodarstwie domowym? [tysiące starych złoty
+
+[ 73] CBOS_76_09_1996.sav (year=1996, cols=161, income_cols=1)
+    [130] q412            type=F5.0     n_labs=  4  [HH_PC               ]  | M12. Ile wynoszą W STARYCH ZŁOTYCH miesięczne dochody na 1 osobę w Pana(i) gospodarstwie domowym? [tysiące starych złoty
+
+[ 74] CBOS_77_10_1996.sav (year=1996, cols=299, income_cols=4)
+    [101] q109            type=F5.0     n_labs=  2  [HH_PC               ]  | P47. Ile, według Pana(i), powinny wynosić miesięczne dochody na jedną osobę w Pana(i)  rodzinie, aby można było:  - Żyć 
+    [102] q110            type=F5.0     n_labs=  2  [HH_PC               ]  | P47. Ile, według Pana(i), powinny wynosić miesięczne dochody na jedną osobę w Pana(i)  rodzinie, aby można było:  - Żyć 
+    [103] q111            type=F5.0     n_labs=  2  [HH_PC               ]  | P47. Ile, według Pana(i), powinny wynosić miesięczne dochody na jedną osobę w Pana(i)  rodzinie, aby można było:  - Zasp
+    [249] q412            type=F4.0     n_labs=  4  [HH_PC               ]  | M12. Ile wynoszą W NOWYCH ZŁOTYCH miesięczne dochody na 1 osobę w Pana(i) gospodarstwie domowym?
+
+[ 75] CBOS_78_11_1996.sav (year=1996, cols=237, income_cols=1)
+    [217] q410            type=F4.0     n_labs=  4  [HH_PC               ]  | M10. Ile wynoszą W NOWYCH ZŁOTYCH miesięczne dochody na 1 osobę w Pana(i) gospodarstwie domowym?
+
+[ 76] CBOS_79_12_1996.sav (year=1996, cols=228, income_cols=1)
+    [209] q410            type=F4.0     n_labs=  4  [HH_PC               ]  | M10. Ile wynoszą W NOWYCH ZŁOTYCH miesięczne dochody na 1 osobę w Pana(i) gospodarstwie domowym?
+
+[ 77] CBOS_80_01_1997.sav (year=1997, cols=249, income_cols=2)
+    [174] q194            type=F4.0     n_labs=  1  [HH_PC               ]  | 60. Ile, według Pana(i), powinny wynosić miesięczne dochody na jedną osobę w Pana(i) rodzinie, aby mógł(a) Pan(i) powied
+    [229] q410            type=F4.0     n_labs=  0  [HH_PC               ]  | M10. Ile wynoszą W NOWYCH ZŁOTYCH miesięczne dochody na 1 osobę w Pana(i) gospodar- stwie domowym?
+
+[ 78] CBOS_81_02_1997.sav (year=1997, cols=185, income_cols=1)
+    [149] q410            type=F4.0     n_labs=  0  [HH_PC               ]  | M10. Ile wynoszą W NOWYCH ZŁOTYCH miesięczne dochody na 1 osobę w Pana(i) gospodar- stwie domowym? Proszę wziąć pod uwag
+
+[ 79] CBOS_82_03_1997.sav (year=1997, cols=230, income_cols=1)
+    [208] q410            type=F4.0     n_labs=  0  [HH_PC               ]  | M10. Ile wynoszą W NOWYCH ZŁOTYCH miesięczne dochody na 1 osobę w Pana(i) gospodar- stwie domowym? Proszę wziąć pod uwag
+
+[ 80] CBOS_83_04_1997.sav (year=1997, cols=208, income_cols=1)
+    [182] q410            type=F4.0     n_labs=  0  [HH_PC               ]  | M10. Ile wynoszą W NOWYCH ZŁOTYCH miesięczne dochody na 1 osobę w Pana(i) gospodar- stwie domowym? Proszę wziąć pod uwag
+
+[ 81] CBOS_84_05_1997.sav (year=1997, cols=172, income_cols=1)
+    [142] q410            type=F4.0     n_labs=  0  [HH_PC               ]  | M10. Ile wynoszą W NOWYCH ZŁOTYCH miesięczne dochody na 1 osobę w Pana(i) gospodar- stwie domowym? Proszę wziąć pod uwag
+
+[ 82] CBOS_85_06_1997.sav (year=1997, cols=251, income_cols=1)
+    [226] q410            type=F4.0     n_labs=  0  [HH_PC               ]  | M10. Ile wynoszą W NOWYCH ZŁOTYCH miesięczne dochody na 1 osobę w Pana(i) gospodar- stwie domowym? Proszę wziąć pod uwag
+
+[ 83] CBOS_86_07_1997.sav (year=1997, cols=131, income_cols=1)
+    [103] q410            type=F4.0     n_labs=  0  [HH_PC               ]  | M10. Ile wynoszą W NOWYCH ZŁOTYCH miesięczne dochody na 1 osobę w Pana(i) gospodar- stwie domowym? Proszę wziąć pod uwag
+
+[ 84] CBOS_87_08_1997.sav (year=1997, cols=174, income_cols=1)
+    [127] q410            type=F4.0     n_labs=  0  [HH_PC               ]  | M10. Ile wynoszą W NOWYCH ZŁOTYCH miesięczne dochody na 1 osobę w Pana(i) gospodar- stwie domowym? Proszę wziąć pod uwag
+
+[ 85] CBOS_88_09_1997.sav (year=1997, cols=203, income_cols=1)
+    [167] q410            type=F4.0     n_labs=  0  [HH_PC               ]  | M10. Ile wynoszą W NOWYCH ZŁOTYCH miesięczne dochody na 1 osobę w Pana(i) gospodar- stwie domowym? Proszę wziąć pod uwag
+
+[ 86] CBOS_89_10_1997.sav (year=1997, cols=212, income_cols=4)
+    [ 61] q68             type=F4.0     n_labs=  0  [HH_PC               ]  | P34. Ile, według Pana(i), powinny wynosić miesięczne dochody na jedną osobę w Pana(i) rodzinie, aby można było: - żyć do
+    [ 62] q69             type=F4.0     n_labs=  0  [HH_PC               ]  | P34. Ile, według Pana(i), powinny wynosić miesięczne dochody na jedną osobę w Pana(i) rodzinie, aby można było: - żyć na
+    [ 63] q70             type=F4.0     n_labs=  0  [HH_PC               ]  | P34. Ile, według Pana(i), powinny wynosić miesięczne dochody na jedną osobę w Pana(i) rodzinie, aby można było: - zaspok
+    [172] q410            type=F4.0     n_labs=  0  [HH_PC               ]  | M10. Ile wynoszą W NOWYCH ZŁOTYCH miesięczne dochody na 1 osobę w Pana(i) gospodar- stwie domowym? Proszę wziąć pod uwag
+
+[ 87] CBOS_90_11_1997.sav (year=1997, cols=208, income_cols=1)
+    [168] q410            type=F4.0     n_labs=  0  [HH_PC               ]  | M10. Ile wynoszą W NOWYCH ZŁOTYCH miesięczne dochody na 1 osobę w Pana(i) gospodar- stwie domowym? Proszę wziąć pod uwag
+
+[ 88] CBOS_91_12_1997.sav (year=1997, cols=248, income_cols=1)
+    [210] q410            type=F4.0     n_labs=  0  [HH_PC               ]  | M10. Ile wynoszą W NOWYCH ZŁOTYCH miesięczne dochody na 1 osobę w Pana(i) gospodar- stwie domowym? Proszę wziąć pod uwag
+
+[ 89] CBOS_92_01_1998.sav (year=1998, cols=203, income_cols=1)
+    [141] q410            type=F4.0     n_labs=  4  [HH_PC               ]  | M10. Ile wynoszą W NOWYCH ZŁOTYCH miesięczne dochody na 1 osobę w Pana(i) gospodar- stwie domowym? - średnia za ostatnie
+
+[ 90] CBOS_93_02_1998.sav (year=1998, cols=273, income_cols=1)
+    [235] q410            type=F4.0     n_labs=  4  [HH_PC               ]  | M10. Ile wynoszą W NOWYCH ZŁOTYCH miesięczne dochody na 1 osobę w Pana(i) gospodar- stwie domowym? - średnia za ostatnie
+
+[ 91] CBOS_94_03_1998.sav (year=1998, cols=248, income_cols=1)
+    [210] q410            type=F4.0     n_labs=  4  [HH_PC               ]  | M10. Ile wynoszą W NOWYCH ZŁOTYCH miesięczne dochody na 1 osobę w Pana(i) gospodar- stwie domowym? - średnia za ostatnie
+
+[ 92] CBOS_95_04_1998.sav (year=1998, cols=287, income_cols=1)
+    [240] q410            type=F4.0     n_labs=  4  [HH_PC               ]  | M10. Ile wynoszą W NOWYCH ZŁOTYCH miesięczne dochody na 1 osobę w Pana(i) gospodarstwie domowym? - średnia za ostatnie 3
+
+[ 93] CBOS_96_05_1998.sav (year=1998, cols=278, income_cols=1)
+    [234] q410            type=F4.0     n_labs=  4  [HH_PC               ]  | M10. Ile wynoszą W NOWYCH ZŁOTYCH miesięczne dochody na 1 osobę w Pana(i) gospodarstwie domowym? - średnia za ostatnie 3
+
+[ 94] CBOS_97_06_1998.sav (year=1998, cols=247, income_cols=1)
+    [197] q410            type=F4.0     n_labs=  4  [HH_PC               ]  | M10. Ile wynoszą W NOWYCH ZŁOTYCH miesięczne dochody na 1 osobę w Pana(i) gospodarstwie domowym? - średnia za ostatnie 3
+
+[ 95] CBOS_98_07_1998.sav (year=1998, cols=270, income_cols=1)
+    [232] q410            type=F4.0     n_labs=  4  [HH_PC               ]  | M10. Ile wynoszą W NOWYCH ZŁOTYCH miesięczne dochody na 1 osobę w Pana(i) gospodarstwie domowym? - średnia za ostatnie 3
+
+[ 96] CBOS_99_08_1998.sav (year=1998, cols=214, income_cols=1)
+    [176] q410            type=F4.0     n_labs=  4  [HH_PC               ]  | M10. Ile wynoszą W NOWYCH ZŁOTYCH miesięczne dochody na 1 osobę w Pana(i) gospodarstwie domowym? - średnia za ostatnie 3
+
+[ 97] CBOS_100_09_1998.sav (year=1998, cols=251, income_cols=1)
+    [213] q410            type=F4.0     n_labs=  4  [HH_PC               ]  | M10. Ile wynoszą W NOWYCH ZŁOTYCH miesięczne dochody na 1 osobę w Pana(i) gospodarstwie domowym? - średnia za ostatnie 3
+
+[ 98] CBOS_101_10_1998.sav (year=1998, cols=335, income_cols=1)
+    [297] q410            type=F4.0     n_labs=  4  [HH_PC               ]  | M10. Ile wynoszą W NOWYCH ZŁOTYCH miesięczne dochody na 1 osobę w Pana(i) gospodarstwie domowym? - średnia za ostatnie 3
+
+[ 99] CBOS_102_11_1998.sav (year=1998, cols=230, income_cols=1)
+    [192] q410            type=F4.0     n_labs=  4  [HH_PC               ]  | M10. Ile wynoszą W NOWYCH ZŁOTYCH miesięczne dochody na 1 osobę w Pana(i) gospodarstwie domowym? - średnia za ostatnie 3
+
+[100] CBOS_103_12_1998.sav (year=1998, cols=251, income_cols=1)
+    [213] q410            type=F4.0     n_labs=  4  [HH_PC               ]  | M10. Ile wynoszą W NOWYCH ZŁOTYCH miesięczne dochody na 1 osobę w Pana(i) gospodarstwie domowym? - średnia za ostatnie 3
+
+[101] CBOS_104_01_1999.sav (year=1999, cols=289, income_cols=2)
+    [153] q139            type=F4.0     n_labs=  2  [HH_PC               ]  | P55. Ile, według Pana(i), powinny wynosić miesięczne dochody na jedną osobę w Pana(i) rodzinie, aby mógł(a) Pan(i) powie
+    [251] q410            type=F4.0     n_labs=  4  [HH_PC               ]  | M10. Ile wynoszą W NOWYCH ZŁOTYCH miesięczne dochody na 1 osobę w Pana(i) gospodar- stwie domowym? - średnia za ostatnie
+
+[102] CBOS_105_02_1999.sav (year=1999, cols=303, income_cols=1)
+    [264] q410            type=F4.0     n_labs=  4  [HH_PC               ]  | M10. Ile wynoszą W NOWYCH ZŁOTYCH miesięczne dochody na 1 osobę w Pana(i) gospodar- stwie domowym? - średnia za ostatnie
+
+[103] CBOS_106_03_1999.sav (year=1999, cols=258, income_cols=1)
+    [208] q410            type=F4.0     n_labs=  4  [HH_PC               ]  | M10. Ile wynoszą W NOWYCH ZŁOTYCH miesięczne dochody na 1 osobę w Pana(i) gospodar- stwie domowym? - średnia za ostatnie
+
+[104] CBOS_107_04_1999.sav (year=1999, cols=274, income_cols=1)
+    [211] q410            type=F4.0     n_labs=  4  [HH_PC               ]  | M10. Ile wynoszą W NOWYCH ZŁOTYCH miesięczne dochody na 1 osobę w Pana(i) gospodar- stwie domowym? - średnia za ostatnie
+
+[105] CBOS_108_05_1999.sav (year=1999, cols=265, income_cols=1)
+    [227] q410            type=F4.0     n_labs=  4  [HH_PC               ]  | M10. Ile wynoszą W NOWYCH ZŁOTYCH miesięczne dochody na 1 osobę w Pana(i) gospodar- stwie domowym? - średnia za ostatnie
+
+[106] CBOS_109_06_1999.sav (year=1999, cols=307, income_cols=1)
+    [260] q410            type=F4.0     n_labs=  4  [HH_PC               ]  | M10. Ile wynoszą W NOWYCH ZŁOTYCH miesięczne dochody na 1 osobę w Pana(i) gospodar- stwie domowym? - średnia za ostatnie
+
+[107] CBOS_110_07_1999.sav (year=1999, cols=236, income_cols=1)
+    [198] q410            type=F4.0     n_labs=  4  [HH_PC               ]  | M10. Ile wynoszą W NOWYCH ZŁOTYCH miesięczne dochody na 1 osobę w Pana(i) gospodar- stwie domowym? - średnia za ostatnie
+
+[108] CBOS_111_08_1999.sav (year=1999, cols=240, income_cols=1)
+    [219] q410            type=F4.0     n_labs=  4  [HH_PC               ]  | M10. Ile wynoszą W NOWYCH ZŁOTYCH miesięczne dochody na 1 osobę w Pana(i) gospodar- stwie domowym? - średnia za ostatnie
+
+[109] CBOS_112_09_1999.sav (year=1999, cols=288, income_cols=1)
+    [266] q410            type=F4.0     n_labs=  4  [HH_PC               ]  | M10. Ile wynoszą W NOWYCH ZŁOTYCH miesięczne dochody na 1 osobę w Pana(i) gospodar- stwie domowym? - średnia za ostatnie
+
+[110] CBOS_113_10_1999.sav (year=1999, cols=247, income_cols=3)
+    [106] q109            type=F5.0     n_labs=  3  [HH_PC               ]  | 32. Ile, według Pana(i), powinny wynosić miesięczne dochody na jedną osobę w Pana(i)  rodzinie, aby można było: - zapewn
+    [107] q110            type=F5.0     n_labs=  3  [HH_PC               ]  | 32. Ile, według Pana(i), powinny wynosić miesięczne dochody na jedną osobę w Pana(i)  rodzinie, aby można było: - zapewn
+    [226] q410            type=F4.0     n_labs=  4  [HH_PC               ]  | M10. Ile wynoszą W NOWYCH ZŁOTYCH miesięczne dochody na 1 osobę w Pana(i) gospodar- stwie domowym? - średnia za ostatnie
+
+[111] CBOS_114_11_1999.sav (year=1999, cols=210, income_cols=1)
+    [189] q410            type=F4.0     n_labs=  4  [HH_PC               ]  | M10. Ile wynoszą W NOWYCH ZŁOTYCH miesięczne dochody na 1 osobę w Pana(i) gospodar- stwie domowym? - średnia za ostatnie
+
+[112] CBOS_115_12_1999.sav (year=1999, cols=211, income_cols=1)
+    [186] q410            type=F4.0     n_labs=  4  [HH_PC               ]  | M10. Ile wynoszą W NOWYCH ZŁOTYCH miesięczne dochody na 1 osobę w Pana(i) gospodar- stwie domowym? - średnia za ostatnie
+
+[113] CBOS_116_01_2000.sav (year=2000, cols=286, income_cols=1)
+    [263] q410            type=F4.0     n_labs=  4  [HH_PC               ]  | M10. Ile wynoszą W NOWYCH ZŁOTYCH miesięczne dochody na 1 osobę w Pana(i) gospodar- stwie domowym? - średnia za ostatnie
+
+[114] CBOS_117_02_2000.sav (year=2000, cols=268, income_cols=1)
+    [221] q410            type=F4.0     n_labs=  4  [HH_PC               ]  | M10. Ile wynoszą W NOWYCH ZŁOTYCH miesięczne dochody na 1 osobę w Pana(i) gospodar- stwie domowym? - średnia za ostatnie
+
+[115] CBOS_118_03_2000.sav (year=2000, cols=105, income_cols=2)
+    [ 81] q429            type=F2.0     n_labs=  9  [UNCLASSIFIED        ]  | M26. Ile ze swojego miesięcznego dochodu jest Pan(i) w stanie zaoszczędzić?
+    [ 84] q432            type=F4.0     n_labs=  4  [HH_PC               ]  | M29. Ile wynoszą W NOWYCH ZŁOTYCH miesięczne dochody na 1 osobę w Pana(i) gospodar- stwie domowym? - średnia za ostatnie
+
+[116] CBOS_119_04_2000.sav (year=2000, cols=276, income_cols=1)
+    [228] q410            type=F4.0     n_labs=  4  [HH_PC               ]  | M10. Ile wynoszą W NOWYCH ZŁOTYCH miesięczne dochody na 1 osobę w Pana(i) gospodar- stwie domowym? - średnia za ostatnie
+
+[117] CBOS_120_05_2000.sav (year=2000, cols=318, income_cols=1)
+    [277] q410            type=F4.0     n_labs=  4  [HH_PC               ]  | M10. Ile wynoszą W NOWYCH ZŁOTYCH miesięczne dochody na 1 osobę w Pana(i) gospodar- stwie domowym? - średnia za ostatnie
+
+[118] CBOS_121_06_2000.sav (year=2000, cols=316, income_cols=1)
+    [279] q410            type=F4.0     n_labs=  4  [HH_PC               ]  | M10. Ile wynoszą W NOWYCH ZŁOTYCH miesięczne dochody na 1 osobę w Pana(i) gospodar- stwie domowym? - średnia za ostatnie
+
+[119] CBOS_122_07_2000.sav (year=2000, cols=217, income_cols=1)
+    [180] q410            type=F4.0     n_labs=  4  [HH_PC               ]  | M10. Ile wynoszą W NOWYCH ZŁOTYCH miesięczne dochody na 1 osobę w Pana(i) gospodar- stwie domowym? - średnia za ostatnie
+
+[120] CBOS_123_08_2000.sav (year=2000, cols=339, income_cols=1)
+    [298] q410            type=F4.0     n_labs=  4  [HH_PC               ]  | M10. Ile wynoszą W NOWYCH ZŁOTYCH miesięczne dochody na 1 osobę w Pana(i) gospodar- stwie domowym? - średnia za ostatnie
+
+[121] CBOS_124_09_2000.sav (year=2000, cols=285, income_cols=1)
+    [248] q410            type=F4.0     n_labs=  4  [HH_PC               ]  | M10. Ile wynoszą W NOWYCH ZŁOTYCH miesięczne dochody na 1 osobę w Pana(i) gospodar- stwie domowym? - średnia za ostatnie
+
+[122] CBOS_125_10_2000.sav (year=2000, cols=237, income_cols=1)
+    [189] q410            type=F4.0     n_labs=  4  [HH_PC               ]  | M10. Ile wynoszą W NOWYCH ZŁOTYCH miesięczne dochody na 1 osobę w Pana(i) gospodar- stwie domowym? - średnia za ostatnie
+
+[123] CBOS_126_11_2000.sav (year=2000, cols=307, income_cols=1)
+    [257] q410            type=F4.0     n_labs=  4  [HH_PC               ]  | M10. Ile wynoszą W NOWYCH ZŁOTYCH miesięczne dochody na 1 osobę w Pana(i) gospodar- stwie domowym? - średnia za ostatnie
+
+[124] CBOS_127_12_2000.sav (year=2000, cols=306, income_cols=1)
+    [261] q410            type=F4.0     n_labs=  4  [HH_PC               ]  | M10. Ile wynoszą W NOWYCH ZŁOTYCH miesięczne dochody na 1 osobę w Pana(i) gospodar- stwie domowym? - średnia za ostatnie
+
+[125] CBOS_128_01_2001.sav (year=2001, cols=167, income_cols=1)
+    [138] q410            type=F4.0     n_labs=  4  [HH_PC               ]  | M10. Ile wynoszą W NOWYCH ZŁOTYCH miesięczne dochody na 1 osobę w Pana(i) gospodar- stwie domowym?
+
+[126] CBOS_129_02_2001.sav (year=2001, cols=98, income_cols=1)
+    [ 69] q410            type=F4.0     n_labs=  4  [HH_PC               ]  | M10. Ile wynoszą W NOWYCH ZŁOTYCH miesięczne dochody na 1 osobę w Pana(i) gospodar- stwie domowym?
+
+[127] CBOS_130_03_2001.sav (year=2001, cols=118, income_cols=1)
+    [ 93] q411            type=F4.0     n_labs=  4  [HH_PC               ]  | M11. Ile wynoszą W NOWYCH ZŁOTYCH miesięczne dochody na 1 osobę w Pana(i) gospodarstwie domowym?
+
+[128] CBOS_131_04_2001.sav (year=2001, cols=294, income_cols=1)
+    [269] q411            type=F4.0     n_labs=  4  [HH_PC               ]  | M11. Ile wynoszą W NOWYCH ZŁOTYCH miesięczne dochody na 1 osobę w Pana(i) gospodarstwie domowym?
+
+[129] CBOS_132_05_2001.sav (year=2001, cols=228, income_cols=1)
+    [203] q411            type=F4.0     n_labs=  4  [HH_PC               ]  | M11. Ile wynoszą W NOWYCH ZŁOTYCH miesięczne dochody na 1 osobę w Pana(i) gospodarstwie domowym?
+
+[130] CBOS_133_06_2001.sav (year=2001, cols=268, income_cols=1)
+    [242] q411            type=F4.0     n_labs=  4  [HH_PC               ]  | M11. Ile wynoszą W NOWYCH ZŁOTYCH miesięczne dochody na 1 osobę w Pana(i) gospodarstwie domowym?
+
+[131] CBOS_134_07_2001.sav (year=2001, cols=200, income_cols=1)
+    [172] q412            type=F4.0     n_labs=  4  [HH_PC               ]  | M12. Ile wynoszą W NOWYCH ZŁOTYCH miesięczne dochody na 1 osobę w Pana(i) gospodarstwie domowym?
+
+[132] CBOS_135_08_2001.sav (year=2001, cols=285, income_cols=1)
+    [256] q410            type=F4.0     n_labs=  4  [HH_PC               ]  | M10. Ile wynoszą W NOWYCH ZŁOTYCH miesięczne dochody na 1 osobę w Pana(i) gospodar- stwie domowym?
+
+[133] CBOS_136_09_2001.sav (year=2001, cols=286, income_cols=1)
+    [242] q410            type=F4.0     n_labs=  4  [HH_PC               ]  | M10. Ile wynoszą W NOWYCH ZŁOTYCH miesięczne dochody na 1 osobę w Pana(i) gospodar- stwie domowym?
+
+[134] CBOS_137_10_2001.sav (year=2001, cols=263, income_cols=1)
+    [235] q410            type=F4.0     n_labs=  4  [HH_PC               ]  | M10. Ile wynoszą W NOWYCH ZŁOTYCH miesięczne dochody na 1 osobę w Pana(i) gospodar- stwie domowym?
+
+[135] CBOS_138_11_2001.sav (year=2001, cols=203, income_cols=2)
+    [155] q410            type=F4.0     n_labs=  4  [HH_PC               ]  | M10. Ile wynoszą W NOWYCH ZŁOTYCH miesięczne dochody na 1 osobę w Pana(i) gospodar- stwie domowym?
+    [191] q447            type=F5.0     n_labs=  4  [PERSONAL            ]  | M31. Ile wynoszą W NOWYCH ZŁOTYCH Pana(i) miesięczne dochody?
+
+[136] CBOS_139_12_2001.sav (year=2001, cols=214, income_cols=2)
+    [184] q410            type=F5.0     n_labs=  4  [HH_PC               ]  | M10. Ile wynoszą W NOWYCH ZŁOTYCH miesięczne dochody na 1 osobę w Pana(i) gospodar- stwie domowym?
+    [201] q428            type=F5.0     n_labs=  4  [PERSONAL            ]  | M27. Ile wynoszą W NOWYCH ZŁOTYCH Pana(i) miesięczne dochody?
+
+[137] CBOS_140_01_2002.sav (year=2002, cols=254, income_cols=2)
+    [221] q410            type=F5.0     n_labs=  4  [HH_PC               ]  | M10. Ile wynoszą W NOWYCH ZŁOTYCH miesięczne dochody na 1 osobę w Pana(i) gospodar- stwie domowym? - średnia za ostatnie
+    [239] q428            type=F5.0     n_labs=  4  [PERSONAL            ]  | M28. Ile wynoszą W NOWYCH ZŁOTYCH Pana(i) miesięczne dochody? - średnia za ostatnie 3 miesiące.
+
+[138] CBOS_141_02_2002.sav (year=2002, cols=283, income_cols=2)
+    [250] q410            type=F5.0     n_labs=  4  [HH_PC               ]  | M10. Ile wynoszą W NOWYCH ZŁOTYCH miesięczne dochody na 1 osobę w Pana(i) gospodar- stwie domowym? - średnia za ostatnie
+    [270] q430            type=F5.0     n_labs=  4  [PERSONAL            ]  | M30. Ile wynoszą W NOWYCH ZŁOTYCH Pana(i) miesięczne dochody? - średnia za ostatnie 3 miesiące.
+
+[139] CBOS_142_03_2002.sav (year=2002, cols=227, income_cols=2)
+    [182] q411            type=F5.0     n_labs=  4  [PERSONAL            ]  | M11. Ile wynoszą W NOWYCH ZŁOTYCH Pana(i) miesięczne dochody? - średnia za ostatnie 3 miesiące.
+    [183] q412            type=F5.0     n_labs=  4  [HH_PC               ]  | M12. Ile wynoszą W NOWYCH ZŁOTYCH miesięczne dochody na 1 osobę w Pana(i) gospodar- stwie domowym? - średnia za ostatnie
+
+[140] CBOS_143_04_2002.sav (year=2002, cols=255, income_cols=5)
+    [125] q128            type=F4.0     n_labs=  3  [HH_PC               ]  | P61. Ile, według Pana(i), powinny wynosić miesięczne dochody na jedną osobę w Pana(i) rodzinie, aby można było (w zł) : 
+    [126] q129            type=F4.0     n_labs=  3  [HH_PC               ]  | P61. Ile, według Pana(i), powinny wynosić miesięczne dochody na jedną osobę w Pana(i) rodzinie, aby można było (w zł) : 
+    [127] q130            type=F4.0     n_labs=  3  [HH_PC               ]  | P61. Ile, według Pana(i), powinny wynosić miesięczne dochody na jedną osobę w Pana(i) rodzinie, aby można było (w zł) : 
+    [198] q411            type=F5.0     n_labs=  4  [PERSONAL            ]  | M11. Ile wynoszą W NOWYCH ZŁOTYCH Pana(i) miesięczne dochody? - średnia za ostatnie 3 miesiące.
+    [199] q412            type=F5.0     n_labs=  4  [HH_PC               ]  | M12. Ile wynoszą W NOWYCH ZŁOTYCH miesięczne dochody na 1 osobę w Pana(i) gospodar- stwie domowym? - średnia za ostatnie
+
+[141] CBOS_144_05_2002.sav (year=2002, cols=260, income_cols=2)
+    [222] q411            type=F5.0     n_labs=  4  [PERSONAL            ]  | M11. Ile wynoszą W NOWYCH ZŁOTYCH Pana(i) miesięczne dochody? - średnia za ostatnie 3 miesiące.
+    [223] q412            type=F5.0     n_labs=  4  [HH_PC               ]  | M12. Ile wynoszą W NOWYCH ZŁOTYCH miesięczne dochody na 1 osobę w Pana(i) gospodar- stwie domowym? - średnia za ostatnie
+
+[142] CBOS_145_06_2002.sav (year=2002, cols=319, income_cols=2)
+    [288] q511            type=F5.0     n_labs=  4  [PERSONAL            ]  | M11. Ile wynoszą W NOWYCH ZŁOTYCH Pana(i) miesięczne dochody? - średnia za ostatnie 3 miesiące.
+    [289] q512            type=F5.0     n_labs=  4  [HH_PC               ]  | M12. Ile wynoszą W NOWYCH ZŁOTYCH miesięczne dochody na 1 osobę w Pana(i) gospodar- stwie domowym? - średnia za ostatnie
+
+[143] CBOS_146_07_2002.sav (year=2002, cols=170, income_cols=2)
+    [138] q411            type=F5.0     n_labs=  4  [PERSONAL            ]  | M11. Ile wynoszą W NOWYCH ZŁOTYCH Pana(i) miesięczne dochody? - średnia za ostatnie 3 miesiące.
+    [139] q412            type=F5.0     n_labs=  4  [HH_PC               ]  | M12. Ile wynoszą W NOWYCH ZŁOTYCH miesięczne dochody na 1 osobę w Pana(i) gospodar- stwie domowym? - średnia za ostatnie
+
+[144] CBOS_147_08_2002.sav (year=2002, cols=213, income_cols=2)
+    [181] q411            type=F5.0     n_labs=  4  [PERSONAL            ]  | M11. Ile wynoszą W NOWYCH ZŁOTYCH Pana(i) miesięczne dochody? - średnia za ostatnie 3 miesiące.
+    [182] q412            type=F5.0     n_labs=  4  [HH_PC               ]  | M12. Ile wynoszą W NOWYCH ZŁOTYCH miesięczne dochody na 1 osobę w Pana(i) gospodar- stwie domowym? - średnia za ostatnie
+
+[145] CBOS_148_09_2002.sav (year=2002, cols=265, income_cols=2)
+    [235] q411            type=F5.0     n_labs=  4  [PERSONAL            ]  | M11. Ile wynoszą W NOWYCH ZŁOTYCH Pana(i) miesięczne dochody? - średnia za ostatnie 3 miesiące.
+    [236] q412            type=F5.0     n_labs=  4  [HH_PC               ]  | M12. Ile wynoszą W NOWYCH ZŁOTYCH miesięczne dochody na 1 osobę w Pana(i) gospodar- stwie domowym? - średnia za ostatnie
+
+[146] CBOS_149_10_2002.sav (year=2002, cols=353, income_cols=2)
+    [323] q411            type=F5.0     n_labs=  4  [PERSONAL            ]  | M11. Ile wynoszą W NOWYCH ZŁOTYCH Pana(i) miesięczne dochody? - średnia za ostatnie 3 miesiące.
+    [324] q412            type=F5.0     n_labs=  4  [HH_PC               ]  | M12. Ile wynoszą W NOWYCH ZŁOTYCH miesięczne dochody na 1 osobę w Pana(i) gospodar- stwie domowym? - średnia za ostatnie
+
+[147] CBOS_150_11_2002.sav (year=2002, cols=261, income_cols=2)
+    [231] q411            type=F5.0     n_labs=  4  [PERSONAL            ]  | M11. Ile wynoszą W NOWYCH ZŁOTYCH Pana(i) miesięczne dochody? - średnia za ostatnie 3 miesiące.
+    [232] q412            type=F5.0     n_labs=  4  [HH_PC               ]  | M12. Ile wynoszą W NOWYCH ZŁOTYCH miesięczne dochody na 1 osobę w Pana(i) gospodar- stwie domowym? - średnia za ostatnie
+
+[148] CBOS_151_12_2002.sav (year=2002, cols=357, income_cols=2)
+    [324] q412            type=F5.0     n_labs=  4  [PERSONAL            ]  | M12. Ile wynoszą W NOWYCH ZŁOTYCH Pana(i) miesięczne dochody? - średnia za ostatnie 3 miesiące.
+    [325] q413            type=F5.0     n_labs=  4  [HH_PC               ]  | M13. Ile wynoszą W NOWYCH ZŁOTYCH miesięczne dochody na 1 osobę w Pana(i) gospodar- stwie domowym? - średnia za ostatnie
+
+[149] CBOS_152_01_2003.sav (year=2003, cols=221, income_cols=2)
+    [162] q412            type=F5.0     n_labs=  0  [PERSONAL            ]  | M12. Ile wynoszą W NOWYCH ZŁOTYCH Pana(i) miesięczne dochody?
+    [163] q413            type=F5.0     n_labs=  0  [HH_PC               ]  | M13. Ile wynoszą W NOWYCH ZŁOTYCH miesięczne dochody na 1 osobę w Pana(i) gospodarstwie domowym?
+
+[150] CBOS_153_02_2003.sav (year=2003, cols=268, income_cols=2)
+    [237] q412            type=F5.0     n_labs=  0  [PERSONAL            ]  | M12. Ile wynoszą W NOWYCH ZŁOTYCH Pana(i) miesięczne dochody?
+    [238] q413            type=F5.0     n_labs=  0  [HH_PC               ]  | M13. Ile wynoszą W NOWYCH ZŁOTYCH miesięczne dochody na 1 osobę w Pana(i) gospodarstwie domowym?
+
+[151] CBOS_154_03_2003.sav (year=2003, cols=267, income_cols=2)
+    [232] q412            type=F5.0     n_labs=  0  [PERSONAL            ]  | M12. Ile wynoszą W NOWYCH ZŁOTYCH Pana(i) miesięczne dochody?
+    [233] q413            type=F5.0     n_labs=  0  [HH_PC               ]  | M13. Ile wynoszą W NOWYCH ZŁOTYCH miesięczne dochody na 1 osobę w Pana(i) gospodarstwie domowym?
+
+[152] CBOS_155_04_2003.sav (year=2003, cols=252, income_cols=2)
+    [217] q411            type=F5.0     n_labs=  0  [PERSONAL            ]  | M11. Ile wynoszą W NOWYCH ZŁOTYCH Pana(i) miesięczne dochody?
+    [218] q412            type=F5.0     n_labs=  0  [HH_PC               ]  | M12. Ile wynoszą W NOWYCH ZŁOTYCH miesięczne dochody na 1 osobę w Pana(i) gospodar- stwie domowym?
+
+[153] CBOS_156_05_2003.sav (year=2003, cols=200, income_cols=2)
+    [173] q411            type=F5.0     n_labs=  0  [PERSONAL            ]  | M11. Ile wynoszą W NOWYCH ZŁOTYCH Pana(i) miesięczne dochody? Proszę wziąć pod uwagę Pana(i) dochody z pracy głównej wra
+    [174] q412            type=F5.0     n_labs=  0  [HH_PC               ]  | M12. Ile wynoszą W NOWYCH ZŁOTYCH miesięczne dochody na 1 osobę w Pana(i) gospodar- stwie domowym? Proszę wziąć pod uwag
+
+[154] CBOS_157_06_2003.sav (year=2003, cols=193, income_cols=2)
+    [149] q411            type=F5.0     n_labs=  0  [PERSONAL            ]  | M11. Ile wynoszą W NOWYCH ZŁOTYCH Pana(i) miesięczne dochody? Proszę wziąć pod uwagę Pana(i) dochody z pracy głównej wra
+    [150] q412            type=F5.0     n_labs=  0  [HH_PC               ]  | M12. Ile wynoszą W NOWYCH ZŁOTYCH miesięczne dochody na 1 osobę w Pana(i) gospodar- stwie domowym? Proszę wziąć pod uwag
+
+[155] CBOS_158_07_2003.sav (year=2003, cols=162, income_cols=2)
+    [133] q411            type=F5.0     n_labs=  0  [PERSONAL            ]  | M11. Ile wynoszą W NOWYCH ZŁOTYCH Pana(i) miesięczne dochody? Proszę wziąć pod uwagę Pana(i) dochody z pracy głównej wra
+    [134] q412            type=F5.0     n_labs=  0  [HH_PC               ]  | M12. Ile wynoszą W NOWYCH ZŁOTYCH miesięczne dochody na 1 osobę w Pana(i) gospodar- stwie domowym? Proszę wziąć pod uwag
+
+[156] CBOS_159_08_2003.sav (year=2003, cols=250, income_cols=7)
+    [198] q204            type=F4.0     n_labs=  2  [KWOTA               ]  | 50. Jak Pan(i) sądzi, jaką kwotę podatku dochodowego, czyli na rzecz skarbu państwa, powinien zapłacić miesięcznie podat
+    [199] q205            type=F4.0     n_labs=  2  [KWOTA               ]  | 50. Jak Pan(i) sądzi, jaką kwotę podatku dochodowego, czyli na rzecz skarbu państwa, powinien zapłacić miesięcznie podat
+    [200] q206            type=F4.0     n_labs=  2  [KWOTA               ]  | 50. Jak Pan(i) sądzi, jaką kwotę podatku dochodowego, czyli na rzecz skarbu państwa, powinien zapłacić miesięcznie podat
+    [201] q207            type=F4.0     n_labs=  2  [KWOTA               ]  | 50. Jak Pan(i) sądzi, jaką kwotę podatku dochodowego, czyli na rzecz skarbu państwa, powinien zapłacić miesięcznie podat
+    [202] q208            type=F1.0     n_labs=  5  [KWOTA               ]  | 51. Propozycja rządu przewiduje utrzymanie stawek i progów podatkowych, podniesienie kwoty nie opodatkowanych rocznych d
+    [221] q411            type=F5.0     n_labs=  0  [PERSONAL            ]  | M11. Ile wynoszą W NOWYCH ZŁOTYCH Pana(i) miesięczne dochody? Proszę wziąć pod uwagę Pana(i) dochody z pracy głównej wra
+    [222] q412            type=F5.0     n_labs=  0  [HH_PC               ]  | M12. Ile wynoszą W NOWYCH ZŁOTYCH miesięczne dochody na 1 osobę w Pana(i) gospodar- stwie domowym? Proszę wziąć pod uwag
+
+[157] CBOS_160_09_2003.sav (year=2003, cols=169, income_cols=2)
+    [135] q411            type=F5.0     n_labs=  0  [PERSONAL            ]  | M11. Ile wynoszą W NOWYCH ZŁOTYCH Pana(i) miesięczne dochody? Proszę wziąć pod uwagę Pana(i) dochody z pracy głównej wra
+    [136] q412            type=F5.0     n_labs=  0  [HH_PC               ]  | M12. Ile wynoszą W NOWYCH ZŁOTYCH miesięczne dochody na 1 osobę w Pana(i) gospodar- stwie domowym? Proszę wziąć pod uwag
+
+[158] CBOS_161_10_2003.sav (year=2003, cols=317, income_cols=2)
+    [281] q411            type=F5.0     n_labs=  4  [PERSONAL            ]  | M11. Ile wynoszą W NOWYCH ZŁOTYCH Pana(i) miesięczne dochody? Proszę wziąć pod uwagę Pana(i) dochody z pracy głównej wra
+    [282] q412            type=F5.0     n_labs=  4  [HH_PC               ]  | M12. Ile wynoszą W NOWYCH ZŁOTYCH miesięczne dochody na 1 osobę w Pana(i) gospodar- stwie domowym? Proszę wziąć pod uwag
+
+[159] CBOS_162_11_2003.sav (year=2003, cols=273, income_cols=2)
+    [235] q411            type=F5.0     n_labs=  0  [PERSONAL            ]  | M11. Ile wynoszą W NOWYCH ZŁOTYCH Pana(i) miesięczne dochody? Proszę wziąć pod uwagę Pana(i) dochody z pracy głównej wra
+    [236] q412            type=F5.0     n_labs=  0  [HH_PC               ]  | M12. Ile wynoszą W NOWYCH ZŁOTYCH miesięczne dochody na 1 osobę w Pana(i) gospodar- stwie domowym? Proszę wziąć pod uwag
+
+[160] CBOS_163_12_2003.sav (year=2003, cols=246, income_cols=2)
+    [208] q411            type=F5.0     n_labs=  0  [PERSONAL            ]  | M11. Ile wynoszą W NOWYCH ZŁOTYCH Pana(i) miesięczne dochody? Proszę wziąć pod uwagę Pana(i) dochody z pracy głównej wra
+    [209] q412            type=F5.0     n_labs=  0  [HH_PC               ]  | M12. Ile wynoszą W NOWYCH ZŁOTYCH miesięczne dochody na 1 osobę w Pana(i) gospodar- stwie domowym? Proszę wziąć pod uwag
+
+[161] CBOS_164_01_2004.sav (year=2004, cols=309, income_cols=2)
+    [271] q411            type=F5.0     n_labs=  4  [PERSONAL            ]  | M11. Ile wynoszą W NOWYCH ZŁOTYCH Pana(i) miesięczne dochody? Proszę wziąć pod uwagę Pana(i) dochody z pracy głównej, do
+    [272] q412            type=F5.0     n_labs=  4  [HH_PC               ]  | M12. Ile wynoszą W NOWYCH ZŁOTYCH miesięczne dochody na 1 osobę w Pana(i) gospodarstwie domowym?
+
+[162] CBOS_165_02_2004.sav (year=2004, cols=275, income_cols=2)
+    [239] q411            type=F5.0     n_labs=  4  [PERSONAL            ]  | M11. Ile wynoszą W NOWYCH ZŁOTYCH Pana(i) miesięczne dochody? Proszę wziąć pod uwagę Pana(i) dochody z pracy głównej, do
+    [240] q412            type=F5.0     n_labs=  4  [HH_PC               ]  | M12. Ile wynoszą W NOWYCH ZŁOTYCH miesięczne dochody na 1 osobę w Pana(i) gospodarstwie domowym?
+
+[163] CBOS_166_03_2004.sav (year=2004, cols=307, income_cols=2)
+    [265] q411            type=F5.0     n_labs=  4  [PERSONAL            ]  | M11. Ile wynoszą W NOWYCH ZŁOTYCH Pana(i) miesięczne dochody? Proszę wziąć pod uwagę Pana(i) dochody z pracy głównej, do
+    [266] q412            type=F5.0     n_labs=  4  [HH_PC               ]  | M12. Ile wynoszą W NOWYCH ZŁOTYCH miesięczne dochody na 1 osobę w Pana(i) gospodarstwie domowym?
+
+[164] CBOS_167_04_2004.sav (year=2004, cols=325, income_cols=2)
+    [274] q411            type=F5.0     n_labs=  4  [PERSONAL            ]  | M11. Ile wynoszą W NOWYCH ZŁOTYCH Pana(i) miesięczne dochody? Proszę wziąć pod uwagę Pana(i) dochody z pracy głównej, do
+    [275] q412            type=F5.0     n_labs=  4  [HH_PC               ]  | M12. Ile wynoszą W NOWYCH ZŁOTYCH miesięczne dochody na 1 osobę w Pana(i) gospodarstwie domowym?
+
+[165] CBOS_168_05_2004.sav (year=2004, cols=255, income_cols=2)
+    [211] q411            type=F5.0     n_labs=  4  [PERSONAL            ]  | M11. Ile wynoszą W NOWYCH ZŁOTYCH Pana(i) miesięczne dochody? Proszę wziąć pod uwagę Pana(i) dochody z pracy głównej, do
+    [212] q412            type=F5.0     n_labs=  4  [HH_PC               ]  | M12. Ile wynoszą W NOWYCH ZŁOTYCH miesięczne dochody na 1 osobę w Pana(i) gospodarstwie domowym?
+
+[166] CBOS_169_06_2004.sav (year=2004, cols=232, income_cols=2)
+    [188] q411            type=F5.0     n_labs=  4  [PERSONAL            ]  | M11. Ile wynoszą W NOWYCH ZŁOTYCH Pana(i) miesięczne dochody? Proszę wziąć pod uwagę Pana(i) dochody z pracy głównej, do
+    [189] q412            type=F5.0     n_labs=  4  [HH_PC               ]  | M12. Ile wynoszą W NOWYCH ZŁOTYCH miesięczne dochody na 1 osobę w Pana(i) gospodarstwie domowym?
+
+[167] CBOS_170_07_2004.sav (year=2004, cols=280, income_cols=2)
+    [236] q412            type=F5.0     n_labs=  4  [PERSONAL            ]  | M11. Ile wynoszą W NOWYCH ZŁOTYCH Pana(i) miesięczne dochody? Proszę wziąć pod uwagę Pana(i) dochody z pracy głównej, do
+    [237] q413            type=F5.0     n_labs=  4  [HH_PC               ]  | M12. Ile wynoszą W NOWYCH ZŁOTYCH miesięczne dochody na 1 osobę w Pana(i) gospodar- stwie domowym?
+
+[168] CBOS_171_08_2004.sav (year=2004, cols=205, income_cols=2)
+    [163] q411            type=F5.0     n_labs=  4  [PERSONAL            ]  | M11. Ile wynoszą W NOWYCH ZŁOTYCH Pana(i) miesięczne dochody? Proszę wziąć pod uwagę Pana(i) dochody z pracy głównej, do
+    [164] q412            type=F5.0     n_labs=  4  [HH_PC               ]  | M12. Ile wynoszą W NOWYCH ZŁOTYCH miesięczne dochody na 1 osobę w Pana(i) gospodarstwie domowym?
+
+[169] CBOS_172_09_2004.sav (year=2004, cols=261, income_cols=2)
+    [222] q411            type=F5.0     n_labs=  4  [PERSONAL            ]  | M11. Ile wynoszą W NOWYCH ZŁOTYCH Pana(i) miesięczne dochody? Proszę wziąć pod uwagę Pana(i) dochody z pracy głównej, do
+    [223] q412            type=F5.0     n_labs=  4  [HH_PC               ]  | M12. Ile wynoszą W NOWYCH ZŁOTYCH miesięczne dochody na 1 osobę w Pana(i) gospodarstwie domowym?
+
+[170] CBOS_173_10_2004.sav (year=2004, cols=314, income_cols=2)
+    [276] q413            type=F5.0     n_labs=  4  [PERSONAL            ]  | M12.  Ile wynoszą W NOWYCH ZŁOTYCH Pana(i) miesięczne dochody? Proszę wziąć pod uwagę Pana(i) dochody z pracy głównej, d
+    [277] q414            type=F5.0     n_labs=  4  [HH_PC               ]  | M13. Ile wynoszą W ZŁOTYCH miesięczne dochody NETTO na 1 osobę w Pana(i) gospodarstwie domowym?
+
+[171] CBOS_174_11_2004.sav (year=2004, cols=314, income_cols=2)
+    [276] q413            type=F5.0     n_labs=  4  [PERSONAL            ]  | M12.  Ile wynoszą W NOWYCH ZŁOTYCH Pana(i) miesięczne dochody? Proszę wziąć pod uwagę Pana(i) dochody z pracy głównej, d
+    [277] q414            type=F5.0     n_labs=  4  [HH_PC               ]  | M13. Ile wynoszą W ZŁOTYCH miesięczne dochody NETTO na 1 osobę w Pana(i) gospodarstwie domowym?
+
+[172] CBOS_175_12_2004.sav (year=2004, cols=282, income_cols=2)
+    [242] q413            type=F5.0     n_labs=  4  [PERSONAL            ]  | M12.  Ile wynoszą W NOWYCH ZŁOTYCH Pana(i) miesięczne dochody? Proszę wziąć pod uwagę Pana(i) dochody z pracy głównej, d
+    [243] q414            type=F5.0     n_labs=  4  [HH_PC               ]  | M13. Ile wynoszą W ZŁOTYCH miesięczne dochody NETTO na 1 osobę w Pana(i) gospodarstwie domowym?
+
+[173] CBOS_176_01_2005.sav (year=2005, cols=280, income_cols=2)
+    [237] q412            type=F5.0     n_labs=  4  [PERSONAL            ]  | M12. Ile wynoszą W ZŁOTYCH Pana(i) miesięczne dochody NETTO (na rękę)?
+    [238] q413            type=F5.0     n_labs=  4  [HH_PC               ]  | M13. Ile wynoszą W ZŁOTYCH miesięczne dochody NETTO na 1 osobę w Pana(i) gospodar- stwie domowym? średnia za ostatnie 3 
+
+[174] CBOS_177_02_2005.sav (year=2005, cols=282, income_cols=2)
+    [242] q412            type=F5.0     n_labs=  4  [PERSONAL            ]  | M12. Ile wynoszą W ZŁOTYCH Pana(i) miesięczne dochody NETTO (na rękę)?
+    [243] q413            type=F5.0     n_labs=  4  [HH_PC               ]  | M13. Ile wynoszą W ZŁOTYCH miesięczne dochody NETTO na 1 osobę w Pana(i) gospodar- stwie domowym? średnia za ostatnie 3 
+
+[175] CBOS_178_03_2005.sav (year=2005, cols=386, income_cols=3)
+    [224] q209            type=F1.0     n_labs=  5  [PERSONAL            ]  | P69. Czy wszystkie dochody Pana(i) i mieszkającej razem z Panem(ią) rodziny (lub wszystkie Pana(i) dochody, jeśli mieszk
+    [348] q412            type=F5.0     n_labs=  4  [PERSONAL            ]  | M12. Ile wynoszą W ZŁOTYCH Pana(i) miesięczne dochody NETTO (na rękę)?
+    [349] q413            type=F5.0     n_labs=  4  [HH_PC               ]  | M13. Ile wynoszą W ZŁOTYCH miesięczne dochody NETTO na 1 osobę w Pana(i) gospodar- stwie domowym? średnia za ostatnie 3 
+
+[176] CBOS_179_04_2005.sav (year=2005, cols=270, income_cols=2)
+    [228] q412            type=F5.0     n_labs=  4  [PERSONAL            ]  | M12. Ile wynoszą W ZŁOTYCH Pana(i) miesięczne dochody NETTO (na rękę)?
+    [229] q413            type=F5.0     n_labs=  4  [HH_PC               ]  | M13. Ile wynoszą W ZŁOTYCH miesięczne dochody NETTO na 1 osobę w Pana(i) gospodar- stwie domowym? średnia za ostatnie 3 
+
+[177] CBOS_180_05_2005.sav (year=2005, cols=304, income_cols=2)
+    [268] q412            type=F5.0     n_labs=  4  [PERSONAL            ]  | M12. Ile wynoszą W ZŁOTYCH Pana(i) miesięczne dochody NETTO (na rękę)?
+    [269] q413            type=F5.0     n_labs=  4  [HH_PC               ]  | M13. Ile wynoszą W ZŁOTYCH miesięczne dochody NETTO na 1 osobę w Pana(i) gospodar- stwie domowym? średnia za ostatnie 3 
+
+[178] CBOS_181_06_2005.sav (year=2005, cols=394, income_cols=2)
+    [358] q412            type=F5.0     n_labs=  4  [PERSONAL            ]  | M12. Ile wynoszą W ZŁOTYCH Pana(i) miesięczne dochody NETTO (na rękę)?
+    [359] q413            type=F5.0     n_labs=  4  [HH_PC               ]  | M13. Ile wynoszą W ZŁOTYCH miesięczne dochody NETTO na 1 osobę w Pana(i) gospodar- stwie domowym? średnia za ostatnie 3 
+
+[179] CBOS_182_07_2005.sav (year=2005, cols=351, income_cols=2)
+    [314] q412            type=F5.0     n_labs=  4  [PERSONAL            ]  | M12. Ile wynoszą W ZŁOTYCH Pana(i) miesięczne dochody NETTO (na rękę)?
+    [315] q413            type=F5.0     n_labs=  4  [HH_PC               ]  | M13. Ile wynoszą W ZŁOTYCH miesięczne dochody NETTO na 1 osobę w Pana(i) gospodar- stwie domowym? średnia za ostatnie 3 
+
+[180] CBOS_183_08_2005.sav (year=2005, cols=286, income_cols=2)
+    [247] q412            type=F5.0     n_labs=  4  [PERSONAL            ]  | M12. Ile wynoszą W ZŁOTYCH Pana(i) miesięczne dochody NETTO (na rękę)?
+    [248] q413            type=F5.0     n_labs=  4  [HH_PC               ]  | M13. Ile wynoszą W ZŁOTYCH miesięczne dochody NETTO na 1 osobę w Pana(i) gospodar- stwie domowym? średnia za ostatnie 3 
+
+[181] CBOS_184_09_2005.sav (year=2005, cols=246, income_cols=2)
+    [211] q412            type=F5.0     n_labs=  4  [PERSONAL            ]  | M12. Ile wynoszą W ZŁOTYCH Pana(i) miesięczne dochody NETTO (na rękę)?
+    [212] q413            type=F5.0     n_labs=  4  [HH_PC               ]  | M13. Ile wynoszą W ZŁOTYCH miesięczne dochody NETTO na 1 osobę w Pana(i) gospodar- stwie domowym? średnia za ostatnie 3 
+
+[182] CBOS_185_10_2005.sav (year=2005, cols=309, income_cols=2)
+    [273] q412            type=F5.0     n_labs=  4  [PERSONAL            ]  | M12. Ile wynoszą W ZŁOTYCH Pana(i) miesięczne dochody NETTO (na rękę)?
+    [274] q413            type=F5.0     n_labs=  4  [HH_PC               ]  | M13. Ile wynoszą W ZŁOTYCH miesięczne dochody NETTO na 1 osobę w Pana(i) gospodar- stwie domowym? średnia za ostatnie 3 
+
+[183] CBOS_186_11_2005.sav (year=2005, cols=252, income_cols=2)
+    [216] q412            type=F5.0     n_labs=  4  [PERSONAL            ]  | M12. Ile wynoszą W ZŁOTYCH Pana(i) miesięczne dochody NETTO (na rękę)?
+    [217] q413            type=F5.0     n_labs=  4  [HH_PC               ]  | M13. Ile wynoszą W ZŁOTYCH miesięczne dochody NETTO na 1 osobę w Pana(i) gospodar- stwie domowym? średnia za ostatnie 3 
+
+[184] CBOS_187_12_2005.sav (year=2005, cols=212, income_cols=2)
+    [174] q412            type=F5.0     n_labs=  4  [PERSONAL            ]  | M12. Ile wynoszą W ZŁOTYCH Pana(i) miesięczne dochody NETTO (na rękę)?
+    [175] q413            type=F5.0     n_labs=  4  [HH_PC               ]  | M13. Ile wynoszą W ZŁOTYCH miesięczne dochody NETTO na 1 osobę w Pana(i) gospodar- stwie domowym? średnia za ostatnie 3 
+
+[185] CBOS_188_01_2006.sav (year=2006, cols=275, income_cols=2)
+    [250] M14             type=F5.0     n_labs=  3  [PERSONAL            ]  | Ile wynoszą W ZŁOTYCH Pana(i) miesięczne dochody NETTO (na rękę)
+    [251] M15             type=F5.0     n_labs=  3  [HH_PC               ]  | Ile wynoszą W ZŁOTYCH miesięczne dochody NETTO na 1 osobę w Pana(i) gospodarstwie domowym
+
+[186] CBOS_189_02_2006.sav (year=2006, cols=277, income_cols=2)
+    [254] M14             type=F5.0     n_labs=  3  [UNCLASSIFIED        ]  | Ile wynoszą W ZŁOTYCH Pana[i] miesięczne dochody NETTO
+    [255] M15             type=F5.0     n_labs=  3  [HH_PC               ]  | Ile wynoszą W ZŁOTYCH miesięczne dochody NETTO na 1 osobę w Pana[i] gospodarstwie domowym
+
+[187] CBOS_190_03_2006.sav (year=2006, cols=276, income_cols=2)
+    [252] M15             type=F5.0     n_labs=  3  [UNCLASSIFIED        ]  | Ile wynoszą W ZŁOTYCH Pana[i] miesięczne dochody NETTO Proszę wziąć pod uwagę Pana[i] dochody z pracy głównej wraz z pre
+    [253] M16             type=F5.0     n_labs=  3  [HH_PC               ]  | Ile wynoszą W ZŁOTYCH miesięczne dochody NETTO na 1 osobę w Pana[i] gospodar- stwie domowym Proszę wziąć pod uwagę docho
+
+[188] CBOS_191_04_2006.sav (year=2006, cols=264, income_cols=2)
+    [240] M16             type=F5.0     n_labs=  3  [UNCLASSIFIED        ]  | Ile wynoszą W ZŁOTYCH Pana[i] miesięczne dochody NETTO
+    [241] M17             type=F5.0     n_labs=  3  [HH_PC               ]  | Ile wynoszą W ZŁOTYCH miesięczne dochody NETTO na 1 osobę
+
+[189] CBOS_192_05_2006.sav (year=2006, cols=262, income_cols=2)
+    [228] M16             type=F5.0     n_labs=  4  [PERSONAL            ]  | Ile wynoszą W ZŁOTYCH Pana(i) miesięczne dochody NETTO
+    [229] M17             type=F5.0     n_labs=  4  [HH_PC               ]  | Ile wynoszą W ZŁOTYCH miesięczne dochody NETTO na 1 osobę
+
+[190] CBOS_193_06_2006.sav (year=2006, cols=282, income_cols=2)
+    [246] M16             type=F5.0     n_labs=  4  [UNCLASSIFIED        ]  | Ile wynoszą W ZŁOTYCH Pana[i] miesięczne dochody NETTO
+    [247] M17             type=F5.0     n_labs=  4  [HH_PC               ]  | Ile wynoszą W ZŁOTYCH miesięczne dochody NETTO na 1 osobę
+
+[191] CBOS_194_07_2006.sav (year=2006, cols=203, income_cols=2)
+    [168] M17             type=F5.0     n_labs=  7  [PERSONAL            ]  | Ile wynoszą W ZŁOTYCH Pana(i) miesięczne dochody NETTO (na rękę)?
+    [169] M18             type=F5.0     n_labs=  7  [HH_PC               ]  | Ile wynoszą W ZŁOTYCH miesięczne dochody NETTO na 1 osobę w Pana(i) gospodarstwie domowym?
+
+[192] CBOS_195_08_2006.sav (year=2006, cols=193, income_cols=2)
+    [173] M17             type=F5.0     n_labs=  9  [PERSONAL            ]  | Ile wynoszą W ZŁOTYCH Pana(i) miesięczne dochody NETTO (na rękę)?
+    [174] M18             type=F5.0     n_labs=  9  [HH_PC               ]  | Ile wynoszą W ZŁOTYCH miesięczne dochody NETTO na 1 osobę w Pana(i) gospodarstwie domowym?
+
+[193] CBOS_196_09_2006.sav (year=2006, cols=314, income_cols=2)
+    [293] M19             type=F5.0     n_labs=  9  [PERSONAL            ]  | Ile wynoszą W ZŁOTYCH Pana(i) miesięczne dochody NETTO (na rękę)?
+    [294] M20             type=F5.0     n_labs=  9  [HH_PC               ]  | Ile wynoszą W ZŁOTYCH miesięczne dochody NETTO na 1 osobę w Pana(i) gospodarstwie domowym?
+
+[194] CBOS_197_10_2006.sav (year=2006, cols=241, income_cols=2)
+    [220] M21             type=F5.0     n_labs=  9  [PERSONAL            ]  | Ile wynoszą W ZŁOTYCH Pana(i) miesięczne dochody NETTO (na rękę)?
+    [221] M22             type=F5.0     n_labs=  9  [HH_PC               ]  | Ile wynoszą W ZŁOTYCH miesięczne dochody NETTO na 1 osobę w Pana(i) gospodarstwie domowym?
+
+[195] CBOS_198_11_2006.sav (year=2006, cols=292, income_cols=3)
+    [120] P52             type=F5.0     n_labs=  7  [PERSONAL, KWOTA     ]  | Ile średnio wynoszą w ZŁOTYCH Pana(i) miesięczne dochody uzyskiwane obecnie w Pana(i) głównej pracy? Proszę podać kwotę 
+    [270] M21             type=F5.0     n_labs=  9  [PERSONAL            ]  | Ile wynoszą W ZŁOTYCH Pana(i) miesięczne dochody NETTO (na rękę)?
+    [271] M22             type=F5.0     n_labs=  9  [HH_PC               ]  | Ile wynoszą W ZŁOTYCH miesięczne dochody NETTO na 1 osobę w Pana(i) gospodarstwie domowym?
+
+[196] CBOS_199_12_2006.sav (year=2006, cols=283, income_cols=2)
+    [264] M21             type=F5.0     n_labs=  8  [PERSONAL            ]  | Ile wynoszą W ZŁOTYCH Pana(i) miesięczne dochody NETTO (na rękę)?
+    [265] M22             type=F5.0     n_labs=  8  [HH_PC               ]  | Ile wynoszą W ZŁOTYCH miesięczne dochody NETTO na 1 osobę w Pana(i) gospodarstwie domowym?
+
+[197] CBOS_200_01_2007.sav (year=2007, cols=267, income_cols=2)
+    [248] M21             type=F5.0     n_labs=  4  [PERSONAL            ]  | Ile wynoszą W ZŁOTYCH Pana(i) miesięczne dochody NETTO (na rękę)? Proszę wziąć pod uwagę Pana(i) dochody z pracy głównej
+    [249] M22             type=F5.0     n_labs=  4  [HH_PC               ]  | Ile wynoszą W ZŁOTYCH miesięczne dochody NETTO na 1 osobę w Pana(i) gospodarstwie domowym? Proszę wziąć pod uwagę dochod
+
+[198] CBOS_201_02_2007.sav (year=2007, cols=214, income_cols=2)
+    [200] M21             type=F5.0     n_labs=  3  [PERSONAL            ]  | Ile wynoszą W ZŁOTYCH Pana(i) miesięczne dochody NETTO (na rękę)? Proszę wziąć pod uwagę Pana(i) dochody z pracy głównej
+    [201] M22             type=F5.0     n_labs=  3  [HH_PC               ]  | Ile wynoszą W ZŁOTYCH miesięczne dochody NETTO na 1 osobę w Pana(i) gospodarstwie domowym? Proszę wziąć pod uwagę dochod
+
+[199] CBOS_202_03_2007.sav (year=2007, cols=309, income_cols=2)
+    [291] M18             type=F5.0     n_labs=  3  [PERSONAL            ]  | Ile wynoszą W ZŁOTYCH Pana(i) miesięczne dochody NETTO (na rękę)? Proszę wziąć pod uwagę Pana(i) dochody z pracy głównej
+    [292] M19             type=F5.0     n_labs=  3  [HH_PC               ]  | Ile wynoszą W ZŁOTYCH miesięczne dochody NETTO na 1 osobę w Pana(i) gospodarstwie domowym? Proszę wziąć pod uwagę dochod
+
+[200] CBOS_203_04_2007.sav (year=2007, cols=307, income_cols=2)
+    [280] M18             type=F5.0     n_labs=  3  [PERSONAL            ]  | Ile wynoszą W ZŁOTYCH Pana(i) miesięczne dochody NETTO (na rękę)? Proszę wziąć pod uwagę Pana(i) dochody z pracy głównej
+    [281] M19             type=F5.0     n_labs=  3  [HH_PC               ]  | Ile wynoszą W ZŁOTYCH miesięczne dochody NETTO na 1 osobę w Pana(i) gospodarstwie domowym? Proszę wziąć pod uwagę dochod
+
+[201] CBOS_204_05_2007.sav (year=2007, cols=356, income_cols=2)
+    [324] M18             type=F5.0     n_labs=  3  [PERSONAL            ]  | Ile wynoszą W ZŁOTYCH Pana(i) miesięczne dochody NETTO (na rękę)? Proszę wziąć pod uwagę Pana(i) dochody z pracy głównej
+    [325] M19             type=F5.0     n_labs=  3  [HH_PC               ]  | Ile wynoszą W ZŁOTYCH miesięczne dochody NETTO na 1 osobę w Pana(i) gospodarstwie domowym? Proszę wziąć pod uwagę dochod
+
+[202] CBOS_205_06_2007.sav (year=2007, cols=271, income_cols=2)
+    [252] M18             type=F5.0     n_labs=  3  [PERSONAL            ]  | Ile wynoszą W ZŁOTYCH Pana(i) miesięczne dochody NETTO (na rękę)? Proszę wziąć pod uwagę Pana(i) dochody z pracy głównej
+    [253] M19             type=F5.0     n_labs=  3  [HH_PC               ]  | Ile wynoszą W ZŁOTYCH miesięczne dochody NETTO na 1 osobę w Pana(i) gospodarstwie domowym? Proszę wziąć pod uwagę dochod
+
+[203] CBOS_206_07_2007.sav (year=2007, cols=169, income_cols=2)
+    [148] M18             type=F5.0     n_labs=  3  [PERSONAL            ]  | Ile wynoszą W ZŁOTYCH Pana(i) miesięczne dochody NETTO (na rękę)? Proszę wziąć pod uwagę Pana(i) dochody z pracy głównej
+    [149] M19             type=F5.0     n_labs=  3  [HH_PC               ]  | Ile wynoszą W ZŁOTYCH miesięczne dochody NETTO na 1 osobę w Pana(i) gospodarstwie domowym? Proszę wziąć pod uwagę dochod
+
+[204] CBOS_207_08_2007.sav (year=2007, cols=213, income_cols=2)
+    [194] M18             type=F5.0     n_labs=  3  [PERSONAL            ]  | Ile wynoszą W ZŁOTYCH Pana(i) miesięczne dochody NETTO (na rękę)? Proszę wziąć pod uwagę Pana(i) dochody z pracy głównej
+    [195] M19             type=F5.0     n_labs=  3  [HH_PC               ]  | Ile wynoszą W ZŁOTYCH miesięczne dochody NETTO na 1 osobę w Pana(i) gospodarstwie domowym? Proszę wziąć pod uwagę dochod
+
+[205] CBOS_208_09_2007.sav (year=2007, cols=256, income_cols=2)
+    [234] M18             type=F5.0     n_labs=  4  [PERSONAL            ]  | Ile wynoszą W ZŁOTYCH Pana(i) miesięczne dochody NETTO (na rękę)? Proszę wziąć pod uwagę Pana(i) dochody z pracy głównej
+    [235] M19             type=F5.0     n_labs=  4  [HH_PC               ]  | Ile wynoszą W ZŁOTYCH miesięczne dochody NETTO na 1 osobę w Pana(i) gospodarstwie domowym? Proszę wziąć pod uwagę dochod
+
+[206] CBOS_209_10_2007.sav (year=2007, cols=229, income_cols=2)
+    [209] M18             type=F5.0     n_labs=  4  [PERSONAL            ]  | Ile wynoszą W ZŁOTYCH Pana(i) miesięczne dochody NETTO (na rękę)? Proszę wziąć pod uwagę Pana(i) dochody z pracy głównej
+    [210] M19             type=F5.0     n_labs=  4  [HH_PC               ]  | Ile wynoszą W ZŁOTYCH miesięczne dochody NETTO na 1 osobę w Pana(i) gospodarstwie domowym? Proszę wziąć pod uwagę dochod
+
+[207] CBOS_210_11_2007.sav (year=2007, cols=239, income_cols=2)
+    [216] M20             type=F5.0     n_labs=  4  [PERSONAL            ]  | Ile wynoszą W ZŁOTYCH Pana(i) miesięczne dochody NETTO (na rękę)? Proszę wziąć pod uwagę Pana(i) dochody z pracy głównej
+    [217] M21             type=F5.0     n_labs=  4  [HH_PC               ]  | Ile wynoszą W ZŁOTYCH miesięczne dochody NETTO na 1 osobę w Pana(i) gospodarstwie domowym? Proszę wziąć pod uwagę dochod
+
+[208] CBOS_211_12_2007.sav (year=2007, cols=218, income_cols=2)
+    [198] M20             type=F5.0     n_labs=  4  [PERSONAL            ]  | Ile wynoszą W ZŁOTYCH Pana(i) miesięczne dochody NETTO (na rękę)? Proszę wziąć pod uwagę Pana(i) dochody z pracy głównej
+    [199] M21             type=F5.0     n_labs=  4  [HH_PC               ]  | Ile wynoszą W ZŁOTYCH miesięczne dochody NETTO na 1 osobę w Pana(i) gospodarstwie domowym? Proszę wziąć pod uwagę dochod
+
+[209] CBOS_212_01_2008.sav (year=2008, cols=281, income_cols=2)
+    [258] M18             type=F5.0     n_labs=  6  [PERSONAL            ]  | Ile wynoszą Pana(i) miesięczne dochody NETTO (na rękę)? Proszę wziąć pod uwagę Pana(i) dochody z pracy głównej wraz
+    [259] M19             type=F5.0     n_labs=  6  [HH_PC               ]  | Ile wynoszą miesięczne dochody NETTO na 1 osobę w Pana(i) gospodarstwie domowym? Proszę wziąć pod uwagę dochody
+
+[210] CBOS_213_02_2008.sav (year=2008, cols=237, income_cols=2)
+    [220] M18             type=F5.0     n_labs=  4  [PERSONAL            ]  | Ile wynoszą Pana(i) miesięczne dochody NETTO (na rękę)?
+    [221] M19             type=F5.0     n_labs=  4  [HH_PC               ]  | Ile wynoszą miesięczne dochody NETTO na 1 osobę w Pana(i) gospodarstwie domowym?
+
+[211] CBOS_214_03_2008.sav (year=2008, cols=198, income_cols=6)
+    [ 69] P25B            type=F4.0     n_labs=  7  [KWOTA               ]  | Jak Pan(i) sądzi, jaką kwotę podatku dochodowego na rzecz skarbu państwa, powinien zapłacić miesięcznie podatnik w przec
+    [ 70] P25C            type=F4.0     n_labs=  7  [KWOTA               ]  | Jak Pan(i) sądzi, jaką kwotę podatku dochodowego na rzecz skarbu państwa, powinien zapłacić miesięcznie podatnik w przec
+    [ 71] P25D            type=F4.0     n_labs=  7  [KWOTA               ]  | Jak Pan(i) sądzi, jaką kwotę podatku dochodowego na rzecz skarbu państwa, powinien zapłacić miesięcznie podatnik w przec
+    [ 72] P25E            type=F4.0     n_labs=  7  [KWOTA               ]  | Jak Pan(i) sądzi, jaką kwotę podatku dochodowego na rzecz skarbu państwa, powinien zapłacić miesięcznie podatnik w przec
+    [179] M18             type=F5.0     n_labs= 11  [PERSONAL            ]  | Ile wynoszą Pana(i) miesięczne dochody NETTO (na rękę)?
+    [180] M19             type=F5.0     n_labs= 12  [HH_PC               ]  | Ile wynoszą miesięczne dochody NETTO na 1 osobę w Pana(i) gospodarstwie domowym?
+
+[212] CBOS_215_04_2008.sav (year=2008, cols=272, income_cols=2)
+    [245] M19             type=F5.0     n_labs= 10  [PERSONAL            ]  |  Ile wynoszą Pana(i) miesięczne dochody NETTO (na rękę)?
+    [246] M20             type=F5.0     n_labs= 11  [HH_PC               ]  |  Ile wynoszą miesięczne dochody NETTO na 1 osobę w Pana(i) gospodarstwie domowym?
+
+[213] CBOS_216_05_2008.sav (year=2008, cols=323, income_cols=2)
+    [286] M17             type=F5.0     n_labs=  4  [PERSONAL            ]  | Ile wynoszą Pana(i) miesięczne dochody NETTO (na rękę)?
+    [287] M18             type=F5.0     n_labs=  4  [HH_PC               ]  | Ile wynoszą miesięczne dochody NETTO na 1 osobę w Pana(i) gospodarstwie domowym?
+
+[214] CBOS_217_06_2008.sav (year=2008, cols=347, income_cols=2)
+    [307] M17             type=F5.0     n_labs=  4  [PERSONAL            ]  | Ile wynoszą Pana(i) miesięczne dochody NETTO (na rękę)?
+    [308] M18             type=F5.0     n_labs=  4  [HH_PC               ]  | Ile wynoszą miesięczne dochody NETTO na 1 osobę w Pana(i) gospodarstwie domowym?
+
+[215] CBOS_218_07_2008.sav (year=2008, cols=173, income_cols=2)
+    [138] M17             type=F5.0     n_labs= 10  [PERSONAL            ]  | Ile wynoszą Pana(i) miesięczne dochody NETTO (na rękę)?
+    [139] M18             type=F5.0     n_labs= 10  [HH_PC               ]  | Ile wynoszą miesięczne dochody NETTO na 1 osobę w Pana(i) gospodarstwie domowym?
+
+[216] CBOS_219_08_2008.sav (year=2008, cols=309, income_cols=2)
+    [291] M17             type=F5.0     n_labs= 10  [PERSONAL            ]  |  Ile wynoszą Pana(i) miesięczne dochody NETTO (na rękę)?
+    [292] M18             type=F5.0     n_labs= 10  [HH_PC               ]  |  Ile wynoszą miesięczne dochody NETTO na 1 osobę w Pana(i) gospodarstwie domowym?
+
+[217] CBOS_220_09_2008.sav (year=2008, cols=166, income_cols=2)
+    [146] q73             type=F5.0     n_labs=  6  [PERSONAL            ]  | M17. Ile wynoszą Pana(i) miesięczne dochody NETTO (na rękę)? Proszę wziąć pod uwagę Pana(i) dochody z pracy głównej wraz
+    [149] q76             type=F5.0     n_labs=  1  [HH_PC               ]  | M18. Ile wynoszą miesięczne dochody NETTO na 1 osobę w Pana(i) gospodarstwie domowym? Proszę wziąć pod uwagę dochody z p
+
+[218] CBOS_221_10_2008.sav (year=2008, cols=282, income_cols=4)
+    [264] q100            type=F1.0     n_labs=  5  [PERSONAL            ]  | M14_PRE. Ile wynoszą Pana(i) miesięczne dochody NETTO (na rękę)? Proszę wziąć pod uwagę Pana(i) dochody z pracy głównej 
+    [265] q101            type=F5.0     n_labs=  6  [PERSONAL            ]  | M14. Ile wynoszą Pana(i) miesięczne dochody NETTO (na rękę)? Proszę wziąć pod uwagę Pana(i) dochody z pracy głównej wraz
+    [267] q103            type=F1.0     n_labs=  5  [HH_PC               ]  | M15_PRE. Ile wynoszą miesięczne dochody NETTO na 1 osobę w Pana(i) gospodarstwie domowym? Proszę wziąć pod uwagę dochody
+    [268] q104            type=F5.0     n_labs=  6  [HH_PC               ]  | M15. Ile wynoszą miesięczne dochody NETTO na 1 osobę w Pana(i) gospodarstwie domowym? Proszę wziąć pod uwagę dochody z p
+
+[219] CBOS_222_11_2008.sav (year=2008, cols=282, income_cols=4)
+    [264] q100            type=F1.0     n_labs=  5  [PERSONAL            ]  | M14_PRE. Ile wynoszą Pana(i) miesięczne dochody NETTO (na rękę)? Proszę wziąć pod uwagę Pana(i) dochody z pracy głównej 
+    [265] q101            type=F5.0     n_labs=  6  [PERSONAL            ]  | M14. Ile wynoszą Pana(i) miesięczne dochody NETTO (na rękę)? Proszę wziąć pod uwagę Pana(i) dochody z pracy głównej wraz
+    [267] q103            type=F1.0     n_labs=  5  [HH_PC               ]  | M15_PRE. Ile wynoszą miesięczne dochody NETTO na 1 osobę w Pana(i) gospodarstwie domowym? Proszę wziąć pod uwagę dochody
+    [268] q104            type=F5.0     n_labs=  6  [HH_PC               ]  | M15. Ile wynoszą miesięczne dochody NETTO na 1 osobę w Pana(i) gospodarstwie domowym? Proszę wziąć pod uwagę dochody z p
+
+[220] CBOS_223_12_2008.sav (year=2008, cols=322, income_cols=3)
+    [297] q104            type=F1.0     n_labs=  5  [PERSONAL            ]  | M14. Ile wynoszą Pana(i) miesięczne dochody NETTO (na rękę)? Proszę wziąć pod uwagę Pana(i) dochody z pracy głównej wraz
+    [298] q105            type=F5.0     n_labs=  1  [KWOTA               ]  | ANKIETER: Poniżej wpisać podaną przez respondenta kwotę
+    [301] q108            type=F5.0     n_labs=  1  [HH_PC               ]  | M15. Ile wynoszą miesięczne dochody NETTO na 1 osobę w Pana(i) gospodarstwie domowym? Proszę wziąć pod uwagę dochody z p
+
+[221] CBOS_224_01_2009.sav (year=2009, cols=292, income_cols=4)
+    [255] q134            type=F1.0     n_labs=  5  [PERSONAL            ]  | M14. Ile wynoszą Pana(i) miesięczne dochody NETTO (na rękę)? Proszę wziąć pod uwagę Pana(i) dochody z pracy głównej wraz
+    [256] q135            type=F5.0     n_labs=  1  [KWOTA               ]  | M14_Numerycznie. Kwota przeciętnych, miesięcznych dochodów NETTO respondenta
+    [258] q137            type=F1.0     n_labs=  5  [HH_PC               ]  | M15. Ile wynoszą miesięczne dochody NETTO na 1 osobę w Pana(i) gospodarstwie domowym? Proszę wziąć pod uwagę dochody z p
+    [259] q138            type=F5.0     n_labs=  1  [HH_PC, KWOTA        ]  | M15_Numerycznie. Kwota przeciętnych, miesięcznych dochodów NETTO na jedną osobę w gospodarstwie domowym respondenta - śr
+
+[222] CBOS_225_02_2009.sav (year=2009, cols=209, income_cols=4)
+    [185] q108            type=F1.0     n_labs=  5  [PERSONAL            ]  | M14. Ile wynoszą Pana(i) miesięczne dochody NETTO (na rękę)? Kategorie:
+    [186] q109            type=F5.0     n_labs=  1  [PERSONAL, KWOTA     ]  | M14. Ile wynoszą Pana(i) miesięczne dochody NETTO (na rękę) - kwota:
+    [188] q111            type=F1.0     n_labs=  5  [HH_PC               ]  | M15. Ile wynoszą miesięczne dochody NETTO na 1 osobę w Pana(i) gospodarstwie domowym? Kategorie:
+    [189] q112            type=F5.0     n_labs=  1  [HH_PC, KWOTA        ]  | M15. Ile wynoszą miesięczne dochody NETTO na 1 osobę w Pana(i) gospodarstwie domowym - kwota:
+
+[223] CBOS_226_03_2009.sav (year=2009, cols=268, income_cols=4)
+    [246] q125            type=F1.0     n_labs=  5  [PERSONAL            ]  | M14. Ile wynoszą Pana(i) miesięczne dochody NETTO (na rękę)? Kategorie
+    [247] q126            type=F5.0     n_labs=  1  [PERSONAL, KWOTA     ]  | M14. Ile wynoszą Pana(i) miesięczne dochody NETTO (na rękę)? Kwota
+    [249] q128            type=F1.0     n_labs=  5  [HH_PC               ]  | M15. Ile wynoszą miesięczne dochody NETTO na 1 osobę w Pana(i) gospodarstwie domowym?  Kategorie
+    [250] q129            type=F5.0     n_labs=  1  [HH_PC, KWOTA        ]  | M15. Ile wynoszą miesięczne dochody NETTO na 1 osobę w Pana(i) gospodarstwie domowym? Kwota
+
+[224] CBOS_227_04_2009.sav (year=2009, cols=297, income_cols=4)
+    [275] q118            type=F1.0     n_labs=  5  [PERSONAL            ]  | M14. Ile wynoszą Pana(i) miesięczne dochody NETTO (na rękę)? Proszę wziąć pod uwagę Pana(i) dochody z pracy głównej wraz
+    [276] q119            type=F5.0     n_labs=  1  [KWOTA               ]  | M14_Numerycznie. Kwota przeciętnych, miesięcznych dochodów NETTO respondenta
+    [278] q121            type=F1.0     n_labs=  5  [HH_PC               ]  | M15. Ile wynoszą miesięczne dochody NETTO na 1 osobę w Pana(i) gospodarstwie domowym? Proszę wziąć pod uwagę dochody z p
+    [279] q122            type=F5.0     n_labs=  1  [HH_PC, KWOTA        ]  | M15_Numerycznie. Kwota przeciętnych, miesięcznych dochodów NETTO na jedną osobę w gospodarstwie domowym respondenta - śr
+
+[225] CBOS_228_05_2009.sav (year=2009, cols=197, income_cols=4)
+    [174] q106            type=F1.0     n_labs=  5  [PERSONAL            ]  | M14. Ile wynoszą Pana(i) miesięczne dochody NETTO (na rękę)? Proszę wziąć pod uwagę Pana(i) dochody z pracy głównej wraz
+    [175] q107            type=F5.0     n_labs=  1  [KWOTA               ]  | M14_Numerycznie. Kwota przeciętnych, miesięcznych dochodów NETTO respondenta
+    [177] q109            type=F1.0     n_labs=  5  [HH_PC               ]  | M15. Ile wynoszą miesięczne dochody NETTO na 1 osobę w Pana(i) gospodarstwie domowym? Proszę wziąć pod uwagę dochody z p
+    [178] q110            type=F5.0     n_labs=  1  [HH_PC, KWOTA        ]  | M15_Numerycznie. Kwota przeciętnych, miesięcznych dochodów NETTO na jedną osobę w gospodarstwie domowym respondenta - śr
+
+[226] CBOS_229_06_2009.sav (year=2009, cols=186, income_cols=4)
+    [166] q139            type=F1.0     n_labs=  5  [PERSONAL            ]  | M14. Ile wynoszą Pana(i) miesięczne dochody NETTO (na rękę)? Proszę wziąć pod uwagę Pana(i) dochody z pracy głównej wraz
+    [167] q140            type=F5.0     n_labs=  1  [KWOTA               ]  | M14_Numerycznie. Kwota przeciętnych, miesięcznych dochodów NETTO respondenta
+    [169] q142            type=F1.0     n_labs=  5  [HH_PC               ]  | M15. Ile wynoszą miesięczne dochody NETTO na 1 osobę w Pana(i) gospodarstwie domowym? Proszę wziąć pod uwagę dochody z p
+    [170] q143            type=F5.0     n_labs=  1  [HH_PC, KWOTA        ]  | M15_Numerycznie. Kwota przeciętnych, miesięcznych dochodów NETTO na jedną osobę w gospodarstwie domowym respondenta - śr
+
+[227] CBOS_230_07_2009.sav (year=2009, cols=246, income_cols=4)
+    [227] q110            type=F1.0     n_labs=  5  [PERSONAL            ]  | M14. Ile wynoszą Pana(i) miesięczne dochody NETTO (na rękę)? Proszę wziąć pod uwagę Pana(i) dochody z pracy głównej wraz
+    [228] q111            type=F5.0     n_labs=  1  [KWOTA               ]  | M14_Numerycznie. Kwota przeciętnych, miesięcznych dochodów NETTO respondenta
+    [230] q113            type=F1.0     n_labs=  5  [HH_PC               ]  | M15. Ile wynoszą miesięczne dochody NETTO na 1 osobę w Pana(i) gospodarstwie domowym? Proszę wziąć pod uwagę dochody z p
+    [231] q114            type=F5.0     n_labs=  1  [HH_PC, KWOTA        ]  | M15_Numerycznie. Kwota przeciętnych, miesięcznych dochodów NETTO na jedną osobę w gospodarstwie domowym respondenta - śr
+
+[228] CBOS_231_08_2009.sav (year=2009, cols=356, income_cols=4)
+    [336] q127            type=F1.0     n_labs=  5  [PERSONAL            ]  | M14. Ile wynoszą Pana(i) miesięczne dochody NETTO (na rękę)? Proszę wziąć pod uwagę Pana(i) dochody z pracy głównej wraz
+    [337] q128            type=F5.0     n_labs=  1  [KWOTA               ]  | M14_Numerycznie. Kwota przeciętnych, miesięcznych dochodów NETTO respondenta
+    [339] q130            type=F1.0     n_labs=  5  [HH_PC               ]  | M15. Ile wynoszą miesięczne dochody NETTO na 1 osobę w Pana(i) gospodarstwie domowym? Proszę wziąć pod uwagę dochody z p
+    [340] q131            type=F5.0     n_labs=  1  [HH_PC, KWOTA        ]  | M15_Numerycznie. Kwota przeciętnych, miesięcznych dochodów NETTO na jedną osobę w gospodarstwie domowym respondenta - śr
+
+[229] CBOS_232_09_2009.sav (year=2009, cols=205, income_cols=4)
+    [187] q118            type=F1.0     n_labs=  5  [PERSONAL            ]  | M14. Ile wynoszą Pana(i) miesięczne dochody NETTO (na rękę)? Proszę wziąć pod uwagę Pana(i) dochody z pracy głównej wraz
+    [188] q119            type=F5.0     n_labs=  1  [KWOTA               ]  | M14_Numerycznie. Kwota przeciętnych, miesięcznych dochodów NETTO respondenta
+    [190] q121            type=F1.0     n_labs=  5  [HH_PC               ]  | M15. Ile wynoszą miesięczne dochody NETTO na 1 osobę w Pana(i) gospodarstwie domowym? Proszę wziąć pod uwagę dochody z p
+    [191] q122            type=F5.0     n_labs=  1  [HH_PC, KWOTA        ]  | M15_Numerycznie. Kwota przeciętnych, miesięcznych dochodów NETTO na jedną osobę w gospodarstwie domowym respondenta - śr
+
+[230] CBOS_233_10_2009.sav (year=2009, cols=235, income_cols=4)
+    [218] q129            type=F1.0     n_labs=  5  [PERSONAL            ]  | M14. Ile wynoszą Pana(i) miesięczne dochody NETTO (na rękę)? Proszę wziąć pod uwagę Pana(i) dochody z pracy głównej wraz
+    [219] q130            type=F5.0     n_labs=  1  [KWOTA               ]  | M14_Numerycznie. Kwota przeciętnych, miesięcznych dochodów NETTO respondenta
+    [221] q132            type=F1.0     n_labs=  5  [HH_PC               ]  | M15. Ile wynoszą miesięczne dochody NETTO na 1 osobę w Pana(i) gospodarstwie domowym? Proszę wziąć pod uwagę dochody z p
+    [222] q133            type=F5.0     n_labs=  1  [HH_PC, KWOTA        ]  | M15_Numerycznie. Kwota przeciętnych, miesięcznych dochodów NETTO na jedną osobę w gospodarstwie domowym respondenta - śr
+
+[231] CBOS_234_11_2009.sav (year=2009, cols=328, income_cols=4)
+    [311] q136            type=F1.0     n_labs=  5  [PERSONAL            ]  | M14. Ile wynoszą Pana(i) miesięczne dochody NETTO (na rękę)? Proszę wziąć pod uwagę Pana(i) dochody z pracy głównej wraz
+    [312] q137            type=F5.0     n_labs=  1  [KWOTA               ]  | M14_Numerycznie. Kwota przeciętnych, miesięcznych dochodów NETTO respondenta
+    [314] q139            type=F1.0     n_labs=  5  [HH_PC               ]  | M15. Ile wynoszą miesięczne dochody NETTO na 1 osobę w Pana(i) gospodarstwie domowym? Proszę wziąć pod uwagę dochody z p
+    [315] q140            type=F5.0     n_labs=  1  [HH_PC, KWOTA        ]  | M15_Numerycznie. Kwota przeciętnych, miesięcznych dochodów NETTO na jedną osobę w gospodarstwie domowym respondenta - śr
+
+[232] CBOS_235_12_2009.sav (year=2009, cols=269, income_cols=4)
+    [251] q142            type=F1.0     n_labs=  5  [PERSONAL            ]  | M14. Ile wynoszą Pana(i) miesięczne dochody NETTO (na rękę)? Proszę wziąć pod uwagę Pana(i) dochody z pracy głównej wraz
+    [252] q143            type=F5.0     n_labs=  1  [KWOTA               ]  | M14_Numerycznie. Kwota przeciętnych, miesięcznych dochodów NETTO respondenta
+    [254] q145            type=F1.0     n_labs=  5  [HH_PC               ]  | M15. Ile wynoszą miesięczne dochody NETTO na 1 osobę w Pana(i) gospodarstwie domowym? Proszę wziąć pod uwagę dochody z p
+    [255] q146            type=F5.0     n_labs=  1  [HH_PC, KWOTA        ]  | M15_Numerycznie. Kwota przeciętnych, miesięcznych dochodów NETTO na jedną osobę w gospodarstwie domowym respondenta - śr
+
+[233] CBOS_236_01_2010.sav (year=2010, cols=356, income_cols=4)
+    [338] q95             type=F1.0     n_labs=  5  [PERSONAL            ]  | M14. Ile wynoszą Pana(i) miesięczne dochody NETTO (na rękę)? Proszę wziąć pod uwagę Pana(i) dochody z pracy głównej wraz
+    [339] q96             type=F5.0     n_labs=  1  [KWOTA               ]  | M14_Numerycznie. Kwota przeciętnych, miesięcznych dochodów NETTO respondenta
+    [341] q98             type=F1.0     n_labs=  5  [HH_PC               ]  | M15. Ile wynoszą miesięczne dochody NETTO na 1 osobę w Pana(i) gospodarstwie domowym? Proszę wziąć pod uwagę dochody z p
+    [342] q99             type=F5.0     n_labs=  1  [HH_PC, KWOTA        ]  | M15_Numerycznie. Kwota przeciętnych, miesięcznych dochodów NETTO na jedną osobę w gospodarstwie domowym respondenta - śr
+
+[234] CBOS_237_02_2010.sav (year=2010, cols=248, income_cols=4)
+    [230] q144            type=F1.0     n_labs=  5  [PERSONAL            ]  | M14. Ile wynoszą Pana(i) miesięczne dochody NETTO (na rękę)? Proszę wziąć pod uwagę Pana(i) dochody z pracy głównej wraz
+    [231] q145            type=F5.0     n_labs=  1  [KWOTA               ]  | M14_Numerycznie. Kwota przeciętnych, miesięcznych dochodów NETTO respondenta
+    [233] q147            type=F1.0     n_labs=  5  [HH_PC               ]  | M15. Ile wynoszą miesięczne dochody NETTO na 1 osobę w Pana(i) gospodarstwie domowym? Proszę wziąć pod uwagę dochody z p
+    [234] q148            type=F5.0     n_labs=  1  [HH_PC, KWOTA        ]  | M15_Numerycznie. Kwota przeciętnych, miesięcznych dochodów NETTO na jedną osobę w gospodarstwie domowym respondenta - śr
+
+[235] CBOS_238_03_2010.sav (year=2010, cols=327, income_cols=6)
+    [215] q82             type=F1.0     n_labs=  5  [UNCLASSIFIED        ]  | S1. Ile wynoszą łączne miesięczne dochody NETTO w Pana(i) gospodarstwie domowym? Proszę wziąć pod uwagę dochody z pracy 
+    [216] q83             type=F5.0     n_labs=  1  [KWOTA               ]  | S2_Numerycznie.  Kwota przeciętnych, miesięcznych dochodów NETTO gospodarstwa
+    [308] q120            type=F1.0     n_labs=  5  [PERSONAL            ]  | M14. Ile wynoszą Pana(i) miesięczne dochody NETTO (na rękę)? Proszę wziąć pod uwagę Pana(i) dochody z pracy głównej wraz
+    [309] q121            type=F5.0     n_labs=  1  [KWOTA               ]  | M14_Numerycznie. Kwota przeciętnych, miesięcznych dochodów NETTO respondenta
+    [311] q123            type=F1.0     n_labs=  5  [HH_PC               ]  | M15. Ile wynoszą miesięczne dochody NETTO na 1 osobę w Pana(i) gospodarstwie domowym? Proszę wziąć pod uwagę dochody z p
+    [312] q124            type=F5.0     n_labs=  1  [HH_PC, KWOTA        ]  | M15_Numerycznie. Kwota przeciętnych, miesięcznych dochodów NETTO na jedną osobę w gospodarstwie domowym respondenta - śr
+
+[236] CBOS_239_04_2010.sav (year=2010, cols=294, income_cols=7)
+    [268] q127            type=F1.0     n_labs=  5  [PERSONAL            ]  | M14. Ile wynoszą PANA(I) MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ)? Proszę wziąć pod uwagę Pana(i) dochody z pracy głównej wraz
+    [269] q128            type=F5.0     n_labs=  1  [KWOTA               ]  | M14_Numerycznie. Kwota przeciętnych, miesięcznych dochodów NETTO respondenta
+    [270] q129            type=F2.0     n_labs=  8  [PERSONAL            ]  | M14_2. A czy mógłby(mogłaby) Pan(i) podać przybliżone dochody? Proszę spojrzeć na ekran. Czy mógłby(mogłaby) Pan(i) wska
+    [271] q130            type=F1.0     n_labs=  5  [UNCLASSIFIED        ]  | M15. Ile wynoszą ŁĄCZNE MIESIĘCZNE DOCHODY NETTO W PANA(I) GOSPODARSTWIE DOMOWYM, TJ. ZSUMOWANE DOCHODY NA RĘKĘ UZYSKIWA
+    [272] q131            type=F5.0     n_labs=  1  [KWOTA               ]  | M15_Numerycznie. Kwota przeciętnych, miesięcznych dochodów NETTO  w gospodarstwie domowym respondenta
+    [274] q133            type=F1.0     n_labs=  5  [HH_PC               ]  | M16. Ile wynoszą PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W PANA(I) GOSPODARSTWIE DOMOW
+    [275] q134            type=F5.0     n_labs=  1  [HH_PC, KWOTA        ]  | M16_Numerycznie. Kwota przeciętnych, miesięcznych dochodów NETTO na jedną osobę w gospodarstwie domowym respondenta - śr
+
+[237] CBOS_240_05_2010.sav (year=2010, cols=244, income_cols=5)
+    [214] q170            type=F1.0     n_labs=  5  [PERSONAL            ]  | M14. Ile wynoszą PANA(I) MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ)? Proszę wziąć pod uwagę dochody z pracy głównej wraz z premi
+    [215] q171            type=F5.0     n_labs=  1  [KWOTA               ]  | M14_Numerycznie. Kwota przeciętnych, miesięcznych dochodów NETTO respondenta
+    [216] q172            type=F2.0     n_labs=  8  [PERSONAL            ]  | M14_2. A czy mógłby(mogłaby) Pan(i) podać przybliżone dochody? Czy mógłby(mogłaby) Pan(i) wskazać, w którym przedziale m
+    [217] q173            type=F1.0     n_labs=  5  [HH_PC               ]  | M16. Ile wynoszą PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W PANA(I) GOSPODARSTWIE DOMOW
+    [218] q174            type=F5.0     n_labs=  1  [HH_PC, KWOTA        ]  | M16_Numerycznie. Kwota przeciętnych, miesięcznych dochodów NETTO na jedną osobę w gospodarstwie domowym respondenta - śr
+
+[238] CBOS_241_06_2010.sav (year=2010, cols=345, income_cols=5)
+    [313] q136            type=F1.0     n_labs=  5  [PERSONAL            ]  | M14. Ile wynoszą PANA(I) MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ)? Proszę wziąć pod uwagę Pana(i) dochody z pracy głównej wraz
+    [314] q137            type=F5.0     n_labs=  1  [KWOTA               ]  | M14_Numerycznie. Kwota przeciętnych, miesięcznych dochodów NETTO respondenta
+    [315] q138            type=F2.0     n_labs=  8  [PERSONAL            ]  | M14_2. A czy mógłby(mogłaby) Pan(i) podać przybliżone dochody? Proszę spojrzeć na ekran. Czy mógłby(mogłaby) Pan(i) wska
+    [316] q139            type=F1.0     n_labs=  5  [HH_PC               ]  | M16. Ile wynoszą PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W PANA(I) GOSPODARSTWIE DOMOW
+    [317] q140            type=F5.0     n_labs=  1  [HH_PC, KWOTA        ]  | M16_Numerycznie. Kwota przeciętnych, miesięcznych dochodów NETTO na jedną osobę w gospodarstwie domowym respondenta - śr
+
+[239] CBOS_242_07_2010.sav (year=2010, cols=214, income_cols=5)
+    [168] q142            type=F1.0     n_labs=  5  [PERSONAL            ]  | M14. Ile wynoszą PANA(I) MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ)? Proszę wziąć pod uwagę Pana(i) dochody z pracy głównej wraz
+    [169] q143            type=F5.0     n_labs=  1  [KWOTA               ]  | M14_Numerycznie. Kwota przeciętnych, miesięcznych dochodów NETTO respondenta
+    [170] q144            type=F2.0     n_labs=  8  [PERSONAL            ]  | M14_2. A czy mógłby(mogłaby) Pan(i) podać przybliżone dochody? Proszę spojrzeć na ekran. Czy mógłby(mogłaby) Pan(i) wska
+    [171] q145            type=F1.0     n_labs=  5  [HH_PC               ]  | M16. Ile wynoszą PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W PANA(I) GOSPODARSTWIE DOMOW
+    [172] q146            type=F5.0     n_labs=  1  [HH_PC, KWOTA        ]  | M16_Numerycznie. Kwota przeciętnych, miesięcznych dochodów NETTO na jedną osobę w gospodarstwie domowym respondenta - śr
+
+[240] CBOS_243_08_2010.sav (year=2010, cols=272, income_cols=5)
+    [248] q108            type=F1.0     n_labs=  5  [PERSONAL            ]  | M14. Ile wynoszą PANA(I) MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ)? Proszę wziąć pod uwagę Pana(i) dochody z pracy głównej wraz
+    [249] q109            type=F5.0     n_labs=  1  [KWOTA               ]  | M14_Numerycznie. Kwota przeciętnych, miesięcznych dochodów NETTO respondenta
+    [250] q110            type=F2.0     n_labs=  8  [PERSONAL            ]  | M14_2. A czy mógłby(mogłaby) Pan(i) podać przybliżone dochody? Proszę spojrzeć na ekran. Czy mógłby(mogłaby) Pan(i) wska
+    [251] q111            type=F1.0     n_labs=  5  [HH_PC               ]  | M16. Ile wynoszą PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W PANA(I) GOSPODARSTWIE DOMOW
+    [252] q112            type=F5.0     n_labs=  1  [HH_PC, KWOTA        ]  | M16_Numerycznie. Kwota przeciętnych, miesięcznych dochodów NETTO na jedną osobę w gospodarstwie domowym respondenta - śr
+
+[241] CBOS_244_09_2010.sav (year=2010, cols=253, income_cols=5)
+    [233] q145            type=F1.0     n_labs=  5  [PERSONAL            ]  | M14. Ile wynoszą PANA(I) MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ)? Proszę wziąć pod uwagę Pana(i) dochody z pracy głównej wraz
+    [234] q146            type=F5.0     n_labs=  1  [KWOTA               ]  | M14_Numerycznie. Kwota przeciętnych, miesięcznych dochodów NETTO respondenta
+    [235] q147            type=F2.0     n_labs=  8  [PERSONAL            ]  | M14_2. A czy mógłby(mogłaby) Pan(i) podać przybliżone dochody? Proszę spojrzeć na ekran. Czy mógłby(mogłaby) Pan(i) wska
+    [236] q148            type=F1.0     n_labs=  5  [HH_PC               ]  | M16. Ile wynoszą PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W PANA(I) GOSPODARSTWIE DOMOW
+    [237] q149            type=F5.0     n_labs=  1  [HH_PC, KWOTA        ]  | M16_Numerycznie. Kwota przeciętnych, miesięcznych dochodów NETTO na jedną osobę w gospodarstwie domowym respondenta - śr
+
+[242] CBOS_245_10_2010.sav (year=2010, cols=337, income_cols=5)
+    [306] q127            type=F1.0     n_labs=  5  [PERSONAL            ]  | M14. Ile wynoszą PANA(I) MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ)? Proszę wziąć pod uwagę Pana(i) dochody z pracy głównej wraz
+    [307] q128            type=F5.0     n_labs=  1  [KWOTA               ]  | M14_Numerycznie. Kwota przeciętnych, miesięcznych dochodów NETTO respondenta
+    [308] q129            type=F2.0     n_labs=  8  [PERSONAL            ]  | M14_2. A czy mógłby(mogłaby) Pan(i) podać przybliżone dochody? Proszę spojrzeć na ekran. Czy mógłby(mogłaby) Pan(i) wska
+    [309] q130            type=F1.0     n_labs=  5  [HH_PC               ]  | M16. Ile wynoszą PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W PANA(I) GOSPODARSTWIE DOMOW
+    [310] q131            type=F5.0     n_labs=  1  [HH_PC, KWOTA        ]  | M16_Numerycznie. Kwota przeciętnych, miesięcznych dochodów NETTO na jedną osobę w gospodarstwie domowym respondenta - śr
+
+[243] CBOS_246_11_2010.sav (year=2010, cols=142, income_cols=5)
+    [122] q109            type=F1.0     n_labs=  5  [PERSONAL            ]  | M14. Ile wynoszą Pana(i) miesięczne dochody NETTO (na rękę)? Proszę wziąć pod uwagę Pana(i) dochody z pracy głównej wraz
+    [123] q110            type=F5.0     n_labs=  1  [KWOTA               ]  | M14_Numerycznie. Kwota przeciętnych, miesięcznych dochodów NETTO respondenta
+    [124] q111            type=F2.0     n_labs=  8  [PERSONAL            ]  | M14_2. A czy mógłby(mogłaby) Pan(i) podać przybliżone dochody? Proszę spojrzeć na ekran. Czy mógłby(mogłaby) Pan(i) wska
+    [125] q112            type=F1.0     n_labs=  5  [HH_PC               ]  | M16. Ile wynoszą PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W PANA(I) GOSPODARSTWIE DOMOW
+    [126] q113            type=F5.0     n_labs=  1  [HH_PC, KWOTA        ]  | M16_Numerycznie. Kwota przeciętnych, miesięcznych dochodów NETTO na jedną osobę w gospodarstwie domowym respondenta - śr
+
+[244] CBOS_247_12_2010.sav (year=2010, cols=321, income_cols=5)
+    [298] q113            type=F1.0     n_labs=  5  [PERSONAL            ]  | M14. Ile wynoszą PANA(I) MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ)? Proszę wziąć pod uwagę Pana(i) dochody z pracy głównej wraz
+    [299] q114            type=F5.0     n_labs=  1  [KWOTA               ]  | M14_Numerycznie. Kwota przeciętnych, miesięcznych dochodów NETTO respondenta
+    [300] q115            type=F2.0     n_labs=  8  [PERSONAL            ]  | M14_2. A czy mógłby(mogłaby) Pan(i) podać przybliżone dochody? Proszę spojrzeć na ekran. Czy mógłby(mogłaby) Pan(i) wska
+    [301] q116            type=F1.0     n_labs=  5  [HH_PC               ]  | M16. Ile wynoszą PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W PANA(I) GOSPODARSTWIE DOMOW
+    [302] q117            type=F5.0     n_labs=  1  [HH_PC, KWOTA        ]  | M16_Numerycznie. Kwota przeciętnych, miesięcznych dochodów NETTO na jedną osobę w gospodarstwie domowym respondenta - śr
+
+[245] CBOS_248_01_2011.sav (year=2011, cols=270, income_cols=5)
+    [253] q111            type=F1.0     n_labs=  5  [PERSONAL            ]  | M14. Ile wynoszą PANA(I) MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ)? Proszę wziąć pod uwagę Pana(i) dochody z pracy głównej wraz
+    [254] q112            type=F8.2     n_labs=  1  [KWOTA               ]  | ANKIETER: Poniżej wpisać podaną przez respondenta kwotę
+    [255] q113            type=F8.2     n_labs=  8  [PERSONAL            ]  | M14_2. A czy mógłby(mogłaby) Pan(i) podać przybliżone dochody? Proszę spojrzeć na ekran. Czy mógłby(mogłaby) Pan(i) wska
+    [256] q114            type=F1.0     n_labs=  5  [HH_PC               ]  | M16. Ile wynoszą PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W PANA(I) GOSPODARSTWIE DOMOW
+    [257] q115            type=F8.2     n_labs=  1  [KWOTA               ]  | ANKIETER: Poniżej wpisać podaną przez respondenta kwotę
+
+[246] CBOS_249_02_2011.sav (year=2011, cols=196, income_cols=5)
+    [178] q82             type=F1.0     n_labs=  5  [PERSONAL            ]  | M14. Ile wynoszą PANA(I) MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ)? Proszę wziąć pod uwagę Pana(i) dochody z pracy głównej wraz
+    [179] q83             type=F8.2     n_labs=  1  [KWOTA               ]  | ANKIETER: Poniżej wpisać podaną przez respondenta kwotę
+    [180] q84             type=F8.2     n_labs=  8  [PERSONAL            ]  | M14_2. A czy mógłby(mogłaby) Pan(i) podać przybliżone dochody? Proszę spojrzeć na ekran. Czy mógłby(mogłaby) Pan(i) wska
+    [181] q85             type=F1.0     n_labs=  5  [HH_PC               ]  | M16. Ile wynoszą PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W PANA(I) GOSPODARSTWIE DOMOW
+    [182] q86             type=F8.2     n_labs=  1  [KWOTA               ]  | ANKIETER: Poniżej wpisać podaną przez respondenta kwotę
+
+[247] CBOS_250_03_2011.sav (year=2011, cols=238, income_cols=5)
+    [220] q110            type=F1.0     n_labs=  5  [PERSONAL            ]  | M18. Ile wynoszą PANA(I) MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ)? Proszę wziąć pod uwagę Pana(i) dochody z pracy głównej wraz
+    [221] q111            type=F8.2     n_labs=  1  [KWOTA               ]  | ANKIETER: Poniżej wpisać podaną przez respondenta kwotę
+    [222] q112            type=F8.2     n_labs=  8  [PERSONAL            ]  | M18_2. A czy mógłby(mogłaby) Pan(i) podać przybliżone dochody? Proszę spojrzeć na ekran. Czy mógłby(mogłaby) Pan(i) wska
+    [223] q113            type=F1.0     n_labs=  5  [HH_PC               ]  | M19. Ile wynoszą PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W PANA(I) GOSPODARSTWIE DOMOW
+    [224] q114            type=F8.2     n_labs=  1  [KWOTA               ]  | ANKIETER: Poniżej wpisać podaną przez respondenta kwotę
+
+[248] CBOS_251_04_2011.sav (year=2011, cols=237, income_cols=5)
+    [219] q160            type=F1.0     n_labs=  5  [PERSONAL            ]  | M18. Ile wynoszą PANA(I) MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ)? Proszę wziąć pod uwagę Pana(i) dochody z pracy głównej wraz
+    [220] q161            type=F8.2     n_labs=  1  [KWOTA               ]  | ANKIETER: Poniżej wpisać podaną przez respondenta kwotę
+    [221] q162            type=F8.2     n_labs=  8  [PERSONAL            ]  | M18_2. A czy mógłby(mogłaby) Pan(i) podać przybliżone dochody? Proszę spojrzeć na ekran. Czy mógłby(mogłaby) Pan(i) wska
+    [222] q163            type=F1.0     n_labs=  5  [HH_PC               ]  | M19. Ile wynoszą PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W PANA(I) GOSPODARSTWIE DOMOW
+    [223] q164            type=F8.2     n_labs=  1  [KWOTA               ]  | ANKIETER: Poniżej wpisać podaną przez respondenta kwotę
+
+[249] CBOS_252_05_2011.sav (year=2011, cols=265, income_cols=5)
+    [248] q138            type=F1.0     n_labs=  5  [PERSONAL            ]  | M18. Ile wynoszą PANA(I) MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ)? Proszę wziąć pod uwagę Pana(i) dochody z pracy głównej wraz
+    [249] q139            type=F8.2     n_labs=  1  [KWOTA               ]  | ANKIETER: Poniżej wpisać podaną przez respondenta kwotę
+    [250] q140            type=F8.2     n_labs=  8  [PERSONAL            ]  | M18_2. A czy mógłby(mogłaby) Pan(i) podać przybliżone dochody? Proszę spojrzeć na ekran. Czy mógłby(mogłaby) Pan(i) wska
+    [251] q141            type=F1.0     n_labs=  5  [HH_PC               ]  | M19. Ile wynoszą PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W PANA(I) GOSPODARSTWIE DOMOW
+    [252] q142            type=F8.2     n_labs=  1  [KWOTA               ]  | ANKIETER: Poniżej wpisać podaną przez respondenta kwotę
+
+[250] CBOS_253_06_2011.sav (year=2011, cols=198, income_cols=5)
+    [170] q119            type=F1.0     n_labs=  5  [PERSONAL            ]  | M18. Ile wynoszą PANA(I) MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ)? Proszę wziąć pod uwagę Pana(i) dochody z pracy głównej wraz
+    [171] q120            type=F8.2     n_labs=  1  [KWOTA               ]  | ANKIETER: Poniżej wpisać podaną przez respondenta kwotę
+    [172] q121            type=F8.2     n_labs=  8  [PERSONAL            ]  | M18_2. A czy mógłby(mogłaby) Pan(i) podać przybliżone dochody? Proszę spojrzeć na ekran. Czy mógłby(mogłaby) Pan(i) wska
+    [173] q122            type=F1.0     n_labs=  5  [HH_PC               ]  | M19. Ile wynoszą PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W PANA(I) GOSPODARSTWIE DOMOW
+    [174] q123            type=F8.2     n_labs=  1  [KWOTA               ]  | ANKIETER: Poniżej wpisać podaną przez respondenta kwotę
+
+[251] CBOS_254_07_2011.sav (year=2011, cols=269, income_cols=5)
+    [241] q162            type=F1.0     n_labs=  5  [PERSONAL            ]  | M18. Ile wynoszą PANA(I) MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ)? Proszę wziąć pod uwagę Pana(i) dochody z pracy głównej wraz
+    [242] q163            type=F8.2     n_labs=  1  [KWOTA               ]  | ANKIETER: Poniżej wpisać podaną przez respondenta kwotę
+    [243] q164            type=F8.2     n_labs=  8  [PERSONAL            ]  | M18_2. A czy mógłby(mogłaby) Pan(i) podać przybliżone dochody? Proszę spojrzeć na ekran. Czy mógłby(mogłaby) Pan(i) wska
+    [244] q165            type=F1.0     n_labs=  5  [HH_PC               ]  | M19. Ile wynoszą PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W PANA(I) GOSPODARSTWIE DOMOW
+    [245] q166            type=F8.2     n_labs=  1  [KWOTA               ]  | ANKIETER: Poniżej wpisać podaną przez respondenta kwotę
+
+[252] CBOS_255_08_2011.sav (year=2011, cols=221, income_cols=5)
+    [194] q176            type=F1.0     n_labs=  5  [PERSONAL            ]  | M18. Ile wynoszą PANA(I) MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ)? Proszę wziąć pod uwagę Pana(i) dochody z pracy głównej wraz
+    [195] q177            type=F8.2     n_labs=  1  [KWOTA               ]  | ANKIETER: Poniżej wpisać podaną przez respondenta kwotę
+    [196] q178            type=F8.2     n_labs=  8  [PERSONAL            ]  | M18_2. A czy mógłby(mogłaby) Pan(i) podać przybliżone dochody? Proszę spojrzeć na ekran. Czy mógłby(mogłaby) Pan(i) wska
+    [197] q179            type=F1.0     n_labs=  5  [HH_PC               ]  | M19. Ile wynoszą PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W PANA(I) GOSPODARSTWIE DOMOW
+    [198] q180            type=F8.2     n_labs=  1  [KWOTA               ]  | ANKIETER: Poniżej wpisać podaną przez respondenta kwotę
+
+[253] CBOS_256_09_2011.sav (year=2011, cols=256, income_cols=5)
+    [202] q125            type=F1.0     n_labs=  5  [PERSONAL            ]  | M18. Ile wynoszą PANA(I) MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ)? Proszę wziąć pod uwagę Pana(i) dochody z pracy głównej wraz
+    [203] q126            type=F8.2     n_labs=  1  [KWOTA               ]  | ANKIETER: Poniżej wpisać podaną przez respondenta kwotę
+    [204] q127            type=F8.2     n_labs=  8  [PERSONAL            ]  | M18_2. A czy mógłby(mogłaby) Pan(i) podać przybliżone dochody? Proszę spojrzeć na ekran. Czy mógłby(mogłaby) Pan(i) wska
+    [205] q128            type=F1.0     n_labs=  5  [HH_PC               ]  | M19. Ile wynoszą PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W PANA(I) GOSPODARSTWIE DOMOW
+    [206] q129            type=F8.2     n_labs=  1  [KWOTA               ]  | ANKIETER: Poniżej wpisać podaną przez respondenta kwotę
+
+[254] CBOS_257_10_2011.sav (year=2011, cols=313, income_cols=5)
+    [279] q132            type=F1.0     n_labs=  5  [PERSONAL            ]  | M18. Ile wynoszą PANA(I) MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ)? Proszę wziąć pod uwagę Pana(i) dochody z pracy głównej wraz
+    [280] q133            type=F8.2     n_labs=  1  [KWOTA               ]  | ANKIETER: Poniżej wpisać podaną przez respondenta kwotę
+    [281] q134            type=F8.2     n_labs=  8  [PERSONAL            ]  | M18_2. A czy mógłby(mogłaby) Pan(i) podać przybliżone dochody? Proszę spojrzeć na ekran. Czy mógłby(mogłaby) Pan(i) wska
+    [282] q135            type=F1.0     n_labs=  5  [HH_PC               ]  | M19. Ile wynoszą PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W PANA(I) GOSPODARSTWIE DOMOW
+    [283] q136            type=F8.2     n_labs=  1  [KWOTA               ]  | ANKIETER: Poniżej wpisać podaną przez respondenta kwotę
+
+[255] CBOS_258_11_2011.sav (year=2011, cols=209, income_cols=5)
+    [177] q177            type=F1.0     n_labs=  5  [PERSONAL            ]  | M18. Ile wynoszą PANA(I) MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ)? Proszę wziąć pod uwagę Pana(i) dochody z pracy głównej wraz
+    [178] q178            type=F8.2     n_labs=  1  [KWOTA               ]  | ANKIETER: Poniżej wpisać podaną przez respondenta kwotę
+    [179] q179            type=F8.2     n_labs=  8  [PERSONAL            ]  | M18_2. A czy mógłby(mogłaby) Pan(i) podać przybliżone dochody? Proszę spojrzeć na ekran. Czy mógłby(mogłaby) Pan(i) wska
+    [180] q180            type=F1.0     n_labs=  5  [HH_PC               ]  | M19. Ile wynoszą PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W PANA(I) GOSPODARSTWIE DOMOW
+    [181] q181            type=F8.2     n_labs=  1  [KWOTA               ]  | ANKIETER: Poniżej wpisać podaną przez respondenta kwotę
+
+[256] CBOS_259_12_2011.sav (year=2011, cols=304, income_cols=5)
+    [262] q146            type=F1.0     n_labs=  5  [PERSONAL            ]  | M18. Ile wynoszą PANA(I) MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ)? Proszę wziąć pod uwagę Pana(i) dochody z pracy głównej wraz
+    [263] q147            type=F8.2     n_labs=  1  [KWOTA               ]  | ANKIETER: Poniżej wpisać podaną przez respondenta kwotę
+    [264] q148            type=F8.2     n_labs=  8  [PERSONAL            ]  | M18_2. A czy mógłby(mogłaby) Pan(i) podać przybliżone dochody? Proszę spojrzeć na ekran. Czy mógłby(mogłaby) Pan(i) wska
+    [265] q149            type=F1.0     n_labs=  5  [HH_PC               ]  | M19. Ile wynoszą PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W PANA(I) GOSPODARSTWIE DOMOW
+    [266] q150            type=F8.2     n_labs=  1  [KWOTA               ]  | ANKIETER: Poniżej wpisać podaną przez respondenta kwotę
+
+[257] CBOS_260_01_2012.sav (year=2012, cols=301, income_cols=5)
+    [275] q138            type=F1.0     n_labs=  5  [PERSONAL            ]  | M18. Ile wynoszą PANA(I) MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ)? Proszę wziąć pod uwagę Pana(i) dochody z pracy głównej wraz
+    [276] q139            type=F5.0     n_labs=  1  [KWOTA               ]  | M18_Numerycznie. Kwota przeciętnych, miesięcznych dochodów NETTO respondenta
+    [277] q140            type=F1.0     n_labs=  8  [PERSONAL            ]  | M18_2. A czy mógłby(mogłaby) Pan(i) podać przybliżone dochody? Proszę spojrzeć na ekran. Czy mógłby(mogłaby) Pan(i) wska
+    [278] q141            type=F1.0     n_labs=  5  [HH_PC               ]  | M19. Ile wynoszą PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W PANA(I) GOSPODARSTWIE DOMOW
+    [279] q142            type=F5.0     n_labs=  1  [HH_PC, KWOTA        ]  | M19_Numerycznie. Kwota przeciętnych, miesięcznych dochodów NETTO na jedną osobę w gospodarstwie domowym respondenta - śr
+
+[258] CBOS_261_02_2012.sav (year=2012, cols=268, income_cols=5)
+    [251] q142            type=F1.0     n_labs=  5  [PERSONAL            ]  | M18. Ile wynoszą PANA(I) MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ)? Proszę wziąć pod uwagę Pana(i) dochody z pracy głównej wraz
+    [252] q143            type=F5.0     n_labs=  1  [KWOTA               ]  | M18_Numerycznie. Kwota przeciętnych, miesięcznych dochodów NETTO respondenta
+    [253] q144            type=F1.0     n_labs=  8  [PERSONAL            ]  | M18_2. A czy mógłby(mogłaby) Pan(i) podać przybliżone dochody? Proszę spojrzeć na ekran. Czy mógłby(mogłaby) Pan(i) wska
+    [254] q145            type=F1.0     n_labs=  5  [HH_PC               ]  | M19. Ile wynoszą PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W PANA(I) GOSPODARSTWIE DOMOW
+    [255] q146            type=F5.0     n_labs=  1  [HH_PC, KWOTA        ]  | M19_Numerycznie. Kwota przeciętnych, miesięcznych dochodów NETTO na jedną osobę w gospodarstwie domowym respondenta - śr
+
+[259] CBOS_262_03_2012.sav (year=2012, cols=265, income_cols=5)
+    [242] q131            type=F1.0     n_labs=  5  [PERSONAL            ]  | M18. Ile wynoszą PANA(I) MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ)? Proszę wziąć pod uwagę Pana(i) dochody z pracy głównej wraz
+    [243] q132            type=F5.0     n_labs=  1  [KWOTA               ]  | M18_Numerycznie. Kwota przeciętnych, miesięcznych dochodów NETTO respondenta
+    [244] q133            type=F1.0     n_labs=  8  [PERSONAL            ]  | M18_2. A czy mógłby(mogłaby) Pan(i) podać przybliżone dochody? Proszę spojrzeć na ekran. Czy mógłby(mogłaby) Pan(i) wska
+    [245] q134            type=F1.0     n_labs=  5  [HH_PC               ]  | M19. Ile wynoszą PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W PANA(I) GOSPODARSTWIE DOMOW
+    [246] q135            type=F5.0     n_labs=  1  [HH_PC, KWOTA        ]  | M19_Numerycznie. Kwota przeciętnych, miesięcznych dochodów NETTO na jedną osobę w gospodarstwie domowym respondenta - śr
+
+[260] CBOS_263_04_2012.sav (year=2012, cols=200, income_cols=5)
+    [181] q148            type=F1.0     n_labs=  5  [PERSONAL            ]  | M18. Ile wynoszą PANA(I) MIESIĘCZNE DOCHODY NETTO? (dochody z pracy głównej z premiami, nagrodami, dodatkami, dochody z 
+    [182] q149            type=F5.0     n_labs=  1  [KWOTA               ]  | M18_Numerycznie. Kwota przeciętnych, miesięcznych dochodów NETTO respondenta
+    [183] q150            type=F1.0     n_labs=  8  [PERSONAL            ]  | M18_2. A czy mógłby(mogłaby) Pan(i) podać przybliżone dochody? Proszę spojrzeć na ekran. Czy mógłby(mogłaby) Pan(i) wska
+    [184] q151            type=F1.0     n_labs=  5  [HH_PC               ]  | M19. Ile wynoszą PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO PRZYPADAJĄCE NA JEDNĄ OSOBĘ W PANA(I) GOSPODARSTWIE DOMOWYM? (doch.
+    [185] q152            type=F5.0     n_labs=  1  [HH_PC, KWOTA        ]  | M19_Numerycznie. Kwota przeciętnych, miesięcznych dochodów NETTO na jedną osobę w gospodarstwie domowym respondenta - śr
+
+[261] CBOS_264_05_2012.sav (year=2012, cols=326, income_cols=5)
+    [298] q160            type=F1.0     n_labs=  5  [PERSONAL            ]  | M18. Ile wynoszą PANA(I) MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ)? Proszę wziąć pod uwagę Pana(i) dochody z pracy głównej wraz
+    [299] q161            type=F5.0     n_labs=  1  [KWOTA               ]  | M18_Numerycznie. Kwota przeciętnych, miesięcznych dochodów NETTO respondenta
+    [300] q162            type=F1.0     n_labs=  8  [PERSONAL            ]  | M18_2. A czy mógłby(mogłaby) Pan(i) podać przybliżone dochody? Proszę spojrzeć na ekran. Czy mógłby(mogłaby) Pan(i) wska
+    [301] q163            type=F1.0     n_labs=  5  [HH_PC               ]  | M19. Ile wynoszą PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W PANA(I) GOSPODARSTWIE DOMOW
+    [302] q164            type=F5.0     n_labs=  1  [HH_PC, KWOTA        ]  | M19_Numerycznie. Kwota przeciętnych, miesięcznych dochodów NETTO na jedną osobę w gospodarstwie domowym respondenta - śr
+
+[262] CBOS_265_06_2012.sav (year=2012, cols=215, income_cols=5)
+    [196] q131            type=F1.0     n_labs=  5  [PERSONAL            ]  | M18. Ile wynoszą PANA(I) MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ)? Proszę wziąć pod uwagę Pana(i) dochody z pracy głównej wraz
+    [197] q132            type=F5.0     n_labs=  1  [KWOTA               ]  | M18_Numerycznie. Kwota przeciętnych, miesięcznych dochodów NETTO respondenta
+    [198] q133            type=F1.0     n_labs=  8  [PERSONAL            ]  | M18_2. A czy mógłby(mogłaby) Pan(i) podać przybliżone dochody? Proszę spojrzeć na ekran. Czy mógłby(mogłaby) Pan(i) wska
+    [199] q134            type=F1.0     n_labs=  5  [HH_PC               ]  | M19. Ile wynoszą PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W PANA(I) GOSPODARSTWIE DOMOW
+    [200] q135            type=F5.0     n_labs=  1  [HH_PC, KWOTA        ]  | M19_Numerycznie. Kwota przeciętnych, miesięcznych dochodów NETTO na jedną osobę w gospodarstwie domowym respondenta - śr
+
+[263] CBOS_266_07_2012.sav (year=2012, cols=260, income_cols=5)
+    [244] q142            type=F1.0     n_labs=  5  [PERSONAL            ]  | M18. Ile wynoszą PANA(I) MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ)? Proszę wziąć pod uwagę Pana(i) dochody z pracy głównej wraz
+    [245] q143            type=F5.0     n_labs=  1  [KWOTA               ]  | M18_Numerycznie. Kwota przeciętnych, miesięcznych dochodów NETTO respondenta
+    [246] q144            type=F1.0     n_labs=  8  [PERSONAL            ]  | M18_2. A czy mógłby(mogłaby) Pan(i) podać przybliżone dochody? Proszę spojrzeć na ekran. Czy mógłby(mogłaby) Pan(i) wska
+    [247] q145            type=F1.0     n_labs=  5  [HH_PC               ]  | M19. Ile wynoszą PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W PANA(I) GOSPODARSTWIE DOMOW
+    [248] q146            type=F5.0     n_labs=  1  [HH_PC, KWOTA        ]  | M19_Numerycznie. Kwota przeciętnych, miesięcznych dochodów NETTO na jedną osobę w gospodarstwie domowym respondenta - śr
+
+[264] CBOS_267_08_2012.sav (year=2012, cols=203, income_cols=5)
+    [182] q121            type=F1.0     n_labs=  5  [PERSONAL            ]  | M18. Ile wynoszą PANA(I) MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ)? Proszę wziąć pod uwagę Pana(i) dochody z pracy głównej wraz
+    [183] q122            type=F5.0     n_labs=  1  [KWOTA               ]  | M18_Numerycznie. Kwota przeciętnych, miesięcznych dochodów NETTO respondenta
+    [184] q123            type=F1.0     n_labs=  8  [PERSONAL            ]  | M18_2. A czy mógłby(mogłaby) Pan(i) podać przybliżone dochody? Proszę spojrzeć na ekran. Czy mógłby(mogłaby) Pan(i) wska
+    [185] q124            type=F1.0     n_labs=  5  [HH_PC               ]  | M19. Ile wynoszą PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W PANA(I) GOSPODARSTWIE DOMOW
+    [186] q125            type=F5.0     n_labs=  1  [HH_PC, KWOTA        ]  | M19_Numerycznie. Kwota przeciętnych, miesięcznych dochodów NETTO na jedną osobę w gospodarstwie domowym respondenta - śr
+
+[265] CBOS_268_09_2012.sav (year=2012, cols=341, income_cols=5)
+    [312] q141            type=F1.0     n_labs=  5  [PERSONAL            ]  | M18. Ile wynoszą PANA(I) MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ)? Proszę wziąć pod uwagę Pana(i) dochody z pracy głównej wraz
+    [313] q142            type=F5.0     n_labs=  1  [KWOTA               ]  | M18_Numerycznie. Kwota przeciętnych, miesięcznych dochodów NETTO respondenta
+    [314] q143            type=F1.0     n_labs=  8  [PERSONAL            ]  | M18_2. A czy mógłby(mogłaby) Pan(i) podać przybliżone dochody? Proszę spojrzeć na ekran. Czy mógłby(mogłaby) Pan(i) wska
+    [315] q144            type=F1.0     n_labs=  5  [HH_PC               ]  | M19. Ile wynoszą PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W PANA(I) GOSPODARSTWIE DOMOW
+    [316] q145            type=F5.0     n_labs=  1  [HH_PC, KWOTA        ]  | M19_Numerycznie. Kwota przeciętnych, miesięcznych dochodów NETTO na jedną osobę w gospodarstwie domowym respondenta - śr
+
+[266] CBOS_269_10_2012.sav (year=2012, cols=268, income_cols=5)
+    [240] q116            type=F1.0     n_labs=  5  [PERSONAL            ]  | M18. Ile wynoszą PANA(I) MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ)? Proszę wziąć pod uwagę Pana(i) dochody z pracy głównej wraz
+    [241] q117            type=F5.0     n_labs=  1  [KWOTA               ]  | M18_Numerycznie. Kwota przeciętnych, miesięcznych dochodów NETTO respondenta
+    [242] q118            type=F1.0     n_labs=  8  [PERSONAL            ]  | M18_2. A czy mógłby(mogłaby) Pan(i) podać przybliżone dochody? Proszę spojrzeć na ekran. Czy mógłby(mogłaby) Pan(i) wska
+    [243] q119            type=F1.0     n_labs=  5  [HH_PC               ]  | M19. Ile wynoszą PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W PANA(I) GOSPODARSTWIE DOMOW
+    [244] q120            type=F5.0     n_labs=  1  [HH_PC, KWOTA        ]  | M19_Numerycznie. Kwota przeciętnych, miesięcznych dochodów NETTO na jedną osobę w gospodarstwie domowym respondenta - śr
+
+[267] CBOS_270_11_2012.sav (year=2012, cols=245, income_cols=5)
+    [218] q140            type=F1.0     n_labs=  5  [PERSONAL            ]  | M18. Ile wynoszą PANA(I) MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ)? Proszę wziąć pod uwagę Pana(i) dochody z pracy głównej wraz
+    [219] q141            type=F5.0     n_labs=  1  [KWOTA               ]  | M18_Numerycznie. Kwota przeciętnych, miesięcznych dochodów NETTO respondenta
+    [220] q142            type=F1.0     n_labs=  8  [PERSONAL            ]  | M18_2. A czy mógłby(mogłaby) Pan(i) podać przybliżone dochody? Proszę spojrzeć na ekran. Czy mógłby(mogłaby) Pan(i) wska
+    [221] q143            type=F1.0     n_labs=  5  [HH_PC               ]  | M19. Ile wynoszą PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W PANA(I) GOSPODARSTWIE DOMOW
+    [222] q144            type=F5.0     n_labs=  1  [HH_PC, KWOTA        ]  | M19_Numerycznie. Kwota przeciętnych, miesięcznych dochodów NETTO na jedną osobę w gospodarstwie domowym respondenta - śr
+
+[268] CBOS_271_12_2012.sav (year=2012, cols=317, income_cols=5)
+    [290] q133            type=F1.0     n_labs=  5  [PERSONAL            ]  | M18. Ile wynoszą PANA(I) MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ)? Proszę wziąć pod uwagę Pana(i) dochody z pracy głównej wraz
+    [291] q134            type=F5.0     n_labs=  1  [KWOTA               ]  | M18_Numerycznie. Kwota przeciętnych, miesięcznych dochodów NETTO respondenta
+    [292] q135            type=F1.0     n_labs=  8  [PERSONAL            ]  | M18_2. A czy mógłby(mogłaby) Pan(i) podać przybliżone dochody? Proszę spojrzeć na ekran. Czy mógłby(mogłaby) Pan(i) wska
+    [293] q136            type=F1.0     n_labs=  5  [HH_PC               ]  | M19. Ile wynoszą PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W PANA(I) GOSPODARSTWIE DOMOW
+    [294] q137            type=F5.0     n_labs=  1  [HH_PC, KWOTA        ]  | M19_Numerycznie. Kwota przeciętnych, miesięcznych dochodów NETTO na jedną osobę w gospodarstwie domowym respondenta - śr
+
+[269] CBOS_272_01_2013.sav (year=2013, cols=410, income_cols=5)
+    [391] q148            type=F1.0     n_labs=  5  [PERSONAL            ]  | M18. Ile wynoszą PANA(I) MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ)? Proszę wziąć pod uwagę Pana(i) dochody z pracy głównej wraz
+    [392] q149            type=F5.0     n_labs=  1  [KWOTA               ]  | M18_Numerycznie. Kwota przeciętnych, miesięcznych dochodów NETTO respondenta
+    [393] q150            type=F1.0     n_labs=  8  [PERSONAL            ]  | M18_2. A czy mógłby(mogłaby) Pan(i) podać przybliżone dochody? Proszę spojrzeć na ekran. Czy mógłby(mogłaby) Pan(i) wska
+    [394] q151            type=F1.0     n_labs=  5  [HH_PC               ]  | M19. Ile wynoszą PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W PANA(I) GOSPODARSTWIE DOMOW
+    [395] q152            type=F5.0     n_labs=  1  [HH_PC, KWOTA        ]  | M19_Numerycznie. Kwota przeciętnych, miesięcznych dochodów NETTO na jedną osobę w gospodarstwie domowym respondenta - sr
+
+[270] CBOS_273_02_2013.sav (year=2013, cols=300, income_cols=5)
+    [284] q160            type=F1.0     n_labs=  5  [PERSONAL            ]  | M18. Ile wynoszą PANA(I) MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ)? Proszę wziąć pod uwagę Pana(i) dochody z pracy głównej wraz
+    [285] q161            type=F5.0     n_labs=  1  [KWOTA               ]  | M18_Numerycznie. Kwota przeciętnych, miesięcznych dochodów NETTO respondenta
+    [286] q162            type=F1.0     n_labs=  8  [PERSONAL            ]  | M18_2. A czy mógłby(mogłaby) Pan(i) podać przybliżone dochody? Proszę spojrzeć na ekran. Czy mógłby(mogłaby) Pan(i) wska
+    [287] q163            type=F1.0     n_labs=  5  [HH_PC               ]  | M19. Ile wynoszą PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W PANA(I) GOSPODARSTWIE DOMOW
+    [288] q164            type=F5.0     n_labs=  1  [HH_PC, KWOTA        ]  | M19_Numerycznie. Kwota przeciętnych, miesięcznych dochodów NETTO na jedną osobę w gospodarstwie domowym respondenta - śr
+
+[271] CBOS_274_03_2013.sav (year=2013, cols=208, income_cols=5)
+    [189] q184            type=F1.0     n_labs=  5  [PERSONAL            ]  | M18. Ile wynoszą PANA(I) MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ)? Proszę wziąć pod uwagę Pana(i) dochody z pracy głównej wraz
+    [190] q185            type=F5.0     n_labs=  1  [KWOTA               ]  | M18_Numerycznie. Kwota przeciętnych, miesięcznych dochodów NETTO respondenta
+    [191] q186            type=F1.0     n_labs=  8  [PERSONAL            ]  | M18_2. A czy mógłby(mogłaby) Pan(i) podać przybliżone dochody? Proszę spojrzeć na ekran. Czy mógłby(mogłaby) Pan(i) wska
+    [192] q187            type=F1.0     n_labs=  5  [HH_PC               ]  | M19. Ile wynoszą PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W PANA(I) GOSPODARSTWIE DOMOW
+    [193] q188            type=F5.0     n_labs=  1  [HH_PC, KWOTA        ]  | M19_Numerycznie. Kwota przeciętnych, miesięcznych dochodów NETTO na jedną osobę w gospodarstwie domowym respondenta - śr
+
+[272] CBOS_275_04_2013.sav (year=2013, cols=238, income_cols=5)
+    [215] q173            type=F1.0     n_labs=  5  [PERSONAL            ]  | M18. Ile wynoszą PANA(I) MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ)? Proszę wziąć pod uwagę Pana(i) dochody z pracy głównej wraz
+    [216] q174            type=F5.0     n_labs=  1  [KWOTA               ]  | M18_Numerycznie. Kwota przeciętnych, miesięcznych dochodów NETTO respondenta
+    [217] q175            type=F1.0     n_labs=  8  [PERSONAL            ]  | M18_2. A czy mógłby(mogłaby) Pan(i) podać przybliżone dochody? Proszę spojrzeć na ekran. Czy mógłby(mogłaby) Pan(i) wska
+    [218] q176            type=F1.0     n_labs=  5  [HH_PC               ]  | M19. Ile wynoszą PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W PANA(I) GOSPODARSTWIE DOMOW
+    [219] q177            type=F5.0     n_labs=  1  [HH_PC, KWOTA        ]  | M19_Numerycznie. Kwota przeciętnych, miesięcznych dochodów NETTO na jedną osobę w gospodarstwie domowym respondenta - śr
+
+[273] CBOS_276_05_2013.sav (year=2013, cols=302, income_cols=5)
+    [281] q143            type=F1.0     n_labs=  5  [PERSONAL            ]  | M18. Ile wynoszą PANA(I) MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ)? Proszę wziąć pod uwagę Pana(i) dochody z pracy głównej wraz
+    [282] q144            type=F5.0     n_labs=  1  [KWOTA               ]  | M18_Numerycznie. Kwota przeciętnych, miesięcznych dochodów NETTO respondenta
+    [283] q145            type=F1.0     n_labs=  8  [PERSONAL            ]  | M18_2. A czy mógłby(mogłaby) Pan(i) podać przybliżone dochody? Proszę spojrzeć na ekran. Czy mógłby(mogłaby) Pan(i) wska
+    [284] q146            type=F1.0     n_labs=  5  [HH_PC               ]  | M19. Ile wynoszą PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W PANA(I) GOSPODARSTWIE DOMOW
+    [285] q147            type=F5.0     n_labs=  1  [HH_PC, KWOTA        ]  | M19_Numerycznie. Kwota przeciętnych, miesięcznych dochodów NETTO na jedną osobę w gospodarstwie domowym respondenta - śr
+
+[274] CBOS_277_06_2013.sav (year=2013, cols=296, income_cols=5)
+    [273] q151            type=F1.0     n_labs=  5  [PERSONAL            ]  | M18. Ile wynoszą PANA(I) MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ)? Proszę wziąć pod uwagę Pana(i) dochody z pracy głównej wraz
+    [274] q152            type=F5.0     n_labs=  1  [KWOTA               ]  | M18_Numerycznie. Kwota przeciętnych, miesięcznych dochodów NETTO respondenta
+    [275] q153            type=F1.0     n_labs=  8  [PERSONAL            ]  | M18_2. A czy mógłby(mogłaby) Pan(i) podać przybliżone dochody? Proszę spojrzeć na ekran. Czy mógłby(mogłaby) Pan(i) wska
+    [276] q154            type=F1.0     n_labs=  5  [HH_PC               ]  | M19. Ile wynoszą PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W PANA(I) GOSPODARSTWIE DOMOW
+    [277] q155            type=F5.0     n_labs=  1  [HH_PC, KWOTA        ]  | M19_Numerycznie. Kwota przeciętnych, miesięcznych dochodów NETTO na jedną osobę w gospodarstwie domowym respondenta - śr
+
+[275] CBOS_278_07_2013.sav (year=2013, cols=318, income_cols=5)
+    [298] q112            type=F1.0     n_labs=  5  [PERSONAL            ]  | M18. Ile wynoszą PANA(I) MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ)? Proszę wziąć pod uwagę Pana(i) dochody z pracy głównej wraz
+    [299] q113            type=F5.0     n_labs=  1  [KWOTA               ]  | M18_Numerycznie. Kwota przeciętnych, miesięcznych dochodów NETTO respondenta
+    [300] q114            type=F1.0     n_labs=  8  [PERSONAL            ]  | M18_2. A czy mógłby(mogłaby) Pan(i) podać przybliżone dochody? Proszę spojrzeć na ekran. Czy mógłby(mogłaby) Pan(i) wska
+    [301] q115            type=F1.0     n_labs=  5  [HH_PC               ]  | M19. Ile wynoszą PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W PANA(I) GOSPODARSTWIE DOMOW
+    [302] q116            type=F5.0     n_labs=  1  [HH_PC, KWOTA        ]  | M19_Numerycznie. Kwota przeciętnych, miesięcznych dochodów NETTO na jedną osobę w gospodarstwie domowym respondenta - śr
+
+[276] CBOS_279_08_2013.sav (year=2013, cols=508, income_cols=5)
+    [492] q115            type=F1.0     n_labs=  5  [PERSONAL            ]  | M18. Ile wynoszą PANA(I) MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ)? Proszę wziąć pod uwagę Pana(i) dochody z pracy głównej wraz
+    [493] q116            type=F5.0     n_labs=  1  [KWOTA               ]  | M18_Numerycznie. Kwota przeciętnych, miesięcznych dochodów NETTO respondenta
+    [494] q117            type=F1.0     n_labs=  8  [PERSONAL            ]  | M18_2. A czy mógłby(mogłaby) Pan(i) podać przybliżone dochody? Proszę spojrzeć na ekran. Czy mógłby(mogłaby) Pan(i) wska
+    [495] q118            type=F1.0     n_labs=  5  [HH_PC               ]  | M19. Ile wynoszą PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W PANA(I) GOSPODARSTWIE DOMOW
+    [496] q119            type=F5.0     n_labs=  1  [HH_PC, KWOTA        ]  | M19_Numerycznie. Kwota przeciętnych, miesięcznych dochodów NETTO na jedną osobę w gospodarstwie domowym respondenta - śr
+
+[277] CBOS_280_09_2013.sav (year=2013, cols=235, income_cols=5)
+    [215] q141            type=F1.0     n_labs=  5  [PERSONAL            ]  | M18. Ile wynoszą PANA(I) MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ)? Proszę wziąć pod uwagę Pana(i) dochody z pracy głównej wraz
+    [216] q142            type=F5.0     n_labs=  1  [KWOTA               ]  | M18_Numerycznie. Kwota przeciętnych, miesięcznych dochodów NETTO respondenta
+    [217] q143            type=F1.0     n_labs=  8  [PERSONAL            ]  | M18_2. A czy mógłby(mogłaby) Pan(i) podać przybliżone dochody? Proszę spojrzeć na ekran. Czy mógłby(mogłaby) Pan(i) wska
+    [218] q144            type=F1.0     n_labs=  5  [HH_PC               ]  | M19. Ile wynoszą PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W PANA(I) GOSPODARSTWIE DOMOW
+    [219] q145            type=F5.0     n_labs=  1  [HH_PC, KWOTA        ]  | M19_Numerycznie. Kwota przeciętnych, miesięcznych dochodów NETTO na jedną osobę w gospodarstwie domowym respondenta - śr
+
+[278] CBOS_281_10_2013.sav (year=2013, cols=204, income_cols=4)
+    [173] q160            type=F5.0     n_labs=  1  [KWOTA               ]  | ANKIETER: Poniżej wpisać podaną przez respondenta kwotę
+    [174] q161            type=F1.0     n_labs=  8  [PERSONAL            ]  | M18_2. A czy mógłby(mogłaby) Pan(i) podać przybliżone dochody? Proszę spojrzeć na ekran. Czy mógłby(mogłaby) Pan(i) wska
+    [175] q162            type=F1.0     n_labs=  5  [HH_PC               ]  | M19. Ile wynoszą PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W PANA(I) GOSPODARSTWIE DOMOW
+    [176] q163            type=F5.0     n_labs=  1  [HH_PC, KWOTA        ]  | M19_Numerycznie. Kwota przeciętnych, miesięcznych dochodów NETTO na jedną osobę w gospodarstwie domowym respondenta - śr
+
+[279] CBOS_282_11_2013.sav (year=2013, cols=283, income_cols=5)
+    [254] q145            type=F1.0     n_labs=  5  [PERSONAL            ]  | M18. Ile wynoszą PANA(I) MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ)? Proszę wziąć pod uwagę Pana(i) dochody z pracy głównej wraz
+    [255] q146            type=F5.0     n_labs=  1  [KWOTA               ]  | M18_Numerycznie. Kwota przeciętnych, miesięcznych dochodów NETTO respondenta
+    [256] q147            type=F1.0     n_labs=  8  [PERSONAL            ]  | M18_2. A czy mógłby(mogłaby) Pan(i) podać przybliżone dochody? Proszę spojrzeć na ekran. Czy mógłby(mogłaby) Pan(i) wska
+    [257] q148            type=F1.0     n_labs=  5  [HH_PC               ]  | M19. Ile wynoszą PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W PANA(I) GOSPODARSTWIE DOMOW
+    [258] q149            type=F5.0     n_labs=  1  [HH_PC, KWOTA        ]  | M19_Numerycznie. Kwota przeciętnych, miesięcznych dochodów NETTO na jedną osobę w gospodarstwie domowym respondenta - śr
+
+[280] CBOS_283_12_2013.sav (year=2013, cols=232, income_cols=5)
+    [212] q121            type=F1.0     n_labs=  5  [PERSONAL            ]  | M18. Ile wynoszą PANA(I) MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ)? Proszę wziąć pod uwagę Pana(i) dochody z pracy głównej wraz
+    [213] q122            type=F5.0     n_labs=  1  [KWOTA               ]  | M18_Numerycznie. Kwota przeciętnych, miesięcznych dochodów NETTO respondenta
+    [214] q123            type=F1.0     n_labs=  8  [PERSONAL            ]  | M18_2. A czy mógłby(mogłaby) Pan(i) podać przybliżone dochody? Proszę spojrzeć na ekran. Czy mógłby(mogłaby) Pan(i) wska
+    [215] q124            type=F1.0     n_labs=  5  [HH_PC               ]  | M19. Ile wynoszą PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W PANA(I) GOSPODARSTWIE DOMOW
+    [216] q125            type=F5.0     n_labs=  1  [HH_PC, KWOTA        ]  | M19_Numerycznie. Kwota przeciętnych, miesięcznych dochodów NETTO na jedną osobę w gospodarstwie domowym respondenta - śr
+
+[281] CBOS_284_01_2014.sav (year=2014, cols=361, income_cols=5)
+    [329] q113            type=F1.0     n_labs=  5  [PERSONAL            ]  | M18. Ile wynoszą PANA(I) MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ)? ...
+    [330] q114            type=F5.0     n_labs=  1  [KWOTA               ]  | M18_Numerycznie. Kwota przeciętnych, miesięcznych dochodów NETTO respondenta
+    [331] q115            type=F2.0     n_labs=  8  [PERSONAL            ]  | M18_2. A czy mógłby(mogłaby) Pan(i) podać przybliżone dochody? Proszę spojrzeć na ekran. Czy mógłby(mogłaby) Pan(i) wska
+    [332] q116            type=F1.0     n_labs=  5  [HH_PC               ]  | M19. Ile wynoszą PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W PANA(I) GOSPODARSTWIE DOMOW
+    [333] q117            type=F5.0     n_labs=  1  [HH_PC, KWOTA        ]  | M19_Numerycznie. Kwota przeciętnych, miesięcznych dochodów NETTO na jedną osobę w gospodarstwie domowym respondenta - śr
+
+[282] CBOS_285_02_2014.sav (year=2014, cols=258, income_cols=5)
+    [226] q151            type=F1.0     n_labs=  5  [PERSONAL            ]  | M18. Ile wynoszą PANA(I) MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ)? Proszę wziąć pod uwagę Pana(i) dochody z pracy głównej wraz
+    [227] q152            type=F5.0     n_labs=  1  [KWOTA               ]  | M18_Numerycznie. Kwota przeciętnych, miesięcznych dochodów NETTO respondenta
+    [228] q153            type=F2.0     n_labs=  8  [PERSONAL            ]  | M18_2. A czy mógłby(mogłaby) Pan(i) podać przybliżone dochody? Proszę spojrzeć na ekran. Czy mógłby(mogłaby) Pan(i) wska
+    [229] q154            type=F1.0     n_labs=  5  [HH_PC               ]  | M19. Ile wynoszą PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W PANA(I) GOSPODARSTWIE DOMOW
+    [230] q155            type=F5.0     n_labs=  1  [HH_PC, KWOTA        ]  | M19_Numerycznie. Kwota przeciętnych, miesięcznych dochodów NETTO na jedną osobę w gospodarstwie domowym respondenta - śr
+
+[283] CBOS_286_03_2014.sav (year=2014, cols=291, income_cols=5)
+    [275] q117            type=F1.0     n_labs=  5  [PERSONAL            ]  | M18. Ile wynoszą PANA(I) MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ)? Proszę wziąć pod uwagę Pana(i) dochody z pracy głównej wraz
+    [276] q118            type=F5.0     n_labs=  1  [KWOTA               ]  | M18_Numerycznie. Kwota przeciętnych, miesięcznych dochodów NETTO respondenta
+    [277] q119            type=F2.0     n_labs=  8  [PERSONAL            ]  | M18_2. A czy mógłby(mogłaby) Pan(i) podać przybliżone dochody? Proszę spojrzeć na ekran. Czy mógłby(mogłaby) Pan(i) wska
+    [278] q120            type=F1.0     n_labs=  5  [HH_PC               ]  | M19. Ile wynoszą PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W PANA(I) GOSPODARSTWIE DOMOW
+    [279] q121            type=F5.0     n_labs=  1  [HH_PC, KWOTA        ]  | M19_Numerycznie. Kwota przeciętnych, miesięcznych dochodów NETTO na jedną osobę w gospodarstwie domowym respondenta - śr
+
+[284] CBOS_287_04_2014.sav (year=2014, cols=289, income_cols=5)
+    [274] q139            type=F1.0     n_labs=  5  [PERSONAL            ]  | M18. Ile wynoszą PANA(I) MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ)? Proszę wziąć pod uwagę Pana(i) dochody z pracy głównej wraz
+    [275] q140            type=F5.0     n_labs=  1  [KWOTA               ]  | M18_Numerycznie. Kwota przeciętnych, miesięcznych dochodów NETTO respondenta
+    [276] q141            type=F1.0     n_labs=  8  [PERSONAL            ]  | M18_2. A czy mógłby(mogłaby) Pan(i) podać przybliżone dochody? Proszę spojrzeć na ekran. Czy mógłby(mogłaby) Pan(i) wska
+    [277] q142            type=F1.0     n_labs=  5  [HH_PC               ]  | M19. Ile wynoszą PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W PANA(I) GOSPODARSTWIE DOMOW
+    [278] q143            type=F5.0     n_labs=  1  [HH_PC, KWOTA        ]  | M19_Numerycznie. Kwota przeciętnych, miesięcznych dochodów NETTO na jedną osobę w gospodarstwie domowym respondenta - śr
+
+[285] CBOS_288_05_2014.sav (year=2014, cols=188, income_cols=5)
+    [167] q127            type=F1.0     n_labs=  5  [PERSONAL            ]  | M18. Ile wynoszą PANA(I) MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ)? Proszę wziąć pod uwagę Pana(i) dochody z pracy głównej wraz
+    [168] q128            type=F5.0     n_labs=  1  [KWOTA               ]  | M18_Numerycznie. Kwota przeciętnych, miesięcznych dochodów NETTO respondenta
+    [169] q129            type=F2.0     n_labs=  8  [PERSONAL            ]  | M18_2. A czy mógłby(mogłaby) Pan(i) podać przybliżone dochody? Proszę spojrzeć na ekran. Czy mógłby(mogłaby) Pan(i) wska
+    [170] q130            type=F1.0     n_labs=  5  [HH_PC               ]  | M19. Ile wynoszą PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W PANA(I) GOSPODARSTWIE DOMOW
+    [171] q131            type=F5.0     n_labs=  1  [HH_PC, KWOTA        ]  | M19_Numerycznie. Kwota przeciętnych, miesięcznych dochodów NETTO na jedną osobę w gospodarstwie domowym respondenta - śr
+
+[286] CBOS_289_06_2014.sav (year=2014, cols=274, income_cols=5)
+    [251] q125            type=F1.0     n_labs=  5  [PERSONAL            ]  | M18. Ile wynoszą PANA(I) MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ)? Proszę wziąć pod uwagę Pana(i) dochody z pracy głównej wraz
+    [252] q126            type=F5.0     n_labs=  1  [KWOTA               ]  | M18_Numerycznie. Kwota przeciętnych, miesięcznych dochodów NETTO respondenta
+    [253] q127            type=F2.0     n_labs=  8  [PERSONAL            ]  | M18_2. A czy mógłby(mogłaby) Pan(i) podać przybliżone dochody? Proszę spojrzeć na ekran. Czy mógłby(mogłaby) Pan(i) wska
+    [254] q128            type=F1.0     n_labs=  5  [HH_PC               ]  | M19. Ile wynoszą PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W PANA(I) GOSPODARSTWIE DOMOW
+    [255] q129            type=F5.0     n_labs=  1  [HH_PC, KWOTA        ]  | M19_Numerycznie. Kwota przeciętnych, miesięcznych dochodów NETTO na jedną osobę w gospodarstwie domowym respondenta - śr
+
+[287] CBOS_290_07_2014.sav (year=2014, cols=346, income_cols=5)
+    [323] q186            type=F1.0     n_labs=  5  [PERSONAL            ]  | M18. Ile wynoszą PANA(I) MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ)? Proszę wziąć pod uwagę Pana(i) dochody z pracy głównej wraz
+    [324] q187            type=F5.0     n_labs=  1  [KWOTA               ]  | M18_Numerycznie. Kwota przeciętnych, miesięcznych dochodów NETTO respondenta
+    [325] q188            type=F2.0     n_labs=  8  [PERSONAL            ]  | M18_2. A czy mógłby(mogłaby) Pan(i) podać przybliżone dochody? Proszę spojrzeć na ekran. Czy mógłby(mogłaby) Pan(i) wska
+    [326] q189            type=F1.0     n_labs=  5  [HH_PC               ]  | M19. Ile wynoszą PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W PANA(I) GOSPODARSTWIE DOMOW
+    [327] q190            type=F5.0     n_labs=  1  [HH_PC, KWOTA        ]  | M19_Numerycznie. Kwota przeciętnych, miesięcznych dochodów NETTO na jedną osobę w gospodarstwie domowym respondenta - śr
+
+[288] CBOS_291_08_2014.sav (year=2014, cols=346, income_cols=5)
+    [323] q186            type=F1.0     n_labs=  5  [PERSONAL            ]  | M18. Ile wynoszą PANA(I) MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ)? Proszę wziąć pod uwagę Pana(i) dochody z pracy głównej wraz
+    [324] q187            type=F5.0     n_labs=  1  [KWOTA               ]  | M18_Numerycznie. Kwota przeciętnych, miesięcznych dochodów NETTO respondenta
+    [325] q188            type=F2.0     n_labs=  8  [PERSONAL            ]  | M18_2. A czy mógłby(mogłaby) Pan(i) podać przybliżone dochody? Proszę spojrzeć na ekran. Czy mógłby(mogłaby) Pan(i) wska
+    [326] q189            type=F1.0     n_labs=  5  [HH_PC               ]  | M19. Ile wynoszą PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W PANA(I) GOSPODARSTWIE DOMOW
+    [327] q190            type=F5.0     n_labs=  1  [HH_PC, KWOTA        ]  | M19_Numerycznie. Kwota przeciętnych, miesięcznych dochodów NETTO na jedną osobę w gospodarstwie domowym respondenta - śr
+
+[289] CBOS_292_09_2014.sav (year=2014, cols=261, income_cols=5)
+    [244] q181            type=F1.0     n_labs=  5  [PERSONAL            ]  | M18. Ile wynoszą PANA(I) MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ)? Proszę wziąć pod uwagę Pana(i) dochody z pracy głównej wraz
+    [245] q182            type=F5.0     n_labs=  1  [KWOTA               ]  | M18_Numerycznie. Kwota przeciętnych, miesięcznych dochodów NETTO respondenta
+    [246] q183            type=F2.0     n_labs=  8  [PERSONAL            ]  | M18_2. A czy mógłby(mogłaby) Pan(i) podać przybliżone dochody? Proszę spojrzeć na ekran. Czy mógłby(mogłaby) Pan(i) wska
+    [247] q184            type=F1.0     n_labs=  5  [HH_PC               ]  | M19. Ile wynoszą PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W PANA(I) GOSPODARSTWIE DOMOW
+    [248] q185            type=F5.0     n_labs=  1  [HH_PC, KWOTA        ]  | M19_Numerycznie. Kwota przeciętnych, miesięcznych dochodów NETTO na jedną osobę w gospodarstwie domowym respondenta - śr
+
+[290] CBOS_293_10_2014.sav (year=2014, cols=291, income_cols=5)
+    [270] q173            type=F1.0     n_labs=  5  [PERSONAL            ]  | M18. Ile wynoszą PANA(I) MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ)? Proszę wziąć pod uwagę Pana(i) dochody z pracy głównej wraz
+    [271] q174            type=F5.0     n_labs=  1  [KWOTA               ]  | M18_Numerycznie. Kwota przeciętnych, miesięcznych dochodów NETTO respondenta
+    [272] q175            type=F2.0     n_labs=  8  [PERSONAL            ]  | M18_2. A czy mógłby(mogłaby) Pan(i) podać przybliżone dochody? Proszę spojrzeć na ekran. Czy mógłby(mogłaby) Pan(i) wska
+    [273] q176            type=F1.0     n_labs=  5  [HH_PC               ]  | M19. Ile wynoszą PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W PANA(I) GOSPODARSTWIE DOMOW
+    [274] q177            type=F5.0     n_labs=  1  [HH_PC, KWOTA        ]  | M19_Numerycznie. Kwota przeciętnych, miesięcznych dochodów NETTO na jedną osobę w gospodarstwie domowym respondenta - śr
+
+[291] CBOS_294_11_2014.sav (year=2014, cols=167, income_cols=5)
+    [149] q151            type=F1.0     n_labs=  5  [PERSONAL            ]  | M18. Ile wynoszą PANA(I) MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ)? Proszę wziąć pod uwagę Pana(i) dochody z pracy głównej wraz
+    [150] q152            type=F5.0     n_labs=  1  [KWOTA               ]  | M18_Numerycznie. Kwota przeciętnych, miesięcznych dochodów NETTO respondenta
+    [151] q153            type=F2.0     n_labs=  8  [PERSONAL            ]  | M18_2. A czy mógłby(mogłaby) Pan(i) podać przybliżone dochody? Proszę spojrzeć na ekran. Czy mógłby(mogłaby) Pan(i) wska
+    [152] q154            type=F1.0     n_labs=  5  [HH_PC               ]  | M19. Ile wynoszą PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W PANA(I) GOSPODARSTWIE DOMOW
+    [153] q155            type=F5.0     n_labs=  1  [HH_PC, KWOTA        ]  | M19_Numerycznie. Kwota przeciętnych, miesięcznych dochodów NETTO na jedną osobę w gospodarstwie domowym respondenta - śr
+
+[292] CBOS_295_12_2014.sav (year=2014, cols=177, income_cols=5)
+    [159] q207            type=F1.0     n_labs=  5  [PERSONAL            ]  | M18. Ile wynoszą PANA(I) MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ)? Proszę wziąć pod uwagę Pana(i) dochody z pracy głównej wraz
+    [160] q208            type=F5.0     n_labs=  1  [KWOTA               ]  | M18_Numerycznie. Kwota przeciętnych, miesięcznych dochodów NETTO respondenta
+    [161] q209            type=F2.0     n_labs=  8  [PERSONAL            ]  | M18_2. A czy mógłby(mogłaby) Pan(i) podać przybliżone dochody? Proszę spojrzeć na ekran. Czy mógłby(mogłaby) Pan(i) wska
+    [162] q210            type=F1.0     n_labs=  5  [HH_PC               ]  | M19. Ile wynoszą PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W PANA(I) GOSPODARSTWIE DOMOW
+    [163] q211            type=F5.0     n_labs=  1  [HH_PC, KWOTA        ]  | M19_Numerycznie. Kwota przeciętnych, miesięcznych dochodów NETTO na jedną osobę w gospodarstwie domowym respondenta - śr
+
+[293] CBOS_296_01_2015.sav (year=2015, cols=278, income_cols=5)
+    [228] q198            type=F1.0     n_labs=  5  [PERSONAL            ]  | M18. Ile wynoszą PANA(I) MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ)? Proszę wziąć pod uwagę Pana(i) dochody z pracy głównej wraz
+    [229] q199            type=F5.0     n_labs=  1  [KWOTA               ]  | ANKIETER: Poniżej wpisać podaną przez respondenta kwotę
+    [230] q200            type=F1.0     n_labs=  8  [PERSONAL            ]  | M18_2. A czy mógłby(mogłaby) Pan(i) podać przybliżone dochody? Proszę spojrzeć na ekran. Czy mógłby(mogłaby) Pan(i) wska
+    [231] q201            type=F1.0     n_labs=  5  [HH_PC               ]  | M19. Ile wynoszą PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W PANA(I) GOSPODARSTWIE DOMOW
+    [232] q202            type=F5.0     n_labs=  1  [KWOTA               ]  | ANKIETER: Poniżej wpisać podaną przez respondenta kwotę
+
+[294] CBOS_297_02_2015.sav (year=2015, cols=217, income_cols=5)
+    [185] q168            type=F1.0     n_labs=  5  [PERSONAL            ]  | M18. Ile wynoszą PANA(I) MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ)? Proszę wziąć pod uwagę Pana(i) dochody z pracy głównej wraz
+    [186] q169            type=F5.0     n_labs=  1  [KWOTA               ]  | ANKIETER: Poniżej wpisać podaną przez respondenta kwotę
+    [187] q170            type=F1.0     n_labs=  8  [PERSONAL            ]  | M18_2. A czy mógłby(mogłaby) Pan(i) podać przybliżone dochody? Proszę spojrzeć na ekran. Czy mógłby(mogłaby) Pan(i) wska
+    [188] q171            type=F1.0     n_labs=  5  [HH_PC               ]  | M19. Ile wynoszą PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W PANA(I) GOSPODARSTWIE DOMOW
+    [189] q172            type=F5.0     n_labs=  1  [KWOTA               ]  | ANKIETER: Poniżej wpisać podaną przez respondenta kwotę
+
+[295] CBOS_298_03_2015.sav (year=2015, cols=294, income_cols=4)
+    [219] q172            type=F1.0     n_labs=  5  [PERSONAL            ]  | M18. Ile wynoszą PANA(I) MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ)? Proszę wziąć pod uwagę Pana(i) dochody z pracy głównej wraz
+    [222] q174            type=F1.0     n_labs=  8  [PERSONAL            ]  | M18_2. A czy mógłby(mogłaby) Pan(i) podać przybliżone dochody? Proszę spojrzeć na ekran. Czy mógłby(mogłaby) Pan(i) wska
+    [223] q175            type=F1.0     n_labs=  5  [HH_PC               ]  | M19. Ile wynoszą PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W PANA(I) GOSPODARSTWIE DOMOW
+    [224] q176            type=F5.0     n_labs=  1  [KWOTA               ]  | ANKIETER: Poniżej wpisać podaną przez respondenta kwotę
+
+[296] CBOS_299_04_2015.sav (year=2015, cols=243, income_cols=5)
+    [188] q130            type=F1.0     n_labs=  5  [PERSONAL            ]  | M18. Ile wynoszą PANA(I) MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ)? Proszę wziąć pod uwagę Pana(i) dochody z pracy głównej wraz
+    [189] q131            type=F5.0     n_labs=  1  [KWOTA               ]  | ANKIETER: Poniżej wpisać podaną przez respondenta kwotę
+    [190] q132            type=F1.0     n_labs=  8  [PERSONAL            ]  | M18_2. A czy mógłby(mogłaby) Pan(i) podać przybliżone dochody? Proszę spojrzeć na ekran. Czy mógłby(mogłaby) Pan(i) wska
+    [191] q133            type=F1.0     n_labs=  5  [HH_PC               ]  | M19. Ile wynoszą PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W PANA(I) GOSPODARSTWIE DOMOW
+    [192] q134            type=F5.0     n_labs=  1  [KWOTA               ]  | ANKIETER: Poniżej wpisać podaną przez respondenta kwotę
+
+[297] CBOS_300_05_2015.sav (year=2015, cols=299, income_cols=6)
+    [128] q85             type=F5.0     n_labs=  1  [KWOTA               ]  | 44. Ile, Pana(i) zdaniem, powinna wynosić kwota wolna od podatku w skali roku?
+    [278] q158            type=F1.0     n_labs=  5  [PERSONAL            ]  | M10. Ile wynoszą PANA(I) MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ)? Proszę wziąć pod uwagę Pana(i) dochody z pracy głównej wraz
+    [279] q159            type=F5.0     n_labs=  1  [KWOTA               ]  | ANKIETER: Poniżej wpisać podaną przez respondenta kwotę
+    [280] q160            type=F1.0     n_labs=  8  [PERSONAL            ]  | M10_2. A czy mógłby(mogłaby) Pan(i) podać przybliżone dochody? Proszę spojrzeć na ekran. Czy mógłby(mogłaby) Pan(i) wska
+    [281] q161            type=F1.0     n_labs=  5  [HH_PC               ]  | M11. Ile wynoszą PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W PANA(I) GOSPODARSTWIE DOMOW
+    [282] q162            type=F5.0     n_labs=  1  [KWOTA               ]  | ANKIETER: Poniżej wpisać podaną przez respondenta kwotę
+
+[298] CBOS_301_06_2015.sav (year=2015, cols=195, income_cols=5)
+    [153] q124            type=F1.0     n_labs=  5  [PERSONAL            ]  | M11. Ile wynoszą PANA(I) MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ)? Proszę wziąć pod uwagę Pana(i) dochody z pracy głównej wraz
+    [154] q125            type=F5.0     n_labs=  1  [KWOTA               ]  | ANKIETER: Poniżej wpisać podaną przez respondenta kwotę
+    [155] q126            type=F1.0     n_labs=  8  [PERSONAL            ]  | M12. A czy mógłby(mogłaby) Pan(i) podać przybliżone dochody? Proszę spojrzeć na ekran. Czy mógłby(mogłaby) Pan(i) wskaza
+    [156] q127            type=F1.0     n_labs=  5  [HH_PC               ]  | M13. Ile wynoszą PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W PANA(I) GOSPODARSTWIE DOMOW
+    [157] q128            type=F5.0     n_labs=  1  [KWOTA               ]  | ANKIETER: Poniżej wpisać podaną przez respondenta kwotę
+
+[299] CBOS_302_07_2015.sav (year=2015, cols=293, income_cols=5)
+    [254] q183            type=F1.0     n_labs=  5  [PERSONAL            ]  | M11. Ile wynoszą PANA(I) MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ)? Proszę wziąć pod uwagę Pana(i) dochody z pracy głównej wraz
+    [255] q184            type=F5.0     n_labs=  1  [KWOTA               ]  | ANKIETER: Poniżej wpisać podaną przez respondenta kwotę
+    [256] q185            type=F1.0     n_labs=  8  [PERSONAL            ]  | M12. A czy mógłby(mogłaby) Pan(i) podać przybliżone dochody? Proszę spojrzeć na ekran. Czy mógłby(mogłaby) Pan(i) wskaza
+    [257] q186            type=F1.0     n_labs=  5  [HH_PC               ]  | M13. Ile wynoszą PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W PANA(I) GOSPODARSTWIE DOMOW
+    [258] q187            type=F5.0     n_labs=  1  [KWOTA               ]  | ANKIETER: Poniżej wpisać podaną przez respondenta kwotę
+
+[300] CBOS_303_08_2015.sav (year=2015, cols=198, income_cols=5)
+    [163] q147            type=F1.0     n_labs=  5  [PERSONAL            ]  | M11. Ile wynoszą PANA(I) MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ)? Proszę wziąć pod uwagę Pana(i) dochody z pracy głównej wraz
+    [164] q148            type=F5.0     n_labs=  1  [KWOTA               ]  | ANKIETER: Poniżej wpisać podaną przez respondenta kwotę
+    [165] q149            type=F1.0     n_labs=  8  [PERSONAL            ]  | M12. A czy mógłby(mogłaby) Pan(i) podać przybliżone dochody? Proszę spojrzeć na ekran. Czy mógłby(mogłaby) Pan(i) wskaza
+    [166] q150            type=F1.0     n_labs=  5  [HH_PC               ]  | M13. Ile wynoszą PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W PANA(I) GOSPODARSTWIE DOMOW
+    [167] q151            type=F5.0     n_labs=  1  [KWOTA               ]  | ANKIETER: Poniżej wpisać podaną przez respondenta kwotę
+
+[301] CBOS_304_09_2015.sav (year=2015, cols=221, income_cols=5)
+    [178] q166            type=F1.0     n_labs=  5  [PERSONAL            ]  | M14. Ile wynoszą PANA(I) MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ)? Proszę wziąć pod uwagę Pana(i) dochody z pracy głównej wraz
+    [179] q167            type=F5.0     n_labs=  1  [KWOTA               ]  | ANKIETER: Poniżej wpisać podaną przez respondenta kwotę
+    [180] q168            type=F1.0     n_labs=  8  [PERSONAL            ]  | M15. A czy mógłby(mogłaby) Pan(i) podać przybliżone dochody? Proszę spojrzeć na ekran. Czy mógłby(mogłaby) Pan(i) wskaza
+    [181] q169            type=F1.0     n_labs=  5  [HH_PC               ]  | M16. Ile wynoszą PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W PANA(I) GOSPODARSTWIE DOMOW
+    [182] q170            type=F5.0     n_labs=  1  [KWOTA               ]  | ANKIETER: Poniżej wpisać podaną przez respondenta kwotę
+
+[302] CBOS_305_10_2015.sav (year=2015, cols=187, income_cols=5)
+    [168] q112            type=F1.0     n_labs=  5  [PERSONAL            ]  | M3. Ile wynoszą PANA(I) MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ)? Proszę wziąć pod uwagę Pana(i) dochody z pracy głównej wraz 
+    [169] q113            type=F5.0     n_labs=  1  [KWOTA               ]  | ANKIETER: Poniżej wpisać podaną przez respondenta kwotę
+    [170] q114            type=F1.0     n_labs=  8  [PERSONAL            ]  | M4. A czy mógłby(mogłaby) Pan(i) podać przybliżone dochody? Proszę spojrzeć na ekran. Czy mógłby(mogłaby) Pan(i) wskazać
+    [171] q115            type=F1.0     n_labs=  5  [HH_PC               ]  | M5. Ile wynoszą PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W PANA(I) GOSPODARSTWIE DOMOWY
+    [172] q116            type=F5.0     n_labs=  1  [KWOTA               ]  | ANKIETER: Poniżej wpisać podaną przez respondenta kwotę
+
+[303] CBOS_306_11_2015.sav (year=2015, cols=205, income_cols=5)
+    [155] q101            type=F1.0     n_labs=  5  [PERSONAL            ]  | M3. Ile wynoszą PANA(I) MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ)? Proszę wziąć pod uwagę Pana(i) dochody z pracy głównej wraz 
+    [156] q102            type=F5.0     n_labs=  1  [KWOTA               ]  | ANKIETER: Poniżej wpisać podaną przez respondenta kwotę
+    [157] q103            type=F1.0     n_labs=  8  [PERSONAL            ]  | M4. A czy mógłby(mogłaby) Pan(i) podać przybliżone dochody? Proszę spojrzeć na ekran. Czy mógłby(mogłaby) Pan(i) wskazać
+    [158] q104            type=F1.0     n_labs=  5  [HH_PC               ]  | M5. Ile wynoszą PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W PANA(I) GOSPODARSTWIE DOMOWY
+    [159] q105            type=F5.0     n_labs=  1  [KWOTA               ]  | ANKIETER: Poniżej wpisać podaną przez respondenta kwotę
+
+[304] CBOS_307_12_2015.sav (year=2015, cols=264, income_cols=5)
+    [216] q153            type=F1.0     n_labs=  5  [PERSONAL            ]  | M3. Ile wynoszą PANA(I) MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ)? Proszę wziąć pod uwagę Pana(i) dochody z pracy głównej wraz 
+    [217] q154            type=F5.0     n_labs=  1  [KWOTA               ]  | ANKIETER: Poniżej wpisać podaną przez respondenta kwotę
+    [218] q155            type=F1.0     n_labs=  8  [PERSONAL            ]  | M4. A czy mógłby(mogłaby) Pan(i) podać przybliżone dochody? Proszę spojrzeć na ekran. Czy mógłby(mogłaby) Pan(i) wskazać
+    [219] q156            type=F1.0     n_labs=  5  [HH_PC               ]  | M5. Ile wynoszą PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W PANA(I) GOSPODARSTWIE DOMOWY
+    [220] q157            type=F5.0     n_labs=  1  [KWOTA               ]  | ANKIETER: Poniżej wpisać podaną przez respondenta kwotę
+
+[305] CBOS_308_01_2016.sav (year=2016, cols=253, income_cols=5)
+    [234] q118            type=F1.0     n_labs=  5  [PERSONAL            ]  | M3. Ile wynoszą PANA(I) MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ)? Proszę wziąć pod uwagę Pana(i) dochody z pracy głównej wraz 
+    [235] q119            type=F8.2     n_labs=  1  [PERSONAL, KWOTA     ]  | M3. Ile wynoszą PANA(I) MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ)? ANKIETER: Poniżej wpisać podaną przez respondenta kwotę
+    [236] q120            type=F8.2     n_labs=  8  [PERSONAL            ]  | M4. A czy mógłby(mogłaby) Pan(i) podać przybliżone dochody? Czy mógłby(mogłaby) Pan(i) wskazać, w którym przedziale mies
+    [237] q121            type=F1.0     n_labs=  5  [HH_PC               ]  | M5. Ile wynoszą PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W PANA(I) GOSPODARSTWIE DOMOWY
+    [238] q122            type=F8.2     n_labs=  1  [HH_PC               ]  | M5. Ile wynoszą PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W PANA(I) GOSPODARSTWIE DOMOWY
+
+[306] CBOS_309_02_2016.sav (year=2016, cols=227, income_cols=5)
+    [210] q125            type=F1.0     n_labs=  5  [PERSONAL            ]  | M3. Ile wynoszą PANA(I) MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ)? Proszę wziąć pod uwagę Pana(i) dochody z pracy głównej wraz 
+    [211] q126            type=F8.2     n_labs=  1  [KWOTA               ]  | ANKIETER: Poniżej wpisać podaną przez respondenta kwotę
+    [212] q127            type=F8.2     n_labs=  8  [PERSONAL            ]  | M4. A czy mógłby(mogłaby) Pan(i) podać przybliżone dochody? Proszę spojrzeć na ekran. Czy mógłby(mogłaby) Pan(i) wskazać
+    [213] q128            type=F1.0     n_labs=  5  [HH_PC               ]  | M5. Ile wynoszą PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W PANA(I) GOSPODARSTWIE DOMOWY
+    [214] q129            type=F8.2     n_labs=  1  [KWOTA               ]  | ANKIETER: Poniżej wpisać podaną przez respondenta kwotę
+
+[307] CBOS_310_03_2016.sav (year=2016, cols=221, income_cols=5)
+    [203] q124            type=F1.0     n_labs=  5  [PERSONAL            ]  | M3. Ile wynoszą PANA(I) MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ)? Proszę wziąć pod uwagę Pana(i) dochody z pracy głównej wraz 
+    [204] q125            type=F8.2     n_labs=  1  [KWOTA               ]  | ANKIETER: Poniżej wpisać podaną przez respondenta kwotę
+    [205] q126            type=F8.2     n_labs=  8  [PERSONAL            ]  | M4. A czy mógłby(mogłaby) Pan(i) podać przybliżone dochody? Proszę spojrzeć na ekran. Czy mógłby(mogłaby) Pan(i) wskazać
+    [206] q127            type=F1.0     n_labs=  5  [HH_PC               ]  | M5. Ile wynoszą PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W PANA(I) GOSPODARSTWIE DOMOWY
+    [207] q128            type=F8.2     n_labs=  1  [KWOTA               ]  | ANKIETER: Poniżej wpisać podaną przez respondenta kwotę
+
+[308] CBOS_311_04_2016.sav (year=2016, cols=191, income_cols=5)
+    [172] q134            type=F1.0     n_labs=  5  [PERSONAL            ]  | M3. Ile wynoszą PANA(I) MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ)? Proszę wziąć pod uwagę Pana(i) dochody z pracy głównej wraz 
+    [173] q135            type=F8.2     n_labs=  1  [KWOTA               ]  | ANKIETER: Poniżej wpisać podaną przez respondenta kwotę
+    [174] q136            type=F8.2     n_labs=  8  [PERSONAL            ]  | M4. A czy mógłby(mogłaby) Pan(i) podać przybliżone dochody? Proszę spojrzeć na ekran. Czy mógłby(mogłaby) Pan(i) wskazać
+    [175] q137            type=F1.0     n_labs=  5  [HH_PC               ]  | M5. Ile wynoszą PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W PANA(I) GOSPODARSTWIE DOMOWY
+    [176] q138            type=F8.2     n_labs=  1  [KWOTA               ]  | ANKIETER: Poniżej wpisać podaną przez respondenta kwotę
+
+[309] CBOS_312_05_2016.sav (year=2016, cols=254, income_cols=2)
+    [238] q185            type=F8.2     n_labs=  2  [PERSONAL            ]  | M3. Ile wynoszą PANA(I) MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ)?
+    [240] q189            type=F8.2     n_labs=  2  [HH_PC               ]  | M5. Ile wynoszą PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W PANA(I) GOSPODARSTWIE DOMOWY
+
+[310] CBOS_313_06_2016.sav (year=2016, cols=245, income_cols=2)
+    [221] q164            type=F8.2     n_labs=  2  [PERSONAL            ]  | M3. Ile wynoszą PANA(I) MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ)?
+    [223] q168            type=F8.2     n_labs=  2  [HH_PC               ]  | M5. Ile wynoszą PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W PANA(I) GOSPODARSTWIE DOMOWY
+
+[311] CBOS_314_07_2016.sav (year=2016, cols=262, income_cols=2)
+    [225] q127            type=F8.2     n_labs=  2  [PERSONAL            ]  | M3. Ile wynoszą PANA(I) MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ)?
+    [227] q131            type=F8.2     n_labs=  2  [HH_PC               ]  | M5. Ile wynoszą PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W PANA(I) GOSPODARSTWIE DOMOWY
+
+[312] CBOS_315_08_2016.sav (year=2016, cols=300, income_cols=2)
+    [264] q133            type=F8.2     n_labs=  2  [PERSONAL            ]  | M3. Ile wynoszą PANA(I) MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ)?
+    [266] q137            type=F8.2     n_labs=  2  [HH_PC               ]  | M5. Ile wynoszą PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W PANA(I) GOSPODARSTWIE DOMOWY
+
+[313] CBOS_316_09_2016.sav (year=2016, cols=277, income_cols=2)
+    [260] q152            type=F8.2     n_labs=  2  [PERSONAL            ]  | M3. Ile wynoszą PANA(I) MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ)?
+    [262] q156            type=F8.2     n_labs=  3  [HH_PC               ]  | M5. Ile wynoszą PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W PANA(I) GOSPODARSTWIE DOMOWY
+
+[314] CBOS_317_10_2016.sav (year=2016, cols=312, income_cols=2)
+    [291] q158            type=F8.2     n_labs=  2  [PERSONAL            ]  | M3. Ile wynoszą PANA(I) MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ)?
+    [293] q162            type=F8.2     n_labs=  2  [HH_PC               ]  | M5. Ile wynoszą PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W PANA(I) GOSPODARSTWIE DOMOWY
+
+[315] CBOS_318_11_2016.sav (year=2016, cols=191, income_cols=2)
+    [161] q147            type=F8.2     n_labs=  2  [PERSONAL            ]  | M3. Ile wynoszą PANA(I) MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ)?
+    [163] q151            type=F8.2     n_labs=  2  [HH_PC               ]  | M5. Ile wynoszą PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W PANA(I) GOSPODARSTWIE DOMOWY
+
+[316] CBOS_319_12_2016.sav (year=2016, cols=123, income_cols=2)
+    [103] q125            type=F8.2     n_labs=  2  [PERSONAL            ]  | M3. Ile wynoszą PANA(I) MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ)?
+    [105] q129            type=F8.2     n_labs=  2  [HH_PC               ]  | M5. Ile wynoszą PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W PANA(I) GOSPODARSTWIE DOMOWY
+
+[317] CBOS_320_01_2017.sav (year=2017, cols=275, income_cols=2)
+    [245] q114            type=F5.0     n_labs=  2  [UNCLASSIFIED        ]  | M3. Ile wynoszą P. MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ)? Proszę wziąć pod uwagę P. dochody z pracy głównej wraz z premiami
+    [248] q118            type=F5.0     n_labs=  3  [HH_PC               ]  | M5. Ile wynoszą PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W P. GOSPODARSTWIE DOMOWYM? Pr
+
+[318] CBOS_321_02_2017.sav (year=2017, cols=213, income_cols=4)
+    [182] q132            type=F5.0     n_labs=  2  [UNCLASSIFIED        ]  | M3. Ile wynoszą P. MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ)? Proszę wziąć pod uwagę P. dochody z pracy głównej wraz z premiami
+    [183] q133            type=F5.0     n_labs=  3  [UNCLASSIFIED        ]  | M3. Ile wynoszą P. MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ)? Zmienna pomocnicza
+    [186] q136            type=F5.0     n_labs=  3  [HH_PC               ]  | M5. Ile wynoszą PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W P. GOSPODARSTWIE DOMOWYM?
+    [187] q137            type=F5.0     n_labs=  3  [HH_PC               ]  | M5. Ile wynoszą PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W P. GOSPODARSTWIE DOMOWYM? Zm
+
+[319] CBOS_322_03_2017.sav (year=2017, cols=229, income_cols=4)
+    [185] q137            type=F5.0     n_labs=  2  [UNCLASSIFIED        ]  | M3. Ile wynoszą P. MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ)? Proszę wziąć pod uwagę P. dochody z pracy głównej wraz z premiami
+    [186] q138            type=F5.0     n_labs=  3  [UNCLASSIFIED        ]  | M3. Ile wynoszą P. MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ)? - zmienna pomocnicza
+    [189] q141            type=F5.0     n_labs=  2  [HH_PC               ]  | M5. Ile wynoszą PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W P. GOSPODARSTWIE DOMOWYM? Pr
+    [190] q142            type=F5.0     n_labs=  3  [HH_PC               ]  | M5. Ile wynoszą PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W P. GOSPODARSTWIE DOMOWYM? - 
+
+[320] CBOS_323_04_2017.sav (year=2017, cols=278, income_cols=4)
+    [233] q157            type=F5.0     n_labs=  0  [UNCLASSIFIED        ]  | M3. Ile wynoszą P. MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ)? Proszę wziąć pod uwagę P. dochody z pracy głównej wraz z premiami
+    [234] q158            type=F5.0     n_labs=  3  [UNCLASSIFIED        ]  | M3. Ile wynoszą P. MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ)? - zmienna pomocnicza
+    [237] q161            type=F5.0     n_labs=  0  [HH_PC               ]  | M5. Ile wynoszą PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W P. GOSPODARSTWIE DOMOWYM? Pr
+    [238] q162            type=F5.0     n_labs=  3  [HH_PC               ]  | M5. Ile wynoszą PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W P. GOSPODARSTWIE DOMOWYM? - 
+
+[321] CBOS_324_05_2017.sav (year=2017, cols=318, income_cols=4)
+    [280] q165            type=F5.0     n_labs=  2  [UNCLASSIFIED        ]  | M3. Ile wynoszą P. MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ)? Proszę wziąć pod uwagę P. dochody z pracy głównej wraz z premiami
+    [281] q166            type=F5.0     n_labs=  3  [UNCLASSIFIED        ]  | M3. Ile wynoszą P. MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ)? - zmienna pomocnicza
+    [284] q169            type=F5.0     n_labs=  2  [HH_PC               ]  | M5. Ile wynoszą PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W P. GOSPODARSTWIE DOMOWYM? Pr
+    [285] q170            type=F5.0     n_labs=  3  [HH_PC               ]  | M5. Ile wynoszą PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W P. GOSPODARSTWIE DOMOWYM? - 
+
+[322] CBOS_325_06_2017.sav (year=2017, cols=311, income_cols=5)
+    [270] q164            type=F5.0     n_labs=  0  [PERSONAL            ]  | M3. Ile wynoszą Pana(i) MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ)? Proszę wziąć pod uwagę Pana(i) dochody z pracy głównej wraz 
+    [271] q165            type=F5.0     n_labs=  3  [UNCLASSIFIED        ]  | M3. Ile wynoszą P. MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ)? - zmienna pomocnicza
+    [272] q167            type=F1.0     n_labs=  8  [PERSONAL            ]  | M4. A czy mógłby(mogłaby) Pan(i) podać przybliżone dochody? Proszę spojrzeć na ekran. Czy mógłby(mogłaby) Pan(i) wskazać
+    [273] q168            type=F5.0     n_labs=  0  [HH_PC               ]  | M5. Ile wynoszą PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W P. GOSPODARSTWIE DOMOWYM? Pr
+    [274] q169            type=F5.0     n_labs=  3  [HH_PC               ]  | M5. Ile wynoszą PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W P. GOSPODARSTWIE DOMOWYM? - 
+
+[323] CBOS_326_07_2017.sav (year=2017, cols=298, income_cols=5)
+    [275] q162            type=F5.0     n_labs=  2  [PERSONAL            ]  | M3. Ile wynoszą Pana(i) MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ)? Proszę wziąć pod uwagę Pana(i) dochody z pracy głównej wraz 
+    [276] q163            type=F5.0     n_labs=  3  [UNCLASSIFIED        ]  | M3. Ile wynoszą P. MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ)? - zmienna pomocnicza
+    [277] q165            type=F1.0     n_labs=  8  [PERSONAL            ]  | M4. A czy mógłby(mogłaby) Pan(i) podać przybliżone dochody? Proszę spojrzeć na ekran. Czy mógłby(mogłaby) Pan(i) wskazać
+    [278] q166            type=F5.0     n_labs=  2  [HH_PC               ]  | M5. Ile wynoszą PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W PANA(I) GOSPODARSTWIE DOMOWY
+    [279] q167            type=F5.0     n_labs=  3  [HH_PC               ]  | M5. Ile wynoszą PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W P. GOSPODARSTWIE DOMOWYM? - 
+
+[324] CBOS_327_08_2017.sav (year=2017, cols=226, income_cols=5)
+    [199] q137            type=F5.0     n_labs=  0  [PERSONAL            ]  | M3. Ile wynoszą Pana(i) MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ)? Proszę wziąć pod uwagę Pana(i) dochody z pracy głównej wraz 
+    [200] q138            type=F5.0     n_labs=  3  [UNCLASSIFIED        ]  | M3. Ile wynoszą P. MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ)? - zmienna pomocnicza
+    [201] q140            type=F1.0     n_labs=  8  [PERSONAL            ]  | M4. A czy mógłby(mogłaby) Pan(i) podać przybliżone dochody? Proszę spojrzeć na ekran. Czy mógłby(mogłaby) Pan(i) wskazać
+    [202] q141            type=F5.0     n_labs=  0  [HH_PC               ]  | M5. Ile wynoszą PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W P. GOSPODARSTWIE DOMOWYM? Pr
+    [203] q142            type=F5.0     n_labs=  3  [HH_PC               ]  | M5. Ile wynoszą PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W P. GOSPODARSTWIE DOMOWYM? - 
+
+[325] CBOS_328_09_2017.sav (year=2017, cols=251, income_cols=5)
+    [223] q133            type=F5.0     n_labs=  2  [PERSONAL            ]  | M3. Ile wynoszą Pana(i) MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ)? Proszę wziąć pod uwagę Pana(i) dochody z pracy głównej wraz 
+    [224] q134            type=F5.0     n_labs=  3  [UNCLASSIFIED        ]  | M3b. Ile wynoszą P. MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ)? - zmienna pomocnicza
+    [225] q136            type=F1.0     n_labs=  8  [PERSONAL            ]  | M4. A czy mógłby(mogłaby) Pan(i) podać przybliżone dochody? Proszę spojrzeć na ekran. Czy mógłby(mogłaby) Pan(i) wskazać
+    [227] q137            type=F5.0     n_labs=  2  [HH_PC               ]  | M5. Ile wynoszą PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W PANA(I) GOSPODARSTWIE DOMOWY
+    [228] q138            type=F5.0     n_labs=  3  [HH_PC               ]  | M5b. Ile wynoszą PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W P. GOSPODARSTWIE DOMOWYM? -
+
+[326] CBOS_329_10_2017.sav (year=2017, cols=231, income_cols=5)
+    [201] q135            type=F5.0     n_labs=  2  [PERSONAL            ]  | M3. Ile wynoszą Pana(i) MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ)? Proszę wziąć pod uwagę Pana(i) dochody z pracy głównej wraz 
+    [202] q136            type=F5.0     n_labs=  3  [UNCLASSIFIED        ]  | M3b. Ile wynoszą P. MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ)? - zmienna pomocnicza
+    [203] q138            type=F1.0     n_labs=  8  [PERSONAL            ]  | M4. A czy mógłby(mogłaby) Pan(i) podać przybliżone dochody? Proszę spojrzeć na ekran. Czy mógłby(mogłaby) Pan(i) wskazać
+    [204] q139            type=F5.0     n_labs=  2  [HH_PC               ]  | M5. Ile wynoszą PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W PANA(I) GOSPODARSTWIE DOMOWY
+    [205] q140            type=F5.0     n_labs=  3  [HH_PC               ]  | M5b. Ile wynoszą PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W P. GOSPODARSTWIE DOMOWYM? -
+
+[327] CBOS_330_11_2017.sav (year=2017, cols=214, income_cols=4)
+    [185] q144            type=F5.0     n_labs=  2  [PERSONAL            ]  | M3. Ile wynoszą Pana(i) MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ)? Proszę wziąć pod uwagę Pana(i) dochody z pracy głównej wraz 
+    [186] q145            type=F5.0     n_labs=  3  [UNCLASSIFIED        ]  | M3b. Ile wynoszą P. MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ)? - zmienna pomocnicza
+    [187] q147            type=F1.0     n_labs=  8  [PERSONAL            ]  | M4. A czy mógłby(mogłaby) Pan(i) podać przybliżone dochody? Proszę spojrzeć na ekran. Czy mógłby(mogłaby) Pan(i) wskazać
+    [188] q148            type=F5.0     n_labs=  1  [HH_PC               ]  | M5. Ile wynoszą PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W PANA(I) GOSPODARSTWIE DOMOWY
+
+[328] CBOS_331_12_2017.sav (year=2017, cols=189, income_cols=5)
+    [161] q126            type=F5.0     n_labs=  2  [PERSONAL            ]  | M3. Ile wynoszą Pana(i) MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ)? Proszę wziąć pod uwagę Pana(i) dochody z pracy głównej wraz 
+    [162] q127            type=F5.0     n_labs=  3  [UNCLASSIFIED        ]  | M3b. Ile wynoszą P. MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ)? - zmienna pomocnicza
+    [163] q129            type=F1.0     n_labs=  8  [PERSONAL            ]  | M4. A czy mógłby(mogłaby) Pan(i) podać przybliżone dochody? Proszę spojrzeć na ekran. Czy mógłby(mogłaby) Pan(i) wskazać
+    [164] q130            type=F5.0     n_labs=  2  [HH_PC               ]  | M5. Ile wynoszą PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W PANA(I) GOSPODARSTWIE DOMOWY
+    [165] q131            type=F5.0     n_labs=  3  [HH_PC               ]  | M5b. Ile wynoszą PRZECIĘTNE MIESIĘCZNE DOCHODY NETTO (NA RĘKĘ) PRZYPADAJĄCE NA JEDNĄ OSOBĘ W P. GOSPODARSTWIE DOMOWYM? -

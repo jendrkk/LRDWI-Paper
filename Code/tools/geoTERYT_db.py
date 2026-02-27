@@ -130,6 +130,9 @@ RODZ_SUB_DIVISIONS = ['4', '5']
 RODZ_SUB_DIVISIONS_AND_DISTRICTS = ['4', '5', '8', '9']
 RODZ_DISTRICTS = ['8', '9']
 
+# RODZ codes whose values should be summed when aggregating children to parents
+RODZ_AGGREGATION_SET = {'1', '2', '3'}
+
 # Kind mapping
 KIND_MAPPING = {
     '1': 'urban',
@@ -146,9 +149,73 @@ KIND_MAPPING = {
 # UTILITY FUNCTIONS
 # ==============================================================================
 
-def nuts_code_to_teryt(nuts_code: str) -> str:
+
+def filter_aggregation_children(
+    children: list,
+    year: int,
+    records_dict: dict,
+) -> list:
+    """Remove encompassing children that cause double-counting in aggregation.
+
+    Detects the Warsaw 1999–2001 pattern: one rodz=1 child whose population
+    equals the sum of all other rodz=1 siblings under the same powiat.
+    When found, the encompassing record is excluded so that only its
+    constituent sub-units are aggregated.
+
+    This is a generic detection — it does not hard-code TERYT IDs.
+
+    Parameters
+    ----------
+    children : list[str]
+        Child TERYT IDs (already filtered to RODZ_AGGREGATION_SET).
+    year : int
+        Year for population lookup.
+    records_dict : dict
+        Database ``_records`` mapping teryt_id → TERYTRecord.
+
+    Returns
+    -------
+    list[str]
+        Filtered children with encompassing records removed.
+    """
+    rodz1 = [c for c in children if c[-1] == '1']
+    if len(rodz1) <= 1:
+        return children  # No possible double-counting
+
+    ts = pd.Timestamp(year, 1, 1)
+
+    # Collect populations for rodz=1 children
+    pops = {}
+    for cid in rodz1:
+        rec = records_dict.get(cid)
+        if rec is not None and hasattr(rec, 'pop'):
+            p = rec.pop.get(ts, np.nan)
+            if not pd.isna(p) and p > 0:
+                pops[cid] = p
+
+    if len(pops) < 2:
+        return children
+
+    total = sum(pops.values())
+
+    # Check if any single child's pop ≈ sum of all others
+    # (i.e. pop ≈ total/2)
+    for cid, p in pops.items():
+        others_sum = total - p
+        if others_sum > 0 and abs(p - others_sum) / others_sum < 0.001:
+            # This child encompasses all others — exclude it
+            return [c for c in children if c != cid]
+
+    return children
+
+
+def nuts_code_to_teryt(nuts_code: str) -> Optional[str]:
     """
     Converts a NUTS code to a TERYT code.
+    
+    Returns None for 12-digit codes that correspond to statistical NUTS-1/-2/-3
+    units (not administrative divisions), since these would cause TERYT ID
+    collisions with actual territorial units.
     
     Used for pre-2012 geometry files that use NUTS-like codes in 'obszar' column.
     Example: 'PL214102011' -> '1214010' (14 = woj, 21 = pow, 01 = gmi, 1 = rodz)
@@ -706,9 +773,13 @@ class TERYTRecord:
         # Track if this unit underwent any changes
         self.has_changes = False
         
-        # Childern and parent relationships (for hierarchy)
-        self.parent_id: Optional[str] = None
-        self.children_ids: List[str] = []
+        # Children and parent relationships (for hierarchy)
+        # Year-keyed: parent_id[year] = str (teryt_id of parent)
+        # Year-keyed: children_ids[year] = list of str (teryt_ids of children)
+        # Special keys: "old" for old voivodeship children of country,
+        #               "nuts" for NUTS-split children of country
+        self.parent_id: Dict[Union[int, str], str] = {}
+        self.children_ids: Dict[Union[int, str], List[str]] = {}
         
         # Data storage (NEW in v4.0)
         # Key: (source_type, subject_id, variable_id) -> DataSeries
@@ -780,13 +851,54 @@ class TERYTRecord:
         self.geometry = geometry
         self.geometry_year = year
     
-    def set_parent(self, parent_id: str):
-        """Set the parent TERYT ID."""
+    def set_parent(self, parent_id: Dict):
+        """Set the parent TERYT ID dict (year → parent teryt_id)."""
         self.parent_id = parent_id
     
-    def set_children(self, children_ids: List[str]):
-        """Set the list of children TERYT IDs."""
+    def set_children(self, children_ids: Dict):
+        """Set the children IDs dict (year → list of children teryt_ids)."""
         self.children_ids = children_ids
+
+    def get_parent(self, year: Union[int, str] = 1999) -> Optional[str]:
+        """Get parent teryt_id for a given year.
+        
+        Falls back to nearest available year if exact year not found.
+        For years 1986-1998, uses the 1999 hierarchy.
+        """
+        if isinstance(year, int) and year < 1999:
+            year = 1999
+        if year in self.parent_id:
+            return self.parent_id[year]
+        # Fallback: try nearest year
+        int_keys = sorted(k for k in self.parent_id if isinstance(k, int))
+        if not int_keys:
+            return None
+        if isinstance(year, int):
+            # Find nearest
+            closest = min(int_keys, key=lambda k: abs(k - year))
+            return self.parent_id.get(closest)
+        return None
+    
+    def get_children(self, year: Union[int, str] = 1999) -> List[str]:
+        """Get children teryt_ids for a given year.
+        
+        Falls back to nearest available year if exact year not found.
+        For years 1986-1998, uses the 1999 hierarchy.
+        Special key 'old' returns old voivodeship children (country only).
+        Special key 'nuts' returns NUTS-split children (country only).
+        """
+        if isinstance(year, int) and year < 1999:
+            year = 1999
+        if year in self.children_ids:
+            return self.children_ids[year]
+        # Fallback: try nearest year
+        int_keys = sorted(k for k in self.children_ids if isinstance(k, int))
+        if not int_keys:
+            return []
+        if isinstance(year, int):
+            closest = min(int_keys, key=lambda k: abs(k - year))
+            return self.children_ids.get(closest, [])
+        return []
     
     def set_old_woj(self, old_woj_name: str, old_woj_id: int):
         """Set the pre-1999 voivodeship assignment."""
@@ -1631,14 +1743,21 @@ class GeoTERYTDatabase:
             # Create standardized 'teryt_id' column
             if needs_conversion:
                 gdf['teryt_id'] = gdf[actual_teryt_col].apply(nuts_code_to_teryt)
+                # Drop rows where nuts_code_to_teryt returned None
+                # (statistical NUTS units that don't map to admin divisions)
+                n_before = len(gdf)
+                gdf = gdf[gdf['teryt_id'].notna()].copy()
+                n_dropped = n_before - len(gdf)
+                if n_dropped > 0 and verbose:
+                    print(f"    Dropped {n_dropped} rows with unmappable NUTS codes")
             else:
                 gdf['teryt_id'] = gdf[actual_teryt_col].apply(lambda x: str(x).zfill(7) if pd.notna(x) else '0000000')
             
             # Handle 6-digit codes (append 0)
-            gdf['teryt_id'] = gdf['teryt_id'].apply(lambda x: x + '0' if len(x) == 6 else x)
+            gdf['teryt_id'] = gdf['teryt_id'].apply(lambda x: x + '0' if len(str(x)) == 6 else x)
             
             # Handle 8-digit codes (truncate last digit)
-            gdf['teryt_id'] = gdf['teryt_id'].apply(lambda x: x[:-1] if len(x) == 8 else x)
+            gdf['teryt_id'] = gdf['teryt_id'].apply(lambda x: x[:-1] if len(str(x)) == 8 else x)
             
             # Optionally clip geometries to Poland boundary
             if clip_to_poland and self._poland_boundary is not None:
@@ -1938,80 +2057,187 @@ class GeoTERYTDatabase:
         """
         Link child units to their parents based on TERYT hierarchy.
         
-        This populates the parent_id and children_ids fields in each record.
+        This populates year-keyed parent_id and children_ids dicts on each
+        record.  The hierarchy may differ from year to year because gminas
+        can move between powiats (and even voivodeships).
         
-        Parameters:
-        - verbose: Print progress
+        Rules
+        -----
+        * For years 1986-1998 the 1999 snapshot is used (pre-reform data is
+          unavailable).
+        * For years 1999+ the snapshot of each year is used.
+        * The country record '0000000' has THREE kinds of children dict
+          entries:
+            – integer year keys  → 16 new voivodeships (02–32 even,
+              excluding '1300000' and '1500000')
+            – "old"   → old voivodeships (set later from notebook)
+            – "nuts"  → NUTS split voivodeships (02–32 even, WITH
+              '1300000'/'1500000' but WITHOUT '1400000')
+        * Old voivodeships ('5100000'–'9900000') and Mazowieckie split
+          units ('1300000', '1500000') are NEVER parents of ordinary
+          records; '0000000' is always their parent for all years.
+        
+        Parameters
+        ----------
+        verbose : bool
+            Print progress.
         """
         if verbose:
-            print("Linking child units to their parents...")
+            print("Linking children to parents (year-keyed)...")
         
-        # Create a fake root parent for top-level units (województwa) with ID '0000000'
-        root_parent = TERYTRecord(
-            teryt_id='0000000',
-            name='Poland',
-            name_dod='',
-            level=0,
-            kind='country'
+        # ── Create root record if absent ──
+        if '0000000' not in self._records:
+            root_parent = TERYTRecord(
+                teryt_id='0000000',
+                name='Poland',
+                name_dod='',
+                level=0,
+                kind='country'
+            )
+            self._records['0000000'] = root_parent
+        root = self._records['0000000']
+        
+        # ── Determine which years to process ──
+        # Available snapshot years (from _by_year index)
+        snapshot_years = sorted(y for y in self._by_year if isinstance(y, int))
+        if not snapshot_years:
+            snapshot_years = [1999]
+        
+        # We always use 1999 as the baseline for pre-reform years
+        MIN_SNAPSHOT = min(snapshot_years)
+        
+        # Build the complete set of hierarchy years:
+        # key 1999 covers 1986-1999; then each year 2000+ individually
+        hierarchy_years = sorted(set(snapshot_years))
+        
+        # ── Pre-compute all_teryt_ids for efficient lookup ──
+        all_tids_set = set(self._records.keys())
+        
+        # ── Helper: build hierarchy for a single snapshot year ──
+        def _build_for_snapshot(snap_year: int):
+            """Return (parent_map, children_map) for records valid in snap_year.
+            
+            parent_map:   teryt_id → parent_teryt_id
+            children_map: teryt_id → [child_teryt_ids]
+            """
+            # Get the set of teryt_ids valid in this snapshot year
+            valid_ids = self._by_year.get(snap_year, set())
+            
+            parent_map = {}
+            children_map = {}
+            
+            for tid in valid_ids:
+                record = self._records.get(tid)
+                if record is None or len(tid) != 7:
+                    continue
+                
+                woj = tid[:2]
+                pow_code = tid[2:4]
+                gmi = tid[4:6]
+                rodz = tid[6]
+                level = record.level
+                
+                if level == 2:  # Voivodeship
+                    parent_map[tid] = '0000000'
+                    # Children = powiats under this voivodeship
+                    ch = [t for t in valid_ids
+                          if len(t) == 7 and t[:2] == woj
+                          and t[4:6] == '00' and t[2:4] != '00']
+                    children_map[tid] = sorted(ch)
+                    
+                elif level == 5:  # Powiat
+                    parent_map[tid] = woj + '00000'
+                    # Children = gminas (rodz 1,2,3)
+                    ch = [t for t in valid_ids
+                          if len(t) == 7 and t[:4] == woj + pow_code
+                          and t[6] in ('1', '2', '3')]
+                    children_map[tid] = sorted(ch)
+                    
+                elif level == 6:  # Gmina
+                    if rodz in ('1', '2', '3'):
+                        parent_map[tid] = woj + pow_code + '000'
+                        # Children = sub-parts (rodz 4,5,8,9)
+                        ch = [t for t in valid_ids
+                              if len(t) == 7 and t[:6] == woj + pow_code + gmi
+                              and t[6] in ('4', '5', '8', '9')]
+                        children_map[tid] = sorted(ch)
+                    elif rodz in ('4', '5'):
+                        parent_map[tid] = woj + pow_code + gmi + '3'
+                    elif rodz in ('8', '9'):
+                        parent_map[tid] = woj + pow_code + gmi + '1'
+            
+            return parent_map, children_map
+        
+        # ── Build hierarchy for each snapshot year ──
+        year_hierarchies = {}  # snap_year → (parent_map, children_map)
+        for sy in hierarchy_years:
+            year_hierarchies[sy] = _build_for_snapshot(sy)
+        
+        # ── Assign to records ──
+        # Collect all teryt_ids that appear in any year
+        all_appearing = set()
+        for pm, cm in year_hierarchies.values():
+            all_appearing.update(pm.keys())
+            all_appearing.update(cm.keys())
+        
+        # Reset parent_id and children_ids on all records
+        for tid, record in self._records.items():
+            record.parent_id = {}
+            record.children_ids = {}
+        
+        for sy in hierarchy_years:
+            parent_map, children_map = year_hierarchies[sy]
+            
+            for tid, pid in parent_map.items():
+                rec = self._records.get(tid)
+                if rec:
+                    rec.parent_id[sy] = pid
+            
+            for tid, ch_list in children_map.items():
+                rec = self._records.get(tid)
+                if rec:
+                    rec.children_ids[sy] = ch_list
+        
+        # ── Build country-level children ──
+        new_voiv_codes = {f'{c:02d}' for c in range(2, 33, 2)}
+        new_voiv_ids = sorted(f'{c:02d}00000' for c in range(2, 33, 2))
+        # NUTS split: includes 1300000, 1500000 but excludes 1400000
+        nuts_voiv_ids = sorted(
+            [v for v in new_voiv_ids if v != '1400000'] + ['1300000', '1500000']
         )
-        self._records['0000000'] = root_parent
-        all_teryt_ids = pd.DataFrame(list(self._records.keys()))
         
+        for sy in hierarchy_years:
+            # Standard children: the 16 new voivodeships valid in this year
+            valid_voivs = [v for v in new_voiv_ids if v in self._records]
+            root.children_ids[sy] = valid_voivs
+        
+        root.children_ids['nuts'] = nuts_voiv_ids
+        # "old" key will be set later when old voivodeships are added
+        
+        # Country is never a child of anything
+        root.parent_id = {}
+        
+        # ── Propagate old_woj to sub-parts ──
         i = 0
-        for teryt_id, record in self._records.items():
-            if len(teryt_id) != 7 or teryt_id == '0000000':
+        for tid, record in self._records.items():
+            if len(tid) != 7:
                 continue
-            
-            # Determine parent ID based on TERYT structure
-            woj = teryt_id[:2]
-            pow = teryt_id[2:4]
-            gmi = teryt_id[4:6]
-            rodz = teryt_id[6]
-            level = record.level
-            
-            parent_id = None
-            children_ids = pd.DataFrame()
-            
-            if level == 2:  # Voivodeship
-                parent_id = '0000000'  # Root parent
-                # Children = powiats: same woj, gmi='00', but NOT the voivodeship itself
-                mask = (all_teryt_ids[0].str[:2] == woj) & \
-                       (all_teryt_ids[0].str[4:6] == '00') & \
-                       (all_teryt_ids[0].str[2:4] != '00')
-                children_ids = all_teryt_ids[mask]
-            elif level == 5:  # Powiat
-                parent_id = woj + '00000'
-                # Children = gminas (rodz 1,2,3) under this powiat
-                mask = (all_teryt_ids[0].str[:4] == woj + pow) & \
-                       (all_teryt_ids[0].str[6].isin(['1', '2', '3']))
-                children_ids = all_teryt_ids[mask]
-            elif level == 6:  # Gmina
-                if rodz in ['1', '2', '3']:  # Regular gmina
-                    parent_id = woj + pow + '000'
-                    # Children = sub-parts (rodz 4,5,8,9) with same woj+pow+gmi
-                    mask = (all_teryt_ids[0].str[:6] == woj + pow + gmi) & \
-                           (all_teryt_ids[0].str[6].isin(['4', '5', '8', '9']))
-                    children_ids = all_teryt_ids[mask]
-                elif rodz in ['4', '5']:  # City/rural part of gmina miejsko-wiejska
-                    parent_id = woj + pow + gmi + '3'
-                else:  # Parts of cities with powiat rights (dzielnice, delegatury)
-                    parent_id = woj + pow + gmi + '1'
-            
-            record.set_parent(parent_id)
-            child_list = list(children_ids[0].values) if not children_ids.empty else []
-            record.set_children(child_list)
-
-            # Make childern records inherit old_woj and old_woj_name from parent if parent is of level 6 and childern_ids is not empty
-            if level == 6 and rodz == '3' and child_list:
-                for child_id in child_list:
-                    child_record = self._records.get(child_id)
-                    if child_record:
-                        child_record.set_old_woj(record.old_woj, record.old_woj_id)
-            
-            i += 1 
+            if record.level == 6 and record.rodz == '3':
+                # Propagate old_woj to children (rodz 4,5,8,9)
+                for sy in hierarchy_years:
+                    ch_list = record.children_ids.get(sy, [])
+                    for child_id in ch_list:
+                        child_record = self._records.get(child_id)
+                        if child_record and record.old_woj:
+                            child_record.set_old_woj(record.old_woj, record.old_woj_id)
+            i += 1
         
         if verbose:
-            print(f"  ✓ Linked children to parents for {i} records")
+            n_with_parent = sum(1 for r in self._records.values() if r.parent_id)
+            n_with_children = sum(1 for r in self._records.values() if r.children_ids)
+            print(f"  ✓ Linked hierarchy for {len(hierarchy_years)} snapshot years")
+            print(f"    Records with parent:   {n_with_parent}")
+            print(f"    Records with children: {n_with_children}")
     
     # ==========================================================================
     # SEARCH METHODS
@@ -4332,11 +4558,13 @@ class GeoTERYTDatabase:
     
     def _store_1d_merged(self, record, subject_id: str, labels: list,
                          data: dict, subject_name: str = '') -> int:
-        """Store unified 1D data as DataSeries. Only fills NaN positions."""
+        """Store unified 1D data as DataSeries. Only fills NaN positions.
+        
+        Always creates DataSeries for ALL labels (even those without data)
+        to ensure consistent CrossTable shape across records.
+        """
         count = 0
         for i, label in enumerate(labels):
-            if label not in data:
-                continue
             var_id = f'M{i+1:04d}'
             mkey = ('Merged', subject_id, var_id)
             if mkey not in record.data:
@@ -4344,6 +4572,9 @@ class GeoTERYTDatabase:
                     source_type='Merged', subject_id=subject_id,
                     variable_id=var_id, subject_name=subject_name,
                     categories={'n1': label})
+            if label not in data:
+                count += 1
+                continue
             target = record.data[mkey]
             for ts, val in data[label].dropna().items():
                 if pd.isna(target.values.get(ts, np.nan)):
@@ -4354,18 +4585,16 @@ class GeoTERYTDatabase:
     def _store_2d_merged(self, record, subject_id: str, dim1_labels: list,
                          dim2_labels: list, pair_data: dict,
                          subject_name: str = '') -> int:
-        """Store unified 2D data as DataSeries. Only fills NaN positions."""
+        """Store unified 2D data as DataSeries. Only fills NaN positions.
+        
+        Always creates DataSeries for ALL label combinations (even those
+        without data) to ensure consistent CrossTable shape across records.
+        """
         count = 0
         var_idx = 0
         for d1_lbl in dim1_labels:
             for d2_lbl in dim2_labels:
                 var_idx += 1
-                pk = (d1_lbl, d2_lbl)
-                if pk not in pair_data:
-                    continue
-                vals = pair_data[pk]
-                if not vals.notna().any():
-                    continue
                 var_id = f'M{var_idx:04d}'
                 mkey = ('Merged', subject_id, var_id)
                 if mkey not in record.data:
@@ -4373,6 +4602,14 @@ class GeoTERYTDatabase:
                         source_type='Merged', subject_id=subject_id,
                         variable_id=var_id, subject_name=subject_name,
                         categories={'n1': d1_lbl, 'n2': d2_lbl})
+                pk = (d1_lbl, d2_lbl)
+                if pk not in pair_data:
+                    count += 1
+                    continue
+                vals = pair_data[pk]
+                if not vals.notna().any():
+                    count += 1
+                    continue
                 target = record.data[mkey]
                 for ts, val in vals.dropna().items():
                     if pd.isna(target.values.get(ts, np.nan)):
@@ -4504,6 +4741,13 @@ class GeoTERYTDatabase:
                     n_created += self._store_1d_merged(record, SID, LABELS, u, 'hh_size_2000')
                 u = self._extract_1d_labels(record, 'P4287', 'hh_size', P4287_MAP)
                 if u:
+                    # Compute missing '3-osobowe' as residual if ogółem exists
+                    # (P4287 omits '3-osobowe' for some gminas)
+                    if '3-osobowe' not in u and 'ogółem' in u:
+                        self._compute_residual_label(
+                            u, 'ogółem',
+                            ['1-osobowe', '2-osobowe', '4-osobowe', '5 i więcej-osobowe'],
+                            '3-osobowe')
                     n_created += self._store_1d_merged(record, SID, LABELS, u, 'hh_size_2000')
             if record.level == LEVEL_POWIAT:
                 u = self._extract_1d_labels(record, 'P3420', 'hh_size', P3420_MAP)
@@ -4539,12 +4783,12 @@ class GeoTERYTDatabase:
         
         n_created = 0
         for record in self._records.values():
-            # P2137: level=6, 2D age×sex → all sex groups
-            if record.level == LEVEL_GMINA:
-                pairs = self._extract_2d_all_sex(record, 'P2137', 'age', P2137_AGE_MAP)
-                if pairs:
-                    n_created += self._store_2d_merged(record, SID, AGE_LABELS,
-                                                       SEX_LABELS, pairs, 'age_sex')
+            # P2137: multilevel — extract from ALL levels that have P2137 data
+            # (gminas level=6, powiats level=5, voivodeships level=2, country level=0)
+            pairs = self._extract_2d_all_sex(record, 'P2137', 'age', P2137_AGE_MAP)
+            if pairs:
+                n_created += self._store_2d_merged(record, SID, AGE_LABELS,
+                                                   SEX_LABELS, pairs, 'age_sex')
             # H_age_sex: level=2, 2D age×sex → all sex groups
             h_data = record.get_data_by_subject('H_age_sex')
             if h_data:
@@ -4582,14 +4826,15 @@ class GeoTERYTDatabase:
         
         n_created = 0
         for record in self._records.values():
-            if record.level == LEVEL_GMINA:
-                u = self._extract_1d_labels(record, 'P2884', 'age', P2884_MAP)
-                if u:
-                    n_created += self._store_1d_merged(record, SID, LABELS, u, 'age_1990')
-                u = self._extract_2d_filter_sex(record, 'P2137', 'ogółem', 'age',
-                                                 P2137_10YR_MAP, P2137_10YR_SUM)
-                if u:
-                    n_created += self._store_1d_merged(record, SID, LABELS, u, 'age_1990')
+            # P2884: multilevel — extract from ALL levels that have data
+            u = self._extract_1d_labels(record, 'P2884', 'age', P2884_MAP)
+            if u:
+                n_created += self._store_1d_merged(record, SID, LABELS, u, 'age_1990')
+            # P2137 (sex=ogółem, 5yr→10yr): multilevel
+            u = self._extract_2d_filter_sex(record, 'P2137', 'ogółem', 'age',
+                                             P2137_10YR_MAP, P2137_10YR_SUM)
+            if u:
+                n_created += self._store_1d_merged(record, SID, LABELS, u, 'age_1990')
             h_data = record.get_data_by_subject('H_age_sex')
             if h_data:
                 u = self._extract_2d_filter_sex(record, 'H_age_sex', 'ogółem', 'age',
@@ -5079,11 +5324,14 @@ class GeoTERYTDatabase:
                     nan_timestamps = ds.values.index[nan_mask]
                     
                     for ts in nan_timestamps:
+                        year = ts.year if hasattr(ts, 'year') else int(ts)
                         total = 0.0
                         found_any = False
-                        for cid in record.children_ids:
-                            if cid[-1] not in ('1', '2', '3'):
-                                continue
+                        raw_children = [cid for cid in record.get_children(year)
+                                        if cid[-1] in RODZ_AGGREGATION_SET]
+                        agg_children = filter_aggregation_children(
+                            raw_children, year, self._records)
+                        for cid in agg_children:
                             child = self._records.get(cid)
                             if child is None:
                                 continue
@@ -5117,9 +5365,10 @@ class GeoTERYTDatabase:
                     nan_timestamps = ds.values.index[nan_mask]
                     
                     for ts in nan_timestamps:
+                        year = ts.year if hasattr(ts, 'year') else int(ts)
                         total = 0.0
                         found_any = False
-                        for cid in record.children_ids:
+                        for cid in record.get_children(year):
                             if cid[-1] not in ('0', '1', '2', '3'):
                                 continue
                             child = self._records.get(cid)
@@ -5255,26 +5504,41 @@ class GeoTERYTDatabase:
     def extract_population(self, subject_names_dict: Dict[str, str],
                            verbose: bool = True) -> int:
         """
-        Extract total population for each TERYTRecord from pop__ subjects.
+        Extract total population for each TERYTRecord.
         
-        For each record with BDL data in subjects with names starting with 'pop__',
-        finds variables where ALL dimension labels are 'ogółem' or 'total',
-        and stores the total population in TERYTRecord.pop as pd.Series.
-        Census data is also added where available.
+        Three-phase approach:
         
+        Phase 1 — BDL pop__ subjects (DataSeries):
+            For subjects whose name starts with 'pop__', find DataSeries where
+            ALL category labels are 'ogółem'/'total' and store their values.
+            
+        Phase 2 — Cross tables fallback:
+            For any record and year still missing population, scan cross tables
+            from subjects whose ogółem cell represents TOTAL POPULATION (not
+            subsets like pop 15+ for education, not household counts).
+            Includes both raw census subjects and merged/historical subjects.
+            Handles 1D, 2D, and N-D cross tables.
+            
+        Priority subjects for Phase 2 (all have ogółem = total population):
+            P2883 (sex,1988), P2884 (age,1988), P2137 (age×sex,BDL),
+            M_age_1990, M_age_sex, M_pop__age_sex,
+            P2114 (age×sex,2002), P3304 (age×sex,2011), P4253 (age×sex,2021),
+            H_age_sex (historical, old voivodeships 1986-1994)
+            
         Parameters:
         - subject_names_dict: Dict mapping subject_id -> human-readable name
         - verbose: Print progress
         
         Returns:
-        - Number of records with population data extracted
+        - Number of records with population data extracted (Phase 1)
         """
+        total_labels = {'ogółem', 'total', 'Ogółem', 'Total'}
+        
+        # ── Phase 1: BDL pop__ subjects (DataSeries) ──
         pop_subjects = [sid for sid, name in subject_names_dict.items()
                         if name.startswith('pop__')]
         
-        total_labels = {'ogółem', 'total', 'Ogółem', 'Total'}
         count = 0
-        
         for record in self._records.values():
             pop_found = False
             
@@ -5283,18 +5547,13 @@ class GeoTERYTDatabase:
                 if not subj_data:
                     continue
                 
-                # Find the "total" variable (all categories are 'ogółem'/'total')
                 for key, series in subj_data.items():
                     if not series.categories:
                         continue
-                    
                     all_total = all(
-                        v in total_labels
-                        for v in series.categories.values()
+                        v in total_labels for v in series.categories.values()
                     )
-                    
                     if all_total:
-                        # Merge values into record.pop
                         for ts, val in series.values.dropna().items():
                             if pd.isna(record.pop.get(ts, np.nan)):
                                 record.pop[ts] = val
@@ -5303,8 +5562,75 @@ class GeoTERYTDatabase:
             if pop_found:
                 count += 1
         
+        # ── Phase 2: Cross tables fallback (census + merged + historical) ──
+        # Subjects whose ogółem cell = total population (NOT education 15+,
+        # NOT household counts). Ordered by priority/reliability.
+        POP_CT_SUBJECTS = [
+            'P2883',          # Census 1988 sex       (ogółem = total pop)
+            'P2884',          # Census 1988 age       (ogółem = total pop)
+            'M_age_1990',     # Merged age 1D         (ogółem = total pop)
+            'M_age_sex',      # Merged age×sex 2D     (og×og = total pop)
+            'M_pop__age_sex', # Merged pop age×sex 2D (og×og = total pop)
+            'P2137',          # BDL age×sex 2D        (og×og = total pop)
+            'P2114',          # Census 2002 age×sex   (og×og = total pop)
+            'P3304',          # Census 2011 age×sex   (og×og = total pop)
+            'P4253',          # Census 2021 age×sex   (og×og = total pop)
+            'H_age_sex',      # Historical 1986-1994  (og×og = total pop)
+        ]
+        
+        ct_count = 0
+        for record in self._records.values():
+            filled_any = False
+            
+            for sid in POP_CT_SUBJECTS:
+                ct = record.cross_tables.get(sid)
+                if ct is None:
+                    continue
+                
+                # Find ogółem index in each dimension
+                og_indices = {}
+                all_dims_have_og = True
+                for dname in ct.dim_names:
+                    labels = ct.dim_labels.get(dname, [])
+                    og_idx = None
+                    for i, lbl in enumerate(labels):
+                        if lbl.lower() in {'ogółem', 'total'}:
+                            og_idx = i
+                            break
+                    if og_idx is None:
+                        all_dims_have_og = False
+                        break
+                    og_indices[dname] = og_idx
+                
+                if not all_dims_have_og:
+                    continue
+                
+                # Extract ogółem cell for each year with NaN pop
+                for year, tbl in ct.tables.items():
+                    ts = pd.Timestamp(year, 1, 1)
+                    if pd.notna(record.pop.get(ts, np.nan)):
+                        continue  # already filled
+                    if tbl is None or np.all(np.isnan(tbl)):
+                        continue
+                    
+                    # Get the ogółem cell value
+                    idx = tuple(og_indices[d] for d in ct.dim_names)
+                    val = tbl[idx] if len(idx) > 1 else tbl[idx[0]]
+                    
+                    if pd.notna(val) and val > 0:
+                        record.pop[ts] = val
+                        filled_any = True
+            
+            if filled_any:
+                ct_count += 1
+        
         if verbose:
-            print(f"  ✓ Extracted population for {count} records")
+            pop_total = sum(1 for r in self._records.values()
+                            if r.pop.notna().any())
+            print(f"  ✓ Phase 1: population from DataSeries for {count} records")
+            if ct_count > 0:
+                print(f"  ✓ Phase 2: population from cross tables for {ct_count} additional records")
+            print(f"  ✓ Total records with population data: {pop_total}")
         
         return count
     
@@ -6063,8 +6389,20 @@ def load_complete_database(filepath: Union[str, Path], verbose: bool = True) -> 
         record.old_woj_id = rec_dict.get('old_woj_id')
         record.historical_codes = rec_dict.get('historical_codes', [])  # NEW in v3.1
         record.code_by_year = rec_dict.get('code_by_year', {})  # NEW in v3.1
-        record.parent_id = rec_dict.get('parent_teryt_id')  # NEW in v3.1
-        record.children_ids = rec_dict.get('child_teryt_ids', [])  # NEW
+        record.parent_id = rec_dict.get('parent_teryt_id', {})
+        # Handle backward compat: old format stored str or None, new stores dict
+        if record.parent_id is None:
+            record.parent_id = {}
+        elif isinstance(record.parent_id, str):
+            # Old format: single string → convert to year-keyed dict (all years = same parent)
+            old_pid = record.parent_id
+            record.parent_id = {y: old_pid for y in range(1999, 2026)}
+        
+        record.children_ids = rec_dict.get('child_teryt_ids', {})
+        # Handle backward compat: old format stored list, new stores dict
+        if isinstance(record.children_ids, list):
+            old_list = record.children_ids
+            record.children_ids = {y: old_list for y in range(1999, 2026)} if old_list else {}
         
         # Restore geometry from WKB or hash reference (v4.3)
         geom_hash = rec_dict.get('geometry_hash')

@@ -21,6 +21,8 @@
 
 - ~~Fix the functionalities of children and parents. Debug the function self.link_children_to_parents(), because it throws an error.~~ **DONE (v4.2)** — `link_children_to_parents()` fixed and moved to GUS02A (runs before data loading).
 
+- ~~Refactor `children_ids` and `parent_id` from flat attributes (list/string) to **year-keyed dictionaries**. Administrative divisions change over time (gminas move between powiats), so hierarchy must track per-year snapshots.~~ **DONE (v5.3)** — `parent_id: Dict[Union[int, str], str]` and `children_ids: Dict[Union[int, str], List[str]]`. Integer keys for years (1999–2025; years <1999 fall back to 1999). Special string keys on country record: `"old"` (49 old voivodeships), `"nuts"` (16 new minus Mazowieckie + 2 NUTS splits). New helper methods `get_parent(year)` and `get_children(year)` with nearest-year fallback. `link_children_to_parents()` rewritten to build per-year hierarchy from `_by_year` index. Backward-compatible `_restore_record()` auto-converts old pickle format. All downstream code updated: `resolve_historical_teryts()`, `_get_aggregation_children()`, `_enforce_hierarchy_gurobi()`, `_enforce_hierarchy_ipf()`, GUS02B STEP 4 cell, GUS04B population cell, `geoteryt_supp2.py`.
+
 ## Geometries handling (complete)
 
 ## TERYT codes handling (complete)
@@ -288,7 +290,7 @@ The estimation follows a three-layer approach for each (variable type × predict
 
 #### Layer 1: Temporal seed generation (log-linear interpolation)
 
-14. [ ] **Implement `_generate_seeds()`** method on `DemographicEstimator`.
+14. [x] **Implement `_generate_seeds()`** method on `DemographicEstimator`. ✅ DONE (v5.2)
     - **Input:** List of `(teryt_id, subject_id)` pairs; census anchor years and their cross tables.
     - **Algorithm for each territorial unit:**
         1. Collect all years where the unit has non-NaN cross table data (this includes census years AND BDL years, depending on the subject). These are all "anchor points".
@@ -311,7 +313,7 @@ The estimation follows a three-layer approach for each (variable type × predict
 
 #### Layer 2: Marginal fitting via multi-dimensional IPF
 
-16. [ ] **Implement `_fit_marginals_ipf()`** method.
+16. [x] **Implement `_fit_marginals_ipf()`** method. ✅ DONE (v5.2)
     - **Input:** Seed table (numpy array), list of known marginals (each = target array + dimensions to sum over).
     - **Algorithm:** Use the `ipfn` package (numpy backend) for N-dimensional IPF:
         1. Construct aggregates list and dimensions list from known marginals.
@@ -324,7 +326,7 @@ The estimation follows a three-layer approach for each (variable type × predict
         - **Education, Prediction1990 (1986–2002):** Country-level marginals from H_sex_educ (1986–88, 1991–94). Fit aggregated gmina estimates at the national level.
         - **Household size, both sections:** No annual marginals available. Layer 2 is skipped; seeds from Layer 1 go directly to Layer 3.
 
-17. [ ] **Handle the multi-level IPF for sub-voivodeship constraints.**
+17. [x] **Handle the multi-level IPF for sub-voivodeship constraints.** ✅ DONE (v5.2, `_scale_gminas_to_parent()`)
     - When marginals are at voivodeship level but estimation targets are gminas:
         1. First, aggregate gmina seeds within the voivodeship (sum only rodz ∈ {1,2,3}).
         2. Run IPF at the voivodeship level: fit the aggregated seed to the known voivodeship marginal.
@@ -335,7 +337,7 @@ The estimation follows a three-layer approach for each (variable type × predict
 
 #### Layer 3: Hierarchical consistency enforcement via Gurobi QP
 
-18. [ ] **Implement `_enforce_hierarchy_gurobi()`** — the PRIMARY method.
+18. [x] **Implement `_enforce_hierarchy_gurobi()`** — the PRIMARY method. ✅ DONE (v5.2)
     - **Problem formulation** (per voivodeship, per year, per variable type):
         - **Decision variables:** $x_{ij}^g \geq 0$ for each gmina $g$ (rodz ∈ {1,2,3} only!) and each cell $(i,j)$ in the cross table, EXCLUDING ogółem rows/columns (ogółem is computed post-hoc as sum of parts).
         - **Objective (weighted least squares / chi-squared):**
@@ -353,7 +355,7 @@ The estimation follows a three-layer approach for each (variable type × predict
     - **Post-solve:** After solving, recompute ogółem rows/columns and populate rodz 4,5,8,9 records by distributing the type-3 parent's table according to population share.
     - **Total runtime estimate:** 16 voivodeships × ~37 years × ~3 variable types × <1s/solve ≈ ~30 minutes.
 
-19. [ ] **Implement `_enforce_hierarchy_ipf()`** — the FALLBACK method (when Gurobi is unavailable).
+19. [x] **Implement `_enforce_hierarchy_ipf()`** — the FALLBACK method (when Gurobi is unavailable). ✅ DONE (v5.2)
     - Iterated multi-level IPF:
         1. Aggregate gmina estimates to powiat level (sum only rodz ∈ {1,2,3}).
         2. If powiat data is known: apply IPF to gmina estimates within each powiat to match powiat totals.

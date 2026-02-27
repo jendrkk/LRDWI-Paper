@@ -107,8 +107,9 @@ for wcode, wname in [('02', 'Dolnoslaskie'), ('04', 'Kuj-Pom'), ('06', 'Lubelski
 # Also check children hierarchy
 print("\n  Direct children of woj 0200000:")
 woj_r = records['0200000']
-print(f"  Children: {len(woj_r.children_ids)}")
-for cid in woj_r.children_ids[:5]:
+woj_children = woj_r.get_children(2024)
+print(f"  Children: {len(woj_children)}")
+for cid in woj_children[:5]:
     cr = records.get(cid)
     if cr:
         print(f"    {cid}: {cr.name} (level={cr.level})")
