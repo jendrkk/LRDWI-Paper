@@ -1698,6 +1698,137 @@ class DemographicEstimator:
         return tbl
 
     # ------------------------------------------------------------------
+    # 2011 powiat disaggregation helper
+    # ------------------------------------------------------------------
+
+    def _disaggregate_2011_powiat_to_gmina(
+        self,
+        source_sid: str,
+        dim_names: List[str],
+        dim_labels: Dict[str, List[str]],
+    ) -> Dict[str, np.ndarray]:
+        """Disaggregate 2011 powiat-level cross tables to gmina level.
+
+        For subjects where 2011 census data is at powiat level only
+        (e.g. P3309 → M_educ_2000, P3420 → M_hh_size_2000), this
+        method estimates gmina-level 2011 tables using the structure
+        from 2002 and 2021 gmina-level data.
+
+        Algorithm for each powiat with 2011 data:
+          1. Collect gmina-level tables for 2002 and 2021.
+          2. For each gmina, compute a geometric-mean share per core
+             cell (average of 2002 and 2021 proportions in log-space).
+          3. Distribute the powiat 2011 total across gminas according
+             to these shares.
+          4. Recompute ogółem.
+
+        Parameters
+        ----------
+        source_sid : str
+            The M_ subject (e.g. 'M_educ_2000', 'M_hh_size_2000').
+        dim_names, dim_labels :
+            Cross table dimension specification.
+
+        Returns
+        -------
+        dict : gmina_teryt_id → full-shape np.ndarray (synthetic 2011)
+        """
+        ndim = len(dim_names)
+        full_shape = tuple(len(dim_labels[d]) for d in dim_names)
+        ogolem_idx, non_ogolem_slices = self._identify_ogolem(
+            dim_names, dim_labels,
+        )
+        core_shape = tuple(
+            len(non_ogolem_slices[d]) for d in range(ndim)
+        )
+
+        result: Dict[str, np.ndarray] = {}
+        voiv_tids = self._get_voivodeships()
+        n_disagg = 0
+
+        for voiv_tid in voiv_tids:
+            voiv_rec = self.db._records.get(voiv_tid)
+            if voiv_rec is None:
+                continue
+
+            for pow_tid in _get_aggregation_children(
+                voiv_rec, self.db, 2011
+            ):
+                pow_rec = self.db._records.get(pow_tid)
+                if pow_rec is None or pow_rec.level != 5:
+                    continue
+
+                # ── powiat 2011 table ──
+                pow_tbl = self._get_observed_table(
+                    pow_tid, source_sid, 2011,
+                )
+                if pow_tbl is None or pow_tbl.shape != full_shape:
+                    continue
+                pow_core = self._extract_core(
+                    np.maximum(pow_tbl, 0.0), ndim,
+                    ogolem_idx, non_ogolem_slices,
+                )
+
+                # ── gminas in this powiat ──
+                gmina_tids = _get_aggregation_children(
+                    pow_rec, self.db, 2011,
+                )
+                if not gmina_tids:
+                    continue
+
+                # ── compute geometric-mean shares from 2002/2021 ──
+                shares: Dict[str, np.ndarray] = {}
+                for gid in gmina_tids:
+                    cores_for_avg: List[np.ndarray] = []
+                    for anchor_yr in (2002, 2021):
+                        tbl = self._get_observed_table(
+                            gid, source_sid, anchor_yr,
+                        )
+                        if tbl is not None and tbl.shape == full_shape:
+                            core = self._extract_core(
+                                tbl, ndim,
+                                ogolem_idx, non_ogolem_slices,
+                            )
+                            if not np.any(np.isnan(core)):
+                                cores_for_avg.append(
+                                    np.maximum(core, 0.0) + EPSILON
+                                )
+                    if cores_for_avg:
+                        log_mean = np.mean(
+                            [np.log(c) for c in cores_for_avg],
+                            axis=0,
+                        )
+                        shares[gid] = np.exp(log_mean)
+
+                if not shares:
+                    continue
+
+                # ── distribute powiat total ──
+                total_share = np.zeros(core_shape, dtype=float)
+                for sh in shares.values():
+                    total_share += sh
+
+                for gid, share in shares.items():
+                    with np.errstate(divide='ignore', invalid='ignore'):
+                        frac = np.where(
+                            total_share > EPSILON,
+                            share / total_share,
+                            1.0 / len(shares),
+                        )
+                    gmina_core = np.maximum(frac * pow_core, 0.0)
+                    result[gid] = self._assemble_with_ogolem(
+                        gmina_core, ndim, full_shape,
+                        ogolem_idx, non_ogolem_slices,
+                    )
+                    n_disagg += 1
+
+        self._log(
+            f"    2011 powiat disaggregation: "
+            f"{n_disagg} synthetic gmina tables"
+        )
+        return result
+
+    # ------------------------------------------------------------------
     # Variable-specific pipelines
     # ------------------------------------------------------------------
 
@@ -2136,39 +2267,1085 @@ class DemographicEstimator:
         self._log(f"  Summary: {n_stored} cell-years for {len(seeds)} gminas")
 
     def _estimate_educ_2000(self, e_sid: str):
-        """Education estimation for Prediction2000 (1999–2024).
-        Will be implemented in work chunk D (v5.3), item 23."""
-        raise NotImplementedError("See todo.md item 23.")
+        """Education estimation for Prediction2000 (1999–2025).
+
+        Data landscape
+        --------------
+        - M_educ_2000: shape (5,), 1D, **NO ogółem label**.
+          Labels: wyższe, policealne…, średnie…, zasadnicze…,
+                  gimnazjalne…
+        - Census 2002 gmina (P2402), 2011 powiat (P3309),
+          2021 gmina (P4315).
+        - Voivodeship annual marginals: P2350 (1995–2020),
+          P4092 (2010–2024) → stored in M_educ_2000 at level 2.
+
+        Algorithm
+        ---------
+        1. Disaggregate 2011 powiat data to gmina level.
+        2. Layer 1: Log-linear spline through anchors (2002, 2011-syn, 2021).
+        3. Layer 2: Scale gmina aggregates per voivodeship to match
+           M_educ_2000 voivodeship marginals for each year.
+        4. Store results.
+        5. Aggregate to powiat and voivodeship levels.
+        """
+        source_sid = 'M_educ_2000'
+        year_range = PREDICTION_2000_RANGE
+
+        # ── dimensions ──
+        dim_names, dim_labels = self._get_subject_dimensions(source_sid)
+        full_shape = tuple(len(dim_labels[d]) for d in dim_names)
+        ogolem_idx, non_ogolem_slices = self._identify_ogolem(
+            dim_names, dim_labels,
+        )
+        ndim = len(dim_names)
+        self._log(f"  Source: {source_sid}  shape={full_shape}")
+
+        # ── 2011 disaggregation ──
+        self._log("  Disaggregating 2011 powiat data to gmina…")
+        synthetic_2011 = self._disaggregate_2011_powiat_to_gmina(
+            source_sid, dim_names, dim_labels,
+        )
+
+        # ── build seeds ──
+        self._log("  Layer 1: building seeds (log-linear interpolation)…")
+        all_gmina_tids = self._get_all_gminas()
+        seeds: Dict[str, Dict[int, np.ndarray]] = {}
+        n_generated = 0
+
+        for tid in all_gmina_tids:
+            rec = self.db._records.get(tid)
+            if rec is None:
+                continue
+
+            anchor_years: List[int] = []
+            anchor_cores: List[np.ndarray] = []
+
+            ct = rec.cross_tables.get(source_sid)
+            if ct is not None and ct.shape == full_shape:
+                for yr in sorted(ct.tables.keys()):
+                    tbl = ct.tables[yr]
+                    if tbl is None or np.all(np.isnan(tbl)):
+                        continue
+                    core = self._extract_core(
+                        tbl, ndim, ogolem_idx, non_ogolem_slices,
+                    )
+                    if not np.any(np.isnan(core)):
+                        anchor_years.append(yr)
+                        anchor_cores.append(core.copy())
+
+            if tid in synthetic_2011 and 2011 not in anchor_years:
+                syn_core = self._extract_core(
+                    synthetic_2011[tid], ndim,
+                    ogolem_idx, non_ogolem_slices,
+                )
+                if not np.any(np.isnan(syn_core)):
+                    anchor_years.append(2011)
+                    anchor_cores.append(syn_core.copy())
+
+            if not anchor_years:
+                continue
+
+            interp = self._interpolate_log_linear(
+                anchor_years, anchor_cores, year_range,
+            )
+            year_tables: Dict[int, np.ndarray] = {}
+            for yr, core_tbl in interp.items():
+                core_tbl = np.maximum(core_tbl, 0.0)
+                year_tables[yr] = self._assemble_with_ogolem(
+                    core_tbl, ndim, full_shape,
+                    ogolem_idx, non_ogolem_slices,
+                )
+            seeds[tid] = year_tables
+            n_generated += 1
+
+        self._log(f"    Seeds: {n_generated} gminas")
+
+        # ── Layer 2: voivodeship marginal scaling ──
+        self._log("  Layer 2: voivodeship marginal scaling…")
+        voiv_tids = self._get_voivodeships()
+        n_scaled = 0
+
+        for year in year_range:
+            for voiv_tid in voiv_tids:
+                voiv_tbl = self._get_observed_table(
+                    voiv_tid, source_sid, year,
+                )
+                if voiv_tbl is None or voiv_tbl.shape != full_shape:
+                    continue
+
+                # Collect gmina tables for this voivodeship
+                gminas = self._collect_voivodeship_gminas(voiv_tid, year)
+                gmina_tables: Dict[str, np.ndarray] = {}
+                for gid in gminas:
+                    if gid in seeds and year in seeds[gid]:
+                        gmina_tables[gid] = seeds[gid][year]
+
+                if not gmina_tables:
+                    continue
+
+                # Scale gminas to match voivodeship total
+                scaled = self._scale_gminas_to_parent(
+                    gmina_tables, voiv_tbl,
+                    exclude_ogolem=True,
+                    dim_names=dim_names,
+                    dim_labels=dim_labels,
+                )
+                for gid, tbl in scaled.items():
+                    seeds[gid][year] = tbl
+                n_scaled += 1
+
+        self._log(
+            f"    Scaled {n_scaled} voivodeship-year combinations"
+        )
+
+        # ── store ──
+        self._log("  Storing results…")
+        n_stored = 0
+        for tid, year_tables in seeds.items():
+            for year, tbl in year_tables.items():
+                if year not in year_range:
+                    continue
+                is_obs = False
+                rec = self.db._records.get(tid)
+                if rec is not None:
+                    sct = rec.cross_tables.get(source_sid)
+                    if sct is not None and sct.shape == full_shape:
+                        stbl = sct.tables.get(year)
+                        if stbl is not None and not np.all(
+                            np.isnan(stbl)
+                        ):
+                            is_obs = True
+                self._store_estimated_cross_table(
+                    tid, e_sid, year, tbl,
+                    dim_names, dim_labels, is_observed=is_obs,
+                )
+                n_stored += 1
+
+        # ── aggregate ──
+        self._log("  Aggregating to powiat and voivodeship levels…")
+        self._aggregate_to_parents(
+            e_sid, year_range, dim_names, dim_labels, voiv_tids,
+        )
+
+        self._log(
+            f"  Summary: {n_stored} cell-years for "
+            f"{len(seeds)} gminas"
+        )
 
     def _estimate_educ_1990(self, e_sid: str):
         """Education estimation for Prediction1990 (1986–2002).
-        Will be implemented in work chunk D (v5.3), item 24."""
-        raise NotImplementedError("See todo.md item 24.")
+
+        Data landscape
+        --------------
+        - M_educ_1990: shape (6,), 1D, WITH ogółem.
+          Labels: ogółem, wyższe, średnie, zasadnicze zawodowe,
+                  podstawowe, podstawowe nieukończone i bez wykształcenia
+        - Census 1988 gmina (P2885 + P2884-derived ogółem + residual):
+          all 6 categories already stored in M_educ_1990 during
+          database construction.
+        - Census 2002 gmina (P2402 sex=ogółem): 6 categories in
+          M_educ_1990.
+        - Country-level H_sex_educ (sex=ogółem extraction) → stored
+          in M_educ_1990 at level 0 for 1986–1988 and 1991–1994.
+        - ogółem = total population 15+ (NOT total population).
+
+        Algorithm
+        ---------
+        1. Layer 1: Log-linear interpolation of M_educ_1990 gmina
+           data (anchors typically 1988 and 2002).
+        2. Layer 2: Scale national totals to match M_educ_1990
+           country-level data for years where available (1986–88,
+           1991–94).
+        3. Store results.
+        4. Aggregate to powiat and voivodeship levels.
+        """
+        source_sid = 'M_educ_1990'
+        year_range = PREDICTION_1990_RANGE
+
+        # ── dimensions ──
+        dim_names, dim_labels = self._get_subject_dimensions(source_sid)
+        full_shape = tuple(len(dim_labels[d]) for d in dim_names)
+        ogolem_idx, non_ogolem_slices = self._identify_ogolem(
+            dim_names, dim_labels,
+        )
+        ndim = len(dim_names)
+        self._log(f"  Source: {source_sid}  shape={full_shape}")
+
+        # ── collect gminas and generate seeds ──
+        all_gmina_tids = self._get_all_gminas()
+        gminas_with_data = [
+            tid for tid in all_gmina_tids
+            if tid in self.db._records
+            and source_sid in self.db._records[tid].cross_tables
+            and self.db._records[tid].cross_tables[source_sid].shape
+            == full_shape
+        ]
+        self._log(
+            f"  Gminas total: {len(all_gmina_tids)}, "
+            f"with {source_sid}: {len(gminas_with_data)}"
+        )
+
+        self._log("  Layer 1: generating seeds (log-linear interpolation)…")
+        seeds = self._generate_seeds(
+            gminas_with_data, source_sid, year_range,
+            dim_names, dim_labels, exclude_ogolem=True,
+        )
+
+        # ── Layer 2: national marginal scaling ──
+        # M_educ_1990 at country level (teryt 0000000) has H_sex_educ
+        # data for 1986–88 and 1991–94.
+        self._log("  Layer 2: national marginal scaling…")
+        country_tid = '0000000'
+        n_scaled = 0
+
+        for year in year_range:
+            country_tbl = self._get_observed_table(
+                country_tid, source_sid, year,
+            )
+            if country_tbl is None or country_tbl.shape != full_shape:
+                continue
+
+            # Aggregate all gmina estimates
+            total_agg = np.zeros(full_shape, dtype=float)
+            gminas_in_year: List[str] = []
+            for tid in seeds:
+                if year not in seeds[tid]:
+                    continue
+                total_agg += np.nan_to_num(
+                    seeds[tid][year], nan=0.0,
+                )
+                gminas_in_year.append(tid)
+
+            if not gminas_in_year:
+                continue
+
+            # Element-wise scaling
+            with np.errstate(divide='ignore', invalid='ignore'):
+                factors = np.where(
+                    total_agg > EPSILON,
+                    country_tbl / total_agg,
+                    1.0,
+                )
+            # NaN in country data → no constraint for that category
+            factors = np.where(np.isnan(factors), 1.0, factors)
+
+            for tid in gminas_in_year:
+                seeds[tid][year] = np.maximum(
+                    seeds[tid][year] * factors, 0.0,
+                )
+                # Recompute ogółem
+                core = self._extract_core(
+                    seeds[tid][year], ndim,
+                    ogolem_idx, non_ogolem_slices,
+                )
+                seeds[tid][year] = self._assemble_with_ogolem(
+                    core, ndim, full_shape,
+                    ogolem_idx, non_ogolem_slices,
+                )
+            n_scaled += 1
+
+        self._log(
+            f"    Scaled {n_scaled} national-year combinations"
+        )
+
+        # ── store ──
+        self._log("  Storing results…")
+        n_stored = 0
+        for tid, year_tables in seeds.items():
+            for year, tbl in year_tables.items():
+                if year not in year_range:
+                    continue
+                is_obs = False
+                rec = self.db._records.get(tid)
+                if rec is not None:
+                    sct = rec.cross_tables.get(source_sid)
+                    if sct is not None and sct.shape == full_shape:
+                        stbl = sct.tables.get(year)
+                        if stbl is not None and not np.all(
+                            np.isnan(stbl)
+                        ):
+                            is_obs = True
+                self._store_estimated_cross_table(
+                    tid, e_sid, year, tbl,
+                    dim_names, dim_labels, is_observed=is_obs,
+                )
+                n_stored += 1
+
+        # ── aggregate ──
+        voiv_tids = self._get_voivodeships()
+        self._log("  Aggregating to powiat and voivodeship levels…")
+        self._aggregate_to_parents(
+            e_sid, year_range, dim_names, dim_labels, voiv_tids,
+        )
+
+        self._log(
+            f"  Summary: {n_stored} cell-years for "
+            f"{len(seeds)} gminas"
+        )
 
     def _estimate_educ_sex_2000(self, e_sid: str):
-        """Education × sex estimation for Prediction2000.
-        Will be implemented in work chunk D (v5.3), item 25."""
-        raise NotImplementedError("See todo.md item 25.")
+        """Education × sex estimation for Prediction2000 (1999–2025).
+
+        Data landscape
+        --------------
+        - M_educ_sex_2000: shape (5, 3), 2D.
+          Educ dim: wyższe, policealne…, średnie…, zasadnicze…,
+                    gimnazjalne…  (NO ogółem on educ dim)
+          Sex dim:  ogółem, mężczyźni, kobiety
+        - Census 2002 gmina (P2402), 2011 powiat (P3309),
+          2021 gmina (P4315).
+        - Voivodeship marginals: M_educ_2000 (1D, P2350/P4092)
+          constrains education marginals (sum across sex).
+
+        Algorithm
+        ---------
+        1. Disaggregate 2011 powiat data to gmina level.
+        2. Layer 1: Log-linear spline through anchors.
+        3. Layer 2: Scale education-marginal (row sums across sex) of
+           gmina aggregates to match voivodeship M_educ_2000.
+        4. Store results.
+        5. Aggregate to parents.
+        """
+        source_sid = 'M_educ_sex_2000'
+        year_range = PREDICTION_2000_RANGE
+
+        # ── dimensions ──
+        dim_names, dim_labels = self._get_subject_dimensions(source_sid)
+        full_shape = tuple(len(dim_labels[d]) for d in dim_names)
+        ogolem_idx, non_ogolem_slices = self._identify_ogolem(
+            dim_names, dim_labels,
+        )
+        ndim = len(dim_names)
+        self._log(f"  Source: {source_sid}  shape={full_shape}")
+
+        # ── 2011 disaggregation ──
+        self._log("  Disaggregating 2011 powiat data to gmina…")
+        synthetic_2011 = self._disaggregate_2011_powiat_to_gmina(
+            source_sid, dim_names, dim_labels,
+        )
+
+        # ── build seeds ──
+        self._log("  Layer 1: building seeds (log-linear interpolation)…")
+        all_gmina_tids = self._get_all_gminas()
+        seeds: Dict[str, Dict[int, np.ndarray]] = {}
+        n_generated = 0
+
+        for tid in all_gmina_tids:
+            rec = self.db._records.get(tid)
+            if rec is None:
+                continue
+
+            anchor_years: List[int] = []
+            anchor_cores: List[np.ndarray] = []
+
+            ct = rec.cross_tables.get(source_sid)
+            if ct is not None and ct.shape == full_shape:
+                for yr in sorted(ct.tables.keys()):
+                    tbl = ct.tables[yr]
+                    if tbl is None or np.all(np.isnan(tbl)):
+                        continue
+                    core = self._extract_core(
+                        tbl, ndim, ogolem_idx, non_ogolem_slices,
+                    )
+                    if not np.any(np.isnan(core)):
+                        anchor_years.append(yr)
+                        anchor_cores.append(core.copy())
+
+            if tid in synthetic_2011 and 2011 not in anchor_years:
+                syn_core = self._extract_core(
+                    synthetic_2011[tid], ndim,
+                    ogolem_idx, non_ogolem_slices,
+                )
+                if not np.any(np.isnan(syn_core)):
+                    anchor_years.append(2011)
+                    anchor_cores.append(syn_core.copy())
+
+            if not anchor_years:
+                continue
+
+            interp = self._interpolate_log_linear(
+                anchor_years, anchor_cores, year_range,
+            )
+            year_tables: Dict[int, np.ndarray] = {}
+            for yr, core_tbl in interp.items():
+                core_tbl = np.maximum(core_tbl, 0.0)
+                year_tables[yr] = self._assemble_with_ogolem(
+                    core_tbl, ndim, full_shape,
+                    ogolem_idx, non_ogolem_slices,
+                )
+            seeds[tid] = year_tables
+            n_generated += 1
+
+        self._log(f"    Seeds: {n_generated} gminas")
+
+        # ── Layer 2: voivodeship education-marginal scaling ──
+        # Use M_educ_2000 (1D, no ogółem) at voivodeship level to
+        # constrain education marginals (sum across non-ogółem sex).
+        self._log("  Layer 2: voivodeship education-marginal scaling…")
+        voiv_tids = self._get_voivodeships()
+        marginal_sid = 'M_educ_2000'
+        n_scaled = 0
+
+        try:
+            educ_1d_names, educ_1d_labels = self._get_subject_dimensions(
+                marginal_sid,
+            )
+            educ_1d_shape = tuple(
+                len(educ_1d_labels[d]) for d in educ_1d_names
+            )
+        except ValueError:
+            educ_1d_shape = None
+            self._log("    ⚠  M_educ_2000 not found — skipping Layer 2")
+
+        if educ_1d_shape is not None:
+            # Label mapping: M_educ_2000 index → M_educ_sex_2000 row
+            educ_dim_name = dim_names[0]  # education dimension
+            educ_labels_2d = dim_labels[educ_dim_name]
+            educ_labels_1d = educ_1d_labels[educ_1d_names[0]]
+            educ_2d_to_1d: Dict[int, int] = {}
+            for i2d, lbl2d in enumerate(educ_labels_2d):
+                for i1d, lbl1d in enumerate(educ_labels_1d):
+                    if lbl2d == lbl1d:
+                        educ_2d_to_1d[i2d] = i1d
+                        break
+
+            sex_non_og = non_ogolem_slices.get(
+                1, list(range(full_shape[1]))
+            )
+
+            for year in year_range:
+                for voiv_tid in voiv_tids:
+                    voiv_tbl = self._get_observed_table(
+                        voiv_tid, marginal_sid, year,
+                    )
+                    if voiv_tbl is None:
+                        continue
+                    if voiv_tbl.shape != educ_1d_shape:
+                        continue
+
+                    gminas = self._collect_voivodeship_gminas(
+                        voiv_tid, year,
+                    )
+                    gmina_tables: Dict[str, np.ndarray] = {}
+                    for gid in gminas:
+                        if gid in seeds and year in seeds[gid]:
+                            gmina_tables[gid] = seeds[gid][year]
+
+                    if not gmina_tables:
+                        continue
+
+                    # Sum across gminas: education marginal
+                    # (sum of non-ogółem sex per education row)
+                    n_educ = len(educ_labels_2d)
+                    agg_educ = np.zeros(n_educ, dtype=float)
+                    for tbl in gmina_tables.values():
+                        for ri in range(n_educ):
+                            agg_educ[ri] += sum(
+                                tbl[ri, si] for si in sex_non_og
+                            )
+
+                    # Per-row scaling factors
+                    educ_factors = np.ones(n_educ, dtype=float)
+                    for i2d, i1d in educ_2d_to_1d.items():
+                        target = float(voiv_tbl[i1d])
+                        if agg_educ[i2d] > EPSILON and target > 0:
+                            educ_factors[i2d] = target / agg_educ[i2d]
+
+                    # Apply row-wise scaling to each gmina
+                    for gid in gmina_tables:
+                        tbl = gmina_tables[gid].copy()
+                        for ri in range(n_educ):
+                            for si in range(full_shape[1]):
+                                tbl[ri, si] *= educ_factors[ri]
+                        tbl = np.maximum(tbl, 0.0)
+                        # Recompute ogółem on sex dimension
+                        core = self._extract_core(
+                            tbl, ndim,
+                            ogolem_idx, non_ogolem_slices,
+                        )
+                        seeds[gid][year] = self._assemble_with_ogolem(
+                            core, ndim, full_shape,
+                            ogolem_idx, non_ogolem_slices,
+                        )
+                    n_scaled += 1
+
+        self._log(
+            f"    Scaled {n_scaled} voivodeship-year combinations"
+        )
+
+        # ── store ──
+        self._log("  Storing results…")
+        n_stored = 0
+        for tid, year_tables in seeds.items():
+            for year, tbl in year_tables.items():
+                if year not in year_range:
+                    continue
+                is_obs = False
+                rec = self.db._records.get(tid)
+                if rec is not None:
+                    sct = rec.cross_tables.get(source_sid)
+                    if sct is not None and sct.shape == full_shape:
+                        stbl = sct.tables.get(year)
+                        if stbl is not None and not np.all(
+                            np.isnan(stbl)
+                        ):
+                            is_obs = True
+                self._store_estimated_cross_table(
+                    tid, e_sid, year, tbl,
+                    dim_names, dim_labels, is_observed=is_obs,
+                )
+                n_stored += 1
+
+        # ── aggregate ──
+        self._log("  Aggregating to powiat and voivodeship levels…")
+        self._aggregate_to_parents(
+            e_sid, year_range, dim_names, dim_labels, voiv_tids,
+        )
+
+        self._log(
+            f"  Summary: {n_stored} cell-years for "
+            f"{len(seeds)} gminas"
+        )
 
     def _estimate_educ_sex_1990(self, e_sid: str):
-        """Education × sex estimation for Prediction1990.
-        Will be implemented in work chunk D (v5.3), item 25."""
-        raise NotImplementedError("See todo.md item 25.")
+        """Education × sex estimation for Prediction1990 (1986–2002).
+
+        Data landscape
+        --------------
+        - M_educ_sex_1990: shape (6, 3), 2D (educ × sex).
+          Educ labels: ogółem, wyższe, średnie, zasadnicze zawodowe,
+                       podstawowe, podstawowe nieukończone…
+          Sex labels:  ogółem, mężczyźni, kobiety
+        - Census 2002 gmina (P2402 → M_educ_sex_1990).
+        - Country-level H_sex_educ → M_educ_sex_1990 at level 0
+          (1986–1988, 1991–1994).
+        - NO 1988 gmina-level sex×educ joint data. Only M_educ_1990
+          (1D educ) and P2883 (1D sex) at gmina level.
+
+        Algorithm
+        ---------
+        Phase A: Construct 1988 gmina educ×sex via IPF:
+          - Seed = M_educ_sex_1990 at country level (1988)
+          - Fit educ marginals from M_educ_1990 gmina data (1988).
+          - Sex distribution inherited from national structure.
+        Phase B: Build seeds (1988 from Phase A + 2002 from
+                 M_educ_sex_1990) via log-linear interpolation.
+        Phase C: Layer 2 — scale national totals to match
+                 M_educ_sex_1990 at country level for 1986–1994.
+        Phase D: Store results.
+        """
+        source_sid = 'M_educ_sex_1990'
+        educ_1d_sid = 'M_educ_1990'
+        year_range = PREDICTION_1990_RANGE
+
+        # ── dimensions ──
+        dim_names, dim_labels = self._get_subject_dimensions(source_sid)
+        full_shape = tuple(len(dim_labels[d]) for d in dim_names)
+        ogolem_idx, non_ogolem_slices = self._identify_ogolem(
+            dim_names, dim_labels,
+        )
+        ndim = len(dim_names)
+        core_shape = tuple(
+            len(non_ogolem_slices[d]) for d in range(ndim)
+        )
+        self._log(f"  Source: {source_sid}  shape={full_shape}")
+
+        # Get 1D education dimensions for marginal matching
+        try:
+            educ_1d_names, educ_1d_labels = self._get_subject_dimensions(
+                educ_1d_sid,
+            )
+            educ_1d_shape = tuple(
+                len(educ_1d_labels[d]) for d in educ_1d_names
+            )
+            educ_1d_ogi, educ_1d_noi = self._identify_ogolem(
+                educ_1d_names, educ_1d_labels,
+            )
+        except ValueError:
+            self._log(
+                "  ⚠  Cannot find M_educ_1990 dimensions — "
+                "skipping Phase A"
+            )
+            educ_1d_shape = None
+
+        # Build label mapping: 2D educ row → 1D educ core index
+        educ_dim_name = dim_names[0]
+        educ_labels_2d = dim_labels[educ_dim_name]
+        educ_non_og_2d = non_ogolem_slices[0]
+
+        label_2d_core_to_1d_core: Dict[int, int] = {}
+        if educ_1d_shape is not None:
+            educ_labels_1d = educ_1d_labels[educ_1d_names[0]]
+            educ_non_og_1d = educ_1d_noi[0]
+            for ci2d, fi2d in enumerate(educ_non_og_2d):
+                lbl2d = educ_labels_2d[fi2d]
+                for ci1d, fi1d in enumerate(educ_non_og_1d):
+                    if educ_labels_1d[fi1d] == lbl2d:
+                        label_2d_core_to_1d_core[ci2d] = ci1d
+                        break
+
+        # ── Phase A: construct 1988 gmina educ×sex via IPF ──
+        self._log(
+            "  Phase A: constructing 1988 gmina educ×sex via IPF…"
+        )
+
+        # National seed (country level, 1988)
+        country_tid = '0000000'
+        national_seed = self._get_observed_table(
+            country_tid, source_sid, 1988,
+        )
+        national_seed_core: Optional[np.ndarray] = None
+        if national_seed is not None and national_seed.shape == full_shape:
+            national_seed_core = self._extract_core(
+                national_seed, ndim, ogolem_idx, non_ogolem_slices,
+            )
+        else:
+            self._log(
+                "  ⚠  No national M_educ_sex_1990 seed for 1988"
+            )
+
+        all_gmina_tids = self._get_all_gminas()
+        tables_1988: Dict[str, np.ndarray] = {}
+        n_ok = 0
+        n_skip = 0
+
+        for tid in all_gmina_tids:
+            rec = self.db._records.get(tid)
+            if rec is None:
+                n_skip += 1
+                continue
+
+            if (
+                national_seed_core is None
+                or educ_1d_shape is None
+            ):
+                n_skip += 1
+                continue
+
+            # gmina M_educ_1990 (1D) for 1988
+            educ_1d_tbl = self._get_observed_table(
+                tid, educ_1d_sid, 1988,
+            )
+            if (
+                educ_1d_tbl is None
+                or educ_1d_tbl.shape != educ_1d_shape
+            ):
+                n_skip += 1
+                continue
+
+            educ_1d_core = self._extract_core(
+                educ_1d_tbl, 1, educ_1d_ogi, educ_1d_noi,
+            )
+            if np.any(np.isnan(educ_1d_core)):
+                n_skip += 1
+                continue
+
+            # Build education-marginal target for IPF on core table.
+            # educ_marginal[ci_2d] = sum across sex of core row ci_2d
+            # → should match educ_1d_core[ci_1d] for matched labels.
+            educ_marginal = np.zeros(
+                len(educ_non_og_2d), dtype=float,
+            )
+            for ci2d, ci1d in label_2d_core_to_1d_core.items():
+                if ci1d < len(educ_1d_core):
+                    educ_marginal[ci2d] = max(
+                        educ_1d_core[ci1d], 0.0,
+                    )
+
+            if np.sum(educ_marginal) <= EPSILON:
+                n_skip += 1
+                continue
+
+            # IPF: fit national seed core to gmina educ marginals.
+            # Marginal on dim 0 (education): row sums across sex
+            # should match educ_marginal.
+            seed_core = np.maximum(
+                national_seed_core.copy(), EPSILON,
+            )
+            fitted = self._fit_marginals_ipf(
+                seed_core,
+                [(educ_marginal, [0])],
+            )
+
+            full_tbl = self._assemble_with_ogolem(
+                fitted, ndim, full_shape,
+                ogolem_idx, non_ogolem_slices,
+            )
+            tables_1988[tid] = full_tbl
+            n_ok += 1
+
+        self._log(f"    1988 IPF: {n_ok} OK, {n_skip} skipped")
+
+        # ── Phase B: build seeds ──
+        self._log(
+            "  Phase B: building seeds (log-linear interpolation)…"
+        )
+        seeds: Dict[str, Dict[int, np.ndarray]] = {}
+
+        for tid in all_gmina_tids:
+            rec = self.db._records.get(tid)
+            if rec is None:
+                continue
+
+            anchor_years: List[int] = []
+            anchor_cores: List[np.ndarray] = []
+
+            # 1988 from Phase A
+            if tid in tables_1988:
+                core88 = self._extract_core(
+                    tables_1988[tid], ndim,
+                    ogolem_idx, non_ogolem_slices,
+                )
+                anchor_years.append(1988)
+                anchor_cores.append(core88)
+
+            # M_educ_sex_1990 observed data (2002 from P2402)
+            ct = rec.cross_tables.get(source_sid)
+            if ct is not None and ct.shape == full_shape:
+                for yr in sorted(ct.tables.keys()):
+                    tbl = ct.tables[yr]
+                    if tbl is None or np.all(np.isnan(tbl)):
+                        continue
+                    core = self._extract_core(
+                        tbl, ndim,
+                        ogolem_idx, non_ogolem_slices,
+                    )
+                    if not np.any(np.isnan(core)):
+                        anchor_years.append(yr)
+                        anchor_cores.append(core)
+
+            if not anchor_years:
+                continue
+
+            interp = self._interpolate_log_linear(
+                anchor_years, anchor_cores, year_range,
+            )
+            year_tables: Dict[int, np.ndarray] = {}
+            for yr, core_tbl in interp.items():
+                core_tbl = np.maximum(core_tbl, 0.0)
+                year_tables[yr] = self._assemble_with_ogolem(
+                    core_tbl, ndim, full_shape,
+                    ogolem_idx, non_ogolem_slices,
+                )
+            seeds[tid] = year_tables
+
+        self._log(f"    Seeds: {len(seeds)} gminas")
+
+        # ── Phase C: Layer 2 — national marginal scaling ──
+        self._log("  Phase C: national marginal scaling…")
+        n_scaled = 0
+
+        for year in year_range:
+            country_tbl = self._get_observed_table(
+                country_tid, source_sid, year,
+            )
+            if country_tbl is None:
+                continue
+            if country_tbl.shape != full_shape:
+                continue
+
+            total_agg = np.zeros(full_shape, dtype=float)
+            gminas_in_year: List[str] = []
+            for tid in seeds:
+                if year not in seeds[tid]:
+                    continue
+                total_agg += np.nan_to_num(
+                    seeds[tid][year], nan=0.0,
+                )
+                gminas_in_year.append(tid)
+
+            if not gminas_in_year:
+                continue
+
+            with np.errstate(divide='ignore', invalid='ignore'):
+                factors = np.where(
+                    total_agg > EPSILON,
+                    country_tbl / total_agg,
+                    1.0,
+                )
+            # NaN in country data → no constraint for that category
+            factors = np.where(np.isnan(factors), 1.0, factors)
+
+            for tid in gminas_in_year:
+                seeds[tid][year] = np.maximum(
+                    seeds[tid][year] * factors, 0.0,
+                )
+                core = self._extract_core(
+                    seeds[tid][year], ndim,
+                    ogolem_idx, non_ogolem_slices,
+                )
+                seeds[tid][year] = self._assemble_with_ogolem(
+                    core, ndim, full_shape,
+                    ogolem_idx, non_ogolem_slices,
+                )
+            n_scaled += 1
+
+        self._log(
+            f"    Scaled {n_scaled} national-year combinations"
+        )
+
+        # ── Phase D: store results ──
+        self._log("  Phase D: storing results…")
+        n_stored = 0
+        for tid, year_tables in seeds.items():
+            for year, tbl in year_tables.items():
+                if year not in year_range:
+                    continue
+                is_obs = False
+                rec = self.db._records.get(tid)
+                if rec is not None:
+                    sct = rec.cross_tables.get(source_sid)
+                    if sct is not None and sct.shape == full_shape:
+                        stbl = sct.tables.get(year)
+                        if stbl is not None and not np.all(
+                            np.isnan(stbl)
+                        ):
+                            is_obs = True
+                self._store_estimated_cross_table(
+                    tid, e_sid, year, tbl,
+                    dim_names, dim_labels, is_observed=is_obs,
+                )
+                n_stored += 1
+
+        voiv_tids = self._get_voivodeships()
+        self._log("  Aggregating to powiat and voivodeship levels…")
+        self._aggregate_to_parents(
+            e_sid, year_range, dim_names, dim_labels, voiv_tids,
+        )
+
+        self._log(
+            f"  Summary: {n_stored} cell-years for "
+            f"{len(seeds)} gminas"
+        )
 
     def _estimate_hh_size_2000(self, e_sid: str):
-        """Household size estimation for Prediction2000.
-        Will be implemented in work chunk D (v5.3), item 26."""
-        raise NotImplementedError("See todo.md item 26.")
+        """Household size estimation for Prediction2000 (1999–2025).
+
+        Data landscape
+        --------------
+        - M_hh_size_2000: shape (6,), 1D.
+          Labels: ogółem, 1-osobowe, …, 5 i więcej-osobowe
+        - Census 2002 (gmina, P2871), 2011 (powiat, P3420),
+          2021 (gmina, P4287).
+        - No annual marginals → Layer 2 is skipped.
+        - ogółem = total households (NOT total population).
+
+        Algorithm
+        ---------
+        1. Disaggregate 2011 powiat data to gmina level using
+           2002/2021 gmina shares (geometric mean in log-space).
+        2. Collect anchors: M_hh_size_2000 (2002/2021) + synthetic 2011.
+        3. Layer 1: Log-linear spline interpolation through anchors.
+        4. Store results.
+        5. Aggregate to powiat and voivodeship levels.
+        """
+        source_sid = 'M_hh_size_2000'
+        year_range = PREDICTION_2000_RANGE
+
+        # ── Step 1: dimensions ──
+        dim_names, dim_labels = self._get_subject_dimensions(source_sid)
+        full_shape = tuple(len(dim_labels[d]) for d in dim_names)
+        ogolem_idx, non_ogolem_slices = self._identify_ogolem(
+            dim_names, dim_labels,
+        )
+        ndim = len(dim_names)
+        self._log(f"  Source: {source_sid}  shape={full_shape}")
+
+        # ── Step 2: 2011 powiat disaggregation ──
+        self._log("  Disaggregating 2011 powiat data to gmina…")
+        synthetic_2011 = self._disaggregate_2011_powiat_to_gmina(
+            source_sid, dim_names, dim_labels,
+        )
+
+        # ── Step 3: build seeds (observed anchors + synthetic 2011) ──
+        self._log("  Layer 1: building seeds (log-linear interpolation)…")
+        all_gmina_tids = self._get_all_gminas()
+        seeds: Dict[str, Dict[int, np.ndarray]] = {}
+        n_generated = 0
+
+        for tid in all_gmina_tids:
+            rec = self.db._records.get(tid)
+            if rec is None:
+                continue
+
+            anchor_years: List[int] = []
+            anchor_cores: List[np.ndarray] = []
+
+            # Observed anchors from M_hh_size_2000
+            ct = rec.cross_tables.get(source_sid)
+            if ct is not None and ct.shape == full_shape:
+                for yr in sorted(ct.tables.keys()):
+                    tbl = ct.tables[yr]
+                    if tbl is None or np.all(np.isnan(tbl)):
+                        continue
+                    core = self._extract_core(
+                        tbl, ndim, ogolem_idx, non_ogolem_slices,
+                    )
+                    if not np.any(np.isnan(core)):
+                        anchor_years.append(yr)
+                        anchor_cores.append(core.copy())
+
+            # Synthetic 2011 (only if no observed 2011)
+            if tid in synthetic_2011 and 2011 not in anchor_years:
+                syn_core = self._extract_core(
+                    synthetic_2011[tid], ndim,
+                    ogolem_idx, non_ogolem_slices,
+                )
+                if not np.any(np.isnan(syn_core)):
+                    anchor_years.append(2011)
+                    anchor_cores.append(syn_core.copy())
+
+            if not anchor_years:
+                continue
+
+            interp = self._interpolate_log_linear(
+                anchor_years, anchor_cores, year_range,
+            )
+            year_tables: Dict[int, np.ndarray] = {}
+            for yr, core_tbl in interp.items():
+                core_tbl = np.maximum(core_tbl, 0.0)
+                year_tables[yr] = self._assemble_with_ogolem(
+                    core_tbl, ndim, full_shape,
+                    ogolem_idx, non_ogolem_slices,
+                )
+            seeds[tid] = year_tables
+            n_generated += 1
+
+        self._log(f"    Seeds: {n_generated} gminas")
+
+        # ── Step 4: store results ──
+        self._log("  Storing results…")
+        n_stored = 0
+        for tid, year_tables in seeds.items():
+            for year, tbl in year_tables.items():
+                if year not in year_range:
+                    continue
+                is_obs = False
+                rec = self.db._records.get(tid)
+                if rec is not None:
+                    sct = rec.cross_tables.get(source_sid)
+                    if sct is not None and sct.shape == full_shape:
+                        stbl = sct.tables.get(year)
+                        if stbl is not None and not np.all(
+                            np.isnan(stbl)
+                        ):
+                            is_obs = True
+                self._store_estimated_cross_table(
+                    tid, e_sid, year, tbl,
+                    dim_names, dim_labels, is_observed=is_obs,
+                )
+                n_stored += 1
+
+        # ── Step 5: aggregate to parents ──
+        voiv_tids = self._get_voivodeships()
+        self._log("  Aggregating to powiat and voivodeship levels…")
+        self._aggregate_to_parents(
+            e_sid, year_range, dim_names, dim_labels, voiv_tids,
+        )
+
+        self._log(
+            f"  Summary: {n_stored} cell-years for "
+            f"{len(seeds)} gminas"
+        )
 
     def _estimate_hh_size_1990(self, e_sid: str):
-        """Household size estimation for Prediction1990.
-        Will be implemented in work chunk D (v5.3), item 27."""
-        raise NotImplementedError("See todo.md item 27.")
+        """Household size estimation for Prediction1990 (1986–2002).
+
+        Data landscape
+        --------------
+        - M_hh_size_1990: shape (5,), 1D, level 6 (gmina only).
+          Labels: ogółem, 1-osobowe, 2-osobowe, 3-4-osobowe,
+                  5 i więcej-osobowe
+        - Census 1988 (P2887) and 2002 (P2871) at gmina level.
+        - No annual marginals → Layer 2 is skipped.
+        - Note: ogółem = total households, NOT total population.
+          Do NOT apply population scaling.
+
+        Algorithm
+        ---------
+        1. Layer 1: Log-linear interpolation between 1988 and 2002
+           gmina-level anchor points.
+        2. Store results.
+        3. Aggregate to powiat and voivodeship levels.
+        """
+        source_sid = 'M_hh_size_1990'
+        year_range = PREDICTION_1990_RANGE
+
+        # ── Step 1: dimensions ──
+        dim_names, dim_labels = self._get_subject_dimensions(source_sid)
+        full_shape = tuple(len(dim_labels[d]) for d in dim_names)
+        ogolem_idx, non_ogolem_slices = self._identify_ogolem(
+            dim_names, dim_labels,
+        )
+        self._log(f"  Source: {source_sid}  shape={full_shape}")
+
+        # ── Step 2: collect gminas ──
+        all_gmina_tids = self._get_all_gminas()
+        gminas_with_data = [
+            tid for tid in all_gmina_tids
+            if tid in self.db._records
+            and source_sid in self.db._records[tid].cross_tables
+            and self.db._records[tid].cross_tables[source_sid].shape
+            == full_shape
+        ]
+        self._log(
+            f"  Gminas total: {len(all_gmina_tids)}, "
+            f"with {source_sid}: {len(gminas_with_data)}"
+        )
+
+        # ── Step 3: Layer 1 — seed generation ──
+        self._log("  Layer 1: generating seeds (log-linear interpolation)…")
+        seeds = self._generate_seeds(
+            gminas_with_data, source_sid, year_range,
+            dim_names, dim_labels, exclude_ogolem=True,
+        )
+
+        # ── Step 4: store results ──
+        self._log("  Storing results…")
+        n_stored = 0
+        for tid, year_tables in seeds.items():
+            for year, tbl in year_tables.items():
+                if year not in year_range:
+                    continue
+                is_obs = False
+                rec = self.db._records.get(tid)
+                if rec is not None:
+                    sct = rec.cross_tables.get(source_sid)
+                    if sct is not None and sct.shape == full_shape:
+                        stbl = sct.tables.get(year)
+                        if stbl is not None and not np.all(np.isnan(stbl)):
+                            is_obs = True
+                self._store_estimated_cross_table(
+                    tid, e_sid, year, tbl,
+                    dim_names, dim_labels, is_observed=is_obs,
+                )
+                n_stored += 1
+
+        # ── Step 5: aggregate to parents ──
+        voiv_tids = self._get_voivodeships()
+        self._log("  Aggregating to powiat and voivodeship levels…")
+        self._aggregate_to_parents(
+            e_sid, year_range, dim_names, dim_labels, voiv_tids,
+        )
+
+        self._log(
+            f"  Summary: {n_stored} cell-years for "
+            f"{len(seeds)} gminas"
+        )
 
     def _estimate_age_educ_2000(self, e_sid: str):
         """Age × education estimation for Prediction2000.
-        Will be implemented in work chunk D (v5.3), item 28."""
-        raise NotImplementedError("See todo.md item 28.")
+
+        DEFERRED: Requires M_pop__age_educ merged subject which
+        depends on P2403, P3311, P4320 data collection (not yet in
+        database).  Also requires E_age_sex_2000 and E_educ_2000 to
+        be estimated first (for cross-variable marginal constraints).
+        See todo.md item 28 for full specification.
+        """
+        raise NotImplementedError(
+            "age_educ_2000: source M_pop__age_educ not yet available. "
+            "Needs P2403/P3311/P4320 data collection first."
+        )
 
     # ------------------------------------------------------------------
     # Provenance queries
@@ -2216,13 +3393,740 @@ class DemographicEstimator:
         return pd.DataFrame(rows).set_index('year')
 
     # ------------------------------------------------------------------
-    # Diagnostics — stub for work chunk E
+    # Diagnostics — work chunk E (v5.4)
     # ------------------------------------------------------------------
 
     def validate_results(self, e_subject_id: str) -> pd.DataFrame:
         """Run full consistency diagnostics for an E_ subject.
-        Will be implemented in work chunk E (v5.4), item 30."""
-        raise NotImplementedError("See todo.md item 30.")
+
+        Checks every (teryt_id, year) with E_ data for:
+          1. Non-negativity — all cells >= 0
+          2. Marginal consistency — ogółem row/column = sum of non-ogółem
+          3. Hierarchical consistency — Σ children (rodz 1,2,3) ≈ parent
+          4. Total population match — grand total ≈ record.pop
+          5. Temporal smoothness — no abrupt year-over-year jumps (>20%)
+          6. Sub-division consistency — rodz-3 table ≈ rodz-4 + rodz-5
+
+        Returns
+        -------
+        pd.DataFrame
+            Diagnostic report with columns:
+            ['teryt_id', 'name', 'year', 'check', 'status', 'detail']
+        """
+        from geoTERYT_db import LEVEL_GMINA, LEVEL_POWIAT, LEVEL_VOIVODESHIP
+
+        year_range = (PREDICTION_2000_RANGE if '2000' in e_subject_id
+                      else PREDICTION_1990_RANGE)
+        issues: list = []
+
+        def _add(tid, name, yr, check, status, detail):
+            issues.append({'teryt_id': tid, 'name': name, 'year': yr,
+                           'check': check, 'status': status, 'detail': detail})
+
+        # Collect all records that have E_ data
+        e_records = {}
+        for tid, rec in self.db._records.items():
+            ct = rec.cross_tables.get(e_subject_id)
+            if ct is not None and ct.years_with_data:
+                e_records[tid] = rec
+
+        if not e_records:
+            self._log(f"  No records with {e_subject_id} data — nothing to validate")
+            return pd.DataFrame(columns=['teryt_id', 'name', 'year',
+                                         'check', 'status', 'detail'])
+
+        # Get dimensions from first record
+        sample_ct = next(iter(e_records.values())).cross_tables[e_subject_id]
+        dim_names = sample_ct.dim_names
+        dim_labels = sample_ct.dim_labels
+        ndim = len(dim_names)
+        ogolem_idx, non_ogolem_slices = self._identify_ogolem(
+            dim_names, dim_labels
+        )
+
+        self._log(f"  Validating {e_subject_id}: {len(e_records)} records, "
+                  f"shape={sample_ct.shape}")
+
+        # ── 1. Non-negativity ──
+        n_neg = 0
+        for tid, rec in e_records.items():
+            ct = rec.cross_tables[e_subject_id]
+            for yr in year_range:
+                tbl = ct.tables.get(yr)
+                if tbl is None or np.all(np.isnan(tbl)):
+                    continue
+                neg_cells = np.sum(tbl[~np.isnan(tbl)] < -EPSILON)
+                if neg_cells > 0:
+                    _add(tid, rec.name, yr, 'non_negativity', 'FAIL',
+                         f'{neg_cells} negative cells, min={np.nanmin(tbl):.4f}')
+                    n_neg += 1
+        self._log(f"    [1] Non-negativity: {n_neg} failures")
+
+        # ── 2. Marginal consistency (ogółem = sum of sub-categories) ──
+        n_marg_fail = 0
+        MARG_TOL = 1.0
+        for tid, rec in e_records.items():
+            ct = rec.cross_tables[e_subject_id]
+            for yr in year_range:
+                tbl = ct.tables.get(yr)
+                if tbl is None or np.all(np.isnan(tbl)):
+                    continue
+                # Check each dimension's ogółem
+                for di in range(ndim):
+                    og_i = ogolem_idx[di]
+                    if og_i is None:
+                        continue
+                    noi = non_ogolem_slices[di]
+                    if ndim == 1:
+                        og_val = tbl[og_i]
+                        sub_sum = np.nansum(tbl[noi])
+                    elif ndim == 2:
+                        if di == 0:
+                            # ogółem row = sum of other rows, per column
+                            og_row = tbl[og_i, :]
+                            sub_rows = tbl[noi, :]
+                            sub_sum = np.nansum(sub_rows, axis=0)
+                            diff_arr = og_row - sub_sum
+                            if np.all(np.isnan(diff_arr)):
+                                continue
+                            max_err = np.nanmax(np.abs(diff_arr))
+                        else:
+                            # ogółem column = sum of other columns, per row
+                            og_col = tbl[:, og_i]
+                            sub_cols = tbl[:, noi]
+                            sub_sum = np.nansum(sub_cols, axis=1)
+                            diff_arr = og_col - sub_sum
+                            if np.all(np.isnan(diff_arr)):
+                                continue
+                            max_err = np.nanmax(np.abs(diff_arr))
+                        if max_err > MARG_TOL:
+                            _add(tid, rec.name, yr, 'marginal_consistency',
+                                 'FAIL',
+                                 f'dim={dim_names[di]} max_err={max_err:.4f}')
+                            n_marg_fail += 1
+                        continue
+                    else:
+                        continue  # Skip 3D+ for now
+                    # 1D check
+                    if abs(og_val - sub_sum) > MARG_TOL:
+                        _add(tid, rec.name, yr, 'marginal_consistency',
+                             'FAIL',
+                             f'dim={dim_names[di]} og={og_val:.1f} '
+                             f'sum={sub_sum:.1f} diff={og_val-sub_sum:.4f}')
+                        n_marg_fail += 1
+        self._log(f"    [2] Marginal consistency: {n_marg_fail} failures "
+                  f"(tol={MARG_TOL})")
+
+        # ── 3. Hierarchical consistency ──
+        n_hier_fail = 0
+        n_hier_checked = 0
+        HIER_TOL_PCT = 0.5  # 0.5% tolerance
+
+        # Check powiat = Σ children(rodz 1,2,3)
+        powiat_tids = [tid for tid in e_records
+                       if self.db._records[tid].level == LEVEL_POWIAT]
+        for ptid in powiat_tids:
+            prec = self.db._records[ptid]
+            pct = prec.cross_tables.get(e_subject_id)
+            if pct is None:
+                continue
+            for yr in year_range:
+                ptbl = pct.tables.get(yr)
+                if ptbl is None or np.all(np.isnan(ptbl)):
+                    continue
+                # Sum children
+                children = _get_aggregation_children(prec, self.db, yr)
+                child_sum = np.zeros_like(ptbl)
+                n_children_with_data = 0
+                for chtid in children:
+                    chrec = self.db._records.get(chtid)
+                    if chrec is None:
+                        continue
+                    chct = chrec.cross_tables.get(e_subject_id)
+                    if chct is None:
+                        continue
+                    chtbl = chct.tables.get(yr)
+                    if chtbl is None or np.all(np.isnan(chtbl)):
+                        continue
+                    if chtbl.shape != ptbl.shape:
+                        continue
+                    child_sum += np.nan_to_num(chtbl, nan=0.0)
+                    n_children_with_data += 1
+
+                if n_children_with_data == 0:
+                    continue
+                n_hier_checked += 1
+                max_cell_diff = float(np.nanmax(
+                    np.abs(child_sum - np.nan_to_num(ptbl, nan=0.0))
+                ))
+                ptotal = float(np.nansum(np.abs(ptbl)))
+                pct_err = (100 * max_cell_diff / ptotal
+                           if ptotal > EPSILON else 0.0)
+                if pct_err > HIER_TOL_PCT:
+                    _add(ptid, prec.name, yr, 'hierarchical_consistency',
+                         'FAIL',
+                         f'max_cell_diff={max_cell_diff:.2f} '
+                         f'({pct_err:.3f}% of total)')
+                    n_hier_fail += 1
+
+        self._log(f"    [3] Hierarchical consistency: {n_hier_fail} failures "
+                  f"/ {n_hier_checked} checked")
+
+        # ── 4. Total population match ──
+        #  Only meaningful for age_sex subjects where grand total = total pop.
+        #  Education subjects measure pop 15+, hh_size measures households.
+        is_age_sex = 'age_sex' in e_subject_id and 'educ' not in e_subject_id
+        n_pop_fail = 0
+        n_pop_checked = 0
+        POP_TOL_PCT = 0.1  # 0.1% tolerance
+        if not is_age_sex:
+            self._log(f"    [4] Population match: skipped "
+                      f"(not applicable for {e_subject_id})")
+        for tid, rec in (e_records.items() if is_age_sex else []):
+            if rec.level not in (LEVEL_GMINA,):
+                continue
+            if tid[-1] not in RODZ_AGGREGATION_SET:
+                continue
+            ct = rec.cross_tables[e_subject_id]
+            for yr in year_range:
+                tbl = ct.tables.get(yr)
+                if tbl is None or np.all(np.isnan(tbl)):
+                    continue
+                ts = pd.Timestamp(yr, 1, 1)
+                pop_val = rec.pop.get(ts, np.nan)
+                if pd.isna(pop_val) or pop_val <= 0:
+                    continue
+                # Grand total from table
+                if ndim == 1:
+                    og0 = ogolem_idx.get(0)
+                    if og0 is not None:
+                        grand_total = float(tbl[og0])
+                    else:
+                        grand_total = float(np.nansum(tbl))
+                elif ndim == 2:
+                    og0 = ogolem_idx.get(0)
+                    og1 = ogolem_idx.get(1)
+                    if og0 is not None and og1 is not None:
+                        grand_total = float(tbl[og0, og1])
+                    elif og0 is not None:
+                        grand_total = float(np.nansum(tbl[og0, :]))
+                    elif og1 is not None:
+                        grand_total = float(np.nansum(tbl[:, og1]))
+                    else:
+                        grand_total = float(np.nansum(tbl))
+                else:
+                    grand_total = float(np.nansum(tbl))
+
+                n_pop_checked += 1
+                pct_err = (100 * abs(grand_total - pop_val) / pop_val
+                           if pop_val > EPSILON else 0.0)
+                if pct_err > POP_TOL_PCT:
+                    _add(tid, rec.name, yr, 'population_match', 'FAIL',
+                         f'E_total={grand_total:.0f} pop={pop_val:.0f} '
+                         f'err={pct_err:.3f}%')
+                    n_pop_fail += 1
+
+        self._log(f"    [4] Population match: {n_pop_fail} failures "
+                  f"/ {n_pop_checked} checked (tol={POP_TOL_PCT}%)")
+
+        # ── 5. Temporal smoothness ──
+        n_smooth_flag = 0
+        JUMP_THRESHOLD = 0.20  # 20% relative change
+        gmina_tids = [tid for tid in e_records
+                      if e_records[tid].level == LEVEL_GMINA
+                      and tid[-1] in RODZ_AGGREGATION_SET]
+
+        for tid in gmina_tids:
+            ct = e_records[tid].cross_tables[e_subject_id]
+            yrs_sorted = sorted(yr for yr in year_range
+                                if yr in ct.tables
+                                and ct.tables[yr] is not None
+                                and not np.all(np.isnan(ct.tables[yr])))
+            if len(yrs_sorted) < 2:
+                continue
+            # Mean table across years for relative reference
+            all_tbls = [ct.tables[yr] for yr in yrs_sorted]
+            stacked = np.stack(all_tbls, axis=0)
+            mean_tbl = np.nanmean(stacked, axis=0)
+
+            for i in range(1, len(yrs_sorted)):
+                yr0, yr1 = yrs_sorted[i - 1], yrs_sorted[i]
+                if yr1 - yr0 > 1:
+                    continue  # Only check consecutive years
+                tbl0 = ct.tables[yr0]
+                tbl1 = ct.tables[yr1]
+                # Mask out ogółem cells for checking
+                if ndim == 1:
+                    noi = non_ogolem_slices[0]
+                    core0 = tbl0[noi]
+                    core1 = tbl1[noi]
+                    core_mean = mean_tbl[noi]
+                elif ndim == 2:
+                    noi0 = non_ogolem_slices[0]
+                    noi1 = non_ogolem_slices[1]
+                    core0 = tbl0[np.ix_(noi0, noi1)]
+                    core1 = tbl1[np.ix_(noi0, noi1)]
+                    core_mean = mean_tbl[np.ix_(noi0, noi1)]
+                else:
+                    continue
+
+                with np.errstate(divide='ignore', invalid='ignore'):
+                    rel_change = np.abs(core1 - core0) / (core_mean + EPSILON)
+                max_rel = float(np.nanmax(rel_change))
+                if max_rel > JUMP_THRESHOLD:
+                    _add(tid, e_records[tid].name, yr1,
+                         'temporal_smoothness', 'WARN',
+                         f'max_rel_change={max_rel:.3f} '
+                         f'({yr0}→{yr1})')
+                    n_smooth_flag += 1
+
+        self._log(f"    [5] Temporal smoothness: {n_smooth_flag} warnings "
+                  f"(threshold={JUMP_THRESHOLD*100:.0f}%)")
+
+        # ── 6. Sub-division consistency ──
+        # For rodz-3 gminas: table ≈ rodz-4 + rodz-5
+        n_subdiv_fail = 0
+        n_subdiv_checked = 0
+        SUBDIV_TOL = 1.0
+        for tid, rec in e_records.items():
+            if rec.level != LEVEL_GMINA or rec.rodz != '3':
+                continue
+            # Find rodz-4 and rodz-5 siblings
+            base = tid[:-1]
+            r4_tid = base + '4'
+            r5_tid = base + '5'
+            r4_rec = self.db._records.get(r4_tid)
+            r5_rec = self.db._records.get(r5_tid)
+            if r4_rec is None and r5_rec is None:
+                continue
+            ct3 = rec.cross_tables.get(e_subject_id)
+            if ct3 is None:
+                continue
+            for yr in year_range:
+                tbl3 = ct3.tables.get(yr)
+                if tbl3 is None or np.all(np.isnan(tbl3)):
+                    continue
+                # Sum rodz-4 + rodz-5
+                sub_sum = np.zeros_like(tbl3)
+                has_sub = False
+                for sr_tid, sr_rec in [(r4_tid, r4_rec), (r5_tid, r5_rec)]:
+                    if sr_rec is None:
+                        continue
+                    sr_ct = sr_rec.cross_tables.get(e_subject_id)
+                    if sr_ct is None:
+                        continue
+                    sr_tbl = sr_ct.tables.get(yr)
+                    if sr_tbl is None or np.all(np.isnan(sr_tbl)):
+                        continue
+                    if sr_tbl.shape != tbl3.shape:
+                        continue
+                    sub_sum += np.nan_to_num(sr_tbl, nan=0.0)
+                    has_sub = True
+                if not has_sub:
+                    continue
+                n_subdiv_checked += 1
+                max_diff = float(np.nanmax(
+                    np.abs(np.nan_to_num(tbl3, nan=0.0) - sub_sum)
+                ))
+                if max_diff > SUBDIV_TOL:
+                    _add(tid, rec.name, yr, 'subdivision_consistency',
+                         'FAIL', f'max_diff={max_diff:.2f}')
+                    n_subdiv_fail += 1
+
+        self._log(f"    [6] Sub-division consistency: {n_subdiv_fail} failures "
+                  f"/ {n_subdiv_checked} checked")
+
+        df = pd.DataFrame(issues)
+        if df.empty:
+            df = pd.DataFrame(columns=['teryt_id', 'name', 'year',
+                                       'check', 'status', 'detail'])
+        self._log(f"  Validation complete: {len(df)} issues found")
+        return df
+
+    # ------------------------------------------------------------------
+    # Leave-one-out cross-validation (work chunk E, item 29)
+    # ------------------------------------------------------------------
+
+    def leave_one_out_cv(
+        self,
+        variable_type: str,
+        prediction_section: str,
+        holdout_year: int,
+    ) -> pd.DataFrame:
+        """Leave-one-out cross-validation for a specific pipeline.
+
+        Re-runs the estimation pipeline for the given (variable_type,
+        prediction_section) pair, but with the *holdout_year* census data
+        masked out.  Then compares the predicted table at *holdout_year*
+        with the actual observed data.
+
+        Parameters
+        ----------
+        variable_type : str
+            e.g. 'age_sex', 'educ', 'hh_size'
+        prediction_section : str
+            '2000' or '1990'
+        holdout_year : int
+            Census year to exclude (must be in CENSUS_YEARS and within
+            the prediction range).
+
+        Returns
+        -------
+        pd.DataFrame
+            Per-gmina comparison with columns:
+            ['teryt_id', 'name', 'cell_rmse', 'cell_rmse_pct',
+             'chi_sq', 'marginal_err', 'total_pop_err_pct']
+        """
+        from geoTERYT_db import LEVEL_GMINA
+        import copy
+
+        key = (variable_type, prediction_section)
+        e_sid = E_SUBJECT_NAMES.get(key)
+        if e_sid is None:
+            raise ValueError(f"Unknown pipeline key: {key}")
+
+        year_range = (PREDICTION_2000_RANGE if prediction_section == '2000'
+                      else PREDICTION_1990_RANGE)
+        if holdout_year not in year_range:
+            raise ValueError(
+                f"holdout_year={holdout_year} not in {prediction_section} "
+                f"range")
+
+        # Identify the M_ source subject from the first anchor
+        anchor_cfg = ANCHOR_SUBJECTS.get(variable_type, {}).get(
+            prediction_section, {}
+        )
+        anchor_sids = anchor_cfg.get('anchor_subjects', [])
+        if not anchor_sids:
+            raise ValueError(f"No anchor subjects for {key}")
+        source_sid = anchor_sids[0]
+
+        # Get dimensions
+        dim_names, dim_labels = self._get_subject_dimensions(source_sid)
+        ndim = len(dim_names)
+        ogolem_idx, non_ogolem_slices = self._identify_ogolem(
+            dim_names, dim_labels
+        )
+        full_shape = tuple(len(dim_labels[d]) for d in dim_names)
+
+        self._log(f"\n  LOOCV: {e_sid}, holdout={holdout_year}")
+        self._log(f"    source={source_sid}, shape={full_shape}")
+
+        # ── Step 1: Collect observed tables at holdout year ──
+        observed: Dict[str, np.ndarray] = {}
+        for tid, rec in self.db._records.items():
+            if rec.level != LEVEL_GMINA or tid[-1] not in RODZ_AGGREGATION_SET:
+                continue
+            ct = rec.cross_tables.get(source_sid)
+            if ct is None:
+                continue
+            tbl = ct.tables.get(holdout_year)
+            if tbl is None or np.all(np.isnan(tbl)):
+                continue
+            if tbl.shape != full_shape:
+                continue
+            observed[tid] = tbl.copy()
+
+        self._log(f"    Observed gminas at {holdout_year}: {len(observed)}")
+        if len(observed) == 0:
+            self._log("    No observed data at holdout year — cannot evaluate")
+            return pd.DataFrame()
+
+        # ── Step 2: Temporarily mask holdout year in source ──
+        backup: Dict[str, np.ndarray] = {}
+        for tid in observed:
+            rec = self.db._records[tid]
+            ct = rec.cross_tables.get(source_sid)
+            if ct is not None and holdout_year in ct.tables:
+                backup[tid] = ct.tables[holdout_year].copy()
+                ct.tables[holdout_year] = np.full(full_shape, np.nan)
+
+        # Also clear any existing E_ results for this pipeline
+        e_backup: Dict[str, Dict[int, np.ndarray]] = {}
+        for tid, rec in self.db._records.items():
+            ect = rec.cross_tables.get(e_sid)
+            if ect is not None:
+                e_backup[tid] = {yr: ect.tables[yr].copy()
+                                 for yr in ect.tables if yr in year_range}
+
+        # Clear _completed so pipeline can re-run
+        self._completed.discard(key)
+
+        # ── Step 3: Re-run pipeline ──
+        prev_verbose = self.verbose
+        self.verbose = False
+        try:
+            self.run_pipeline(variable_type, prediction_section)
+        except Exception as exc:
+            self._log(f"    ⚠ Pipeline failed during LOOCV: {exc}")
+        finally:
+            self.verbose = prev_verbose
+
+        # ── Step 4: Collect predicted tables ──
+        predicted: Dict[str, np.ndarray] = {}
+        for tid in observed:
+            rec = self.db._records.get(tid)
+            if rec is None:
+                continue
+            ect = rec.cross_tables.get(e_sid)
+            if ect is None:
+                continue
+            ptbl = ect.tables.get(holdout_year)
+            if ptbl is not None and not np.all(np.isnan(ptbl)):
+                predicted[tid] = ptbl.copy()
+
+        self._log(f"    Predicted gminas at holdout: {len(predicted)}")
+
+        # ── Step 5: Restore original data ──
+        for tid, orig_tbl in backup.items():
+            rec = self.db._records[tid]
+            ct = rec.cross_tables.get(source_sid)
+            if ct is not None:
+                ct.tables[holdout_year] = orig_tbl
+
+        for tid, yr_dict in e_backup.items():
+            rec = self.db._records.get(tid)
+            if rec is None:
+                continue
+            ect = rec.cross_tables.get(e_sid)
+            if ect is not None:
+                for yr, arr in yr_dict.items():
+                    ect.tables[yr] = arr
+
+        self._completed.add(key)  # Mark as completed again
+
+        # ── Step 6: Compute metrics ──
+        rows = []
+        for tid in sorted(observed):
+            if tid not in predicted:
+                continue
+            obs = observed[tid]
+            pred = predicted[tid]
+            rec = self.db._records[tid]
+
+            # Extract core (non-ogółem) cells
+            if ndim == 1:
+                noi = non_ogolem_slices[0]
+                obs_core = obs[noi]
+                pred_core = pred[noi]
+            elif ndim == 2:
+                noi0 = non_ogolem_slices[0]
+                noi1 = non_ogolem_slices[1]
+                obs_core = obs[np.ix_(noi0, noi1)]
+                pred_core = pred[np.ix_(noi0, noi1)]
+            else:
+                obs_core = obs
+                pred_core = pred
+
+            # RMSE
+            diff = pred_core - obs_core
+            valid = ~np.isnan(diff)
+            if valid.sum() == 0:
+                continue
+            cell_rmse = float(np.sqrt(np.mean(diff[valid] ** 2)))
+            obs_mean = float(np.mean(np.abs(obs_core[valid])))
+            cell_rmse_pct = (100 * cell_rmse / obs_mean
+                             if obs_mean > EPSILON else 0.0)
+
+            # Chi-squared distance
+            with np.errstate(divide='ignore', invalid='ignore'):
+                chi_cells = np.where(
+                    obs_core > EPSILON,
+                    (pred_core - obs_core) ** 2 / obs_core,
+                    0.0
+                )
+            chi_sq = float(np.nansum(chi_cells))
+
+            # Marginal error (row/col sums)
+            if ndim == 2:
+                obs_row = np.nansum(obs_core, axis=1)
+                pred_row = np.nansum(pred_core, axis=1)
+                marg_err = float(np.max(np.abs(obs_row - pred_row)))
+            elif ndim == 1:
+                marg_err = float(np.abs(np.nansum(obs_core)
+                                        - np.nansum(pred_core)))
+            else:
+                marg_err = 0.0
+
+            # Total pop error
+            obs_total = float(np.nansum(obs_core))
+            pred_total = float(np.nansum(pred_core))
+            pop_err_pct = (100 * abs(pred_total - obs_total) / obs_total
+                           if obs_total > EPSILON else 0.0)
+
+            rows.append({
+                'teryt_id': tid,
+                'name': rec.name,
+                'cell_rmse': cell_rmse,
+                'cell_rmse_pct': cell_rmse_pct,
+                'chi_sq': chi_sq,
+                'marginal_err': marg_err,
+                'total_pop_err_pct': pop_err_pct,
+            })
+
+        result_df = pd.DataFrame(rows)
+        if not result_df.empty:
+            self._log(
+                f"    Evaluated: {len(result_df)} gminas\n"
+                f"    Mean RMSE: {result_df['cell_rmse'].mean():.2f}\n"
+                f"    Mean RMSE%: {result_df['cell_rmse_pct'].mean():.2f}%\n"
+                f"    Mean χ²: {result_df['chi_sq'].mean():.2f}\n"
+                f"    Mean pop err%: "
+                f"{result_df['total_pop_err_pct'].mean():.3f}%"
+            )
+        return result_df
+
+    # ------------------------------------------------------------------
+    # Estimation confidence scoring (work chunk E, item 31)
+    # ------------------------------------------------------------------
+
+    def compute_confidence_scores(
+        self,
+        e_subject_id: str,
+    ) -> pd.DataFrame:
+        """Compute per-territory estimation confidence scores.
+
+        For each territorial unit with E_ data, computes a confidence
+        score (0–100) based on:
+          - Number of census anchors available (0–4) → weight 30%
+          - Number of years with direct observed data → weight 25%
+          - Distance to nearest anchor year → weight 20%
+          - Population size (log-scaled) → weight 15%
+          - Whether data came from current TERYT or historical code → weight 10%
+
+        Returns
+        -------
+        pd.DataFrame
+            Columns: ['teryt_id', 'name', 'level', 'year',
+                       'confidence', 'n_anchors', 'n_observed_years',
+                       'dist_nearest_anchor', 'log_pop', 'used_historical']
+        """
+        from geoTERYT_db import LEVEL_GMINA
+
+        year_range = (PREDICTION_2000_RANGE if '2000' in e_subject_id
+                      else PREDICTION_1990_RANGE)
+
+        # Determine anchor subjects
+        key = None
+        for k, sid in E_SUBJECT_NAMES.items():
+            if sid == e_subject_id:
+                key = k
+                break
+        if key is None:
+            raise ValueError(f"Unknown E_ subject: {e_subject_id}")
+
+        anchor_cfg = ANCHOR_SUBJECTS.get(key[0], {}).get(key[1], {})
+        anchor_sids = anchor_cfg.get('anchor_subjects', [])
+        source_sid = anchor_sids[0] if anchor_sids else None
+
+        rows = []
+        for tid, rec in self.db._records.items():
+            if rec.level != LEVEL_GMINA or tid[-1] not in RODZ_AGGREGATION_SET:
+                continue
+            ect = rec.cross_tables.get(e_subject_id)
+            if ect is None or not ect.years_with_data:
+                continue
+
+            # Count anchor years with data in source
+            n_anchors = 0
+            anchor_years_present = []
+            if source_sid:
+                sct = rec.cross_tables.get(source_sid)
+                if sct is not None:
+                    for cy in CENSUS_YEARS:
+                        if cy in year_range:
+                            tbl = sct.tables.get(cy)
+                            if tbl is not None and not np.all(np.isnan(tbl)):
+                                n_anchors += 1
+                                anchor_years_present.append(cy)
+
+            # Count years with observed source data in year_range
+            n_observed_years = 0
+            if source_sid:
+                sct = rec.cross_tables.get(source_sid)
+                if sct is not None:
+                    for yr in year_range:
+                        tbl = sct.tables.get(yr)
+                        if tbl is not None and not np.all(np.isnan(tbl)):
+                            n_observed_years += 1
+
+            # Historical code usage
+            used_historical = len(rec.historical_codes) > 1
+
+            # Mean population (log-scaled)
+            pop_vals = []
+            for yr in year_range:
+                ts = pd.Timestamp(yr, 1, 1)
+                pv = rec.pop.get(ts, np.nan)
+                if not pd.isna(pv) and pv > 0:
+                    pop_vals.append(pv)
+            log_pop = np.log10(np.mean(pop_vals)) if pop_vals else 0.0
+
+            for yr in year_range:
+                tbl = ect.tables.get(yr)
+                if tbl is None or np.all(np.isnan(tbl)):
+                    continue
+
+                # Distance to nearest anchor
+                if anchor_years_present:
+                    dist = min(abs(yr - ay) for ay in anchor_years_present)
+                else:
+                    dist = max(abs(yr - cy) for cy in CENSUS_YEARS
+                               if cy in year_range) if any(
+                        cy in year_range for cy in CENSUS_YEARS
+                    ) else 20
+
+                # ── Score components (each 0–1, weighted) ──
+                # 1. Anchors: 0 → 0.0, 1 → 0.33, 2 → 0.67, 3+ → 1.0
+                s_anchor = min(n_anchors / 3.0, 1.0)
+
+                # 2. Observed years fraction
+                total_years = len(list(year_range))
+                s_observed = min(n_observed_years / total_years, 1.0)
+
+                # 3. Distance to anchor (closer = better)
+                # 0 → 1.0, 5 → 0.5, 10 → 0.25, 15+ → ~0
+                s_dist = 1.0 / (1.0 + dist / 5.0)
+
+                # 4. Population (log10, typical range 2.5-6)
+                s_pop = min(max((log_pop - 2.0) / 4.0, 0.0), 1.0)
+
+                # 5. Historical code (1.0 if no historical, 0.5 if has)
+                s_hist = 0.5 if used_historical else 1.0
+
+                confidence = 100.0 * (
+                    0.30 * s_anchor
+                    + 0.25 * s_observed
+                    + 0.20 * s_dist
+                    + 0.15 * s_pop
+                    + 0.10 * s_hist
+                )
+
+                rows.append({
+                    'teryt_id': tid,
+                    'name': rec.name,
+                    'level': rec.level,
+                    'year': yr,
+                    'confidence': round(confidence, 1),
+                    'n_anchors': n_anchors,
+                    'n_observed_years': n_observed_years,
+                    'dist_nearest_anchor': dist,
+                    'log_pop': round(log_pop, 2),
+                    'used_historical': used_historical,
+                })
+
+        df = pd.DataFrame(rows)
+        if not df.empty:
+            self._log(
+                f"  Confidence scores for {e_subject_id}: "
+                f"{df['teryt_id'].nunique()} gminas, "
+                f"{len(df)} gmina-years\n"
+                f"    Mean confidence: {df['confidence'].mean():.1f}\n"
+                f"    Median: {df['confidence'].median():.1f}\n"
+                f"    Min: {df['confidence'].min():.1f}, "
+                f"Max: {df['confidence'].max():.1f}"
+            )
+        return df
 
     # ------------------------------------------------------------------
     # Repr

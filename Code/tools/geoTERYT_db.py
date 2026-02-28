@@ -248,7 +248,12 @@ def nuts_code_to_teryt(nuts_code: str) -> Optional[str]:
     else:
         voivodeship_id = nuts_code[2:4]
     
-    return voivodeship_id + powiat_id + gmina_id
+    code = voivodeship_id + powiat_id + gmina_id
+    warsaw_districts = ['1431011','1431021','1431031','1431041','1431121','1431131','1431141','1431151','1431161','1431171','1431181']
+    if code in warsaw_districts:
+        code = code[:-1] +'8'
+
+    return code
 
 
 def teryt_to_short(teryt: str) -> str:
@@ -3389,6 +3394,11 @@ class GeoTERYTDatabase:
         )
         df_expanded['teryt_id'] = df_expanded['nuts_id'].apply(nuts_code_to_teryt)
         df_expanded = df_expanded[df_expanded['teryt_id'].notna()]
+        
+        # Handle negative values for teryt_ids ending with '1', '2', '3' -> we leave other endigs without correction.
+        mask = (df_expanded['teryt_id'].str.endswith(('1','2','3'))) & (df_expanded['val'] < 0)
+        for idx, _ in df_expanded[mask].iterrows():
+            df_expanded.at[idx, 'val'] = 0
         
         return df_expanded
     
