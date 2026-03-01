@@ -554,3 +554,126 @@ This section documents identified pitfalls that MUST be handled correctly throug
 11. **Temporal ordering of estimation matters:** Must run Prediction2000 before Prediction1990 for each variable. Prediction1990 uses 1995–2002 BDL data (which overlaps with Prediction2000). Running Prediction2000 first ensures the 1999–2002 overlap period has validated estimates that can anchor Prediction1990.
 
 12. **Cross-variable consistency as an information multiplier:** The E_age_sex estimates provide age marginals that can constrain E_educ (via the national H_educ_age bridge). The E_educ estimates provide education marginals that constrain E_educ_sex. The E_age_educ estimates use both E_age_sex and E_educ as marginal constraints. This creates a web of mutual consistency. Estimating variables in the order: age×sex → education → education×sex → household_size → age×education maximizes information flow.
+
+
+## Estimation evaluation (to be implemented for v6)
+
+### Quantitative findings (from analyze_estimation.py + analyze_estimation_deep.py)
+
+**Analysis 1 — Parent data overwrite:**
+- `is_observed` attribute does NOT EXIST on any CrossTable at any level (all `no_attr`)
+- ALL powiat/voivodeship E_ data is purely aggregated Σ(gminas), never observed
+- E_age_sex_2000 at voivodeship: 26/416 year-level checks show >0.1% mismatch with M_age_sex
+- MAZOWIECKIE worst case: M_total=20.5M vs E_total=27.2M (+32.8%) — Warsaw double-counting residual
+
+**Analysis 2 — Temporal spikes (>25% year-over-year at gmina level):**
+- E_age_sex_2000: 6 spikes (low, good)
+- E_age_sex_1990: 148 spikes — worst: Wesoła 2001→2002 = +9689% (BDL data corruption from Warsaw merger)
+- E_educ_2000: 316 spikes — ALL from voivodeship 14 (MAZOWIECKIE), 40-48% drops at 2001→2002
+- E_educ_sex_2000: 316 spikes — same pattern as E_educ_2000
+- E_educ_1990, E_educ_sex_1990, E_hh_size_*: 0 spikes
+
+**Analysis 3 — Spline overshooting (non-monotone between anchors, 5% tolerance):**
+- E_educ_2000: 30.1% overshoot, 26.2% undershoot (out of 182 checked intervals)
+- E_educ_sex_2000: 28.4% overshoot, 26.8% undershoot
+- E_hh_size_2000: 10.9% overshoot, 0% undershoot
+- Root cause: 3 anchors (2002, synthetic 2011, 2021) triggers CubicSpline; synthetic 2011 misaligns
+
+**Analysis 4 — Hierarchical consistency (powiat E_ vs Σ gmina E_):**
+- 2000-series: ~10% of powiat-year checks inconsistent (>0.1%). 1990-series: ~0.5%
+- 41/382 powiats fail exact match at yr=2010. wałbrzyski: 67% mismatch (city separation)
+- Many powiats created after 1999 have 0 children → powiat has data, Σ gminas = 0
+
+**Analysis 5 — Census data preservation (E_ vs M_ at gmina level, 100 sampled gminas):**
+- E_educ_2000: **100% mismatch** — all census values modified by Layer 2 scaling (4-8%)
+- E_educ_sex_2000: **100% mismatch** — same pattern
+- E_educ_1990: 49.7% mismatch (6-7% discrepancy)
+- E_age_sex_2000: 6.3% mismatch (some gminas zeroed out — Bodzanów: M=33668, E=0)
+- E_age_sex_1990, E_educ_sex_1990, E_hh_size_*: 0% mismatch (preserved)
+
+**Analysis 6 — Anchor year distribution at gmina level (200 sampled):**
+- E_age_sex_2000: 26 anchors/gmina (annual BDL 1999–2024) — excellent
+- E_age_sex_1990: 16-17 anchors (1988 census + 1995–2002 BDL) — good
+- E_educ_2000, E_educ_sex_2000, E_hh_size_2000: **2 anchors** (2002, 2021) for 182/200 gminas. 10 have 1 anchor, 8 have 0. Synthetic 2011 from powiat disaggregation adds 3rd.
+- E_educ_1990, E_hh_size_1990: 2 anchors (1988, 2002) for 184/200
+- E_educ_sex_1990: only 1 anchor (2002) for 187/200 → constant interpolation
+
+**Analysis 7 — Negatives/NaN:**
+- No negative values anywhere (clamping works)
+- E_age_sex_2000: 4,889 all-NaN tables at gmina level (gminas without data for certain years)
+- All other subjects: 0 all-NaN tables
+
+**Deep analysis — M_ data availability at parent levels:**
+- POWIAT: M_age_sex (382 units, 30 years), M_age_1990 (382), M_educ_2000 (379, yr=2011 only), M_educ_sex_2000 (379, yr=2011 only), M_hh_size_2000 (379, yr=2011 only)
+- VOIV: M_age_sex (65 units, 30+ years), M_educ_2000 (18 units, 30 years), M_educ_1990/educ_sex/hh_size: 0 units
+
+**Deep analysis — Mazowieckie discontinuity root cause:**
+- M_educ_2000 voiv data: 1400000 MAZOWIECKIE has years [1995-1999]; 1300000 Warszawski stołeczny + 1500000 Mazowiecki regionalny have years [2001+]
+- Layer 2 scaling factor jumps discontinuously at 2000-2001 boundary
+- ALL 312 educ_2000 spike gminas are from voiv 14
+
+---
+
+### Root causes identified
+
+1. **RC1 — `_aggregate_to_parents` (line 1385):** Unconditionally overwrites parent E_ data with Σ(gmina E_), `is_observed=False`. No check for existing M_ observed data. This is why powiat/voivodeship plots show no observed/estimated distinction.
+
+2. **RC2 — Layer 2 scaling destroys census values:** `_scale_gminas_to_parent` (line 788) applies `factor = voiv_tbl / Σ(gmina_tbl)` to ALL years including census years. Since Σ(census gminas) ≠ voivodeship observed (rodz exclusions, rounding), factor ≠ 1.0 → census data modified 4-8%.
+
+3. **RC3 — Cubic spline with synthetic 2011:** `_disaggregate_2011_powiat_to_gmina()` creates a 3rd anchor, pushing `_generate_seeds` into CubicSpline mode. Synthetic anchor misaligns with 2002/2021 real data → ~30% of intervals overshoot.
+
+4. **RC4 — Mazowieckie voivodeship data source switch:** M_educ_2000 switches from old MAZOWIECKIE (1995-1999) to split voivodeships (2001+) — scaling factor jumps 40%.
+
+5. **RC5 — TERYT boundary changes:** `children_ids` fixed to 1999 snapshot. Post-1999 powiats (łobeski, węgorzewski, etc.) have 0 children. Warsaw districts rodz=8 excluded from aggregation.
+
+6. **RC6 — Wesoła BDL data corruption:** M_age_sex 2002 for gmina 1412031 = 6.75M (should be ~70K). Warsaw 2002 merger artifact in source data.
+
+---
+
+### Fix plan (7 steps, prioritized)
+
+- [ ] **34. Preserve observed parent data via hybrid aggregation (RC1)**
+  - In `_aggregate_to_parents`: after computing Σ(gmina E_), look up the parent record's M_ anchor data for that year
+  - Where M_ observed data exists: keep the aggregated cell proportions but SCALE the aggregated table so its total matches the observed M_ total
+  - Formula: `E_parent[y] = aggregated[y] * (M_observed_total[y] / aggregated_total[y])`
+  - This preserves gmina-level cell proportions while honoring observed parent totals
+  - Mark these years as `observed=True` in the provenance mask
+  - Affects: all 8 subjects at powiat/voivodeship level
+
+- [ ] **35. Protect census-year gmina data from Layer 2 scaling (RC2)**
+  - In `_estimate_educ_2000`, `_estimate_educ_sex_2000`, `_estimate_educ_1990`: modify the scaling loop to SKIP years where the gmina has observed M_ data
+  - After scaling, VERIFY that census-year values are untouched: assert `np.allclose(E_census, M_census)` at census years
+  - Belt-and-suspenders: even if scaling accidentally touches census data, restore from M_ original
+  - Priority subjects: E_educ_2000 (100% mismatch), E_educ_sex_2000 (100%), E_educ_1990 (50%)
+
+- [ ] **36. Fix interpolation overshooting with tiered spline strategy (RC3)**
+  - In `_generate_seeds`: implement three-tier interpolation:
+    - ≤3 anchors: LINEAR interpolation in log-space (geometric). Simple, no overshoot possible.
+    - 4-10 anchors: PCHIP (scipy.interpolate.PchipInterpolator) — shape-preserving monotone cubic
+    - >10 anchors: CubicSpline (current behavior) — enough anchors to constrain well
+  - Keep the existing clamping behavior outside anchor range
+  - Test: re-check overshoot rates on E_educ_2000 (target: 0% overshoot)
+
+- [ ] **37. Fix Mazowieckie voivodeship scaling discontinuity (RC4)**
+  - In `_estimate_educ_2000` Layer 2: detect when voivodeship scaling data has a source switch (1400000 → 1300000+1500000)
+  - For transition years (2000-2001): compute scaling factors from a LINEAR BLEND between old Mazowieckie totals and new split-voivodeship totals
+  - Alternatively: at years where neither old nor new voivodeship data exists, use national-level scaling for Mazowieckie gminas only
+  - Target: eliminate all 312 Mazowieckie spikes
+
+- [ ] **38. Update children_ids resolution for boundary changes (RC5)**
+  - In `_aggregate_to_parents`: use year-appropriate `children_ids` — try `children_ids.get(year)`, fall back to closest available year, then 1999
+  - Handle Warsaw: include rodz=8 (city districts) in aggregation for Warsaw powiat specifically
+  - Handle post-1999 powiats: check for children in later snapshots (2002, 2010, etc.)
+  - Expected improvement: reduce hierarchical inconsistency from ~10% to <1%
+
+- [ ] **39. Persist observed/estimated status on CrossTable (RC1 downstream)**
+  - Add `observed_years: set` attribute to `CrossTable` class in geoTERYT_db.py
+  - Populate during `_store_estimated_cross_table` based on is_obs parameter
+  - Add to `to_dict()`/`from_dict()` serialization
+  - Update GUS04G visualization: show filled markers (●) for observed years at ALL admin levels, not just gmina
+
+- [ ] **40. Clean upstream Wesoła + similar BDL data anomalies (RC6)**
+  - Add pre-estimation data validation scan: flag M_ values with >1000% year-over-year change
+  - For Wesoła (1412031): NaN-out M_age_sex, M_age_1990 at 2002 (Warsaw merger artifact)
+  - Scan all gminas for similar TERYT merger artifacts (municipalities absorbed into cities around 2002)
+  - Log all cleaned values for audit trail
