@@ -547,6 +547,8 @@ class CrossTable:
         self.tables: Dict[int, np.ndarray] = {}
         for year in self.year_range:
             self.tables[year] = np.full(self._shape, np.nan)
+        # Track which years contain observed (not estimated) data
+        self.observed_years: set = set()
     
     @property
     def shape(self) -> tuple:
@@ -664,7 +666,8 @@ class CrossTable:
             'dim_names': self.dim_names,
             'dim_labels': self.dim_labels,
             'year_range': self.year_range,
-            'tables': tables_serialized
+            'tables': tables_serialized,
+            'observed_years': sorted(self.observed_years),
         }
     
     @classmethod
@@ -679,6 +682,7 @@ class CrossTable:
         )
         for year_str, table_list in d.get('tables', {}).items():
             ct.tables[int(year_str)] = np.array(table_list, dtype=float)
+        ct.observed_years = set(d.get('observed_years', []))
         return ct
     
     def __repr__(self):

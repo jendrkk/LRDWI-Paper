@@ -632,7 +632,7 @@ This section documents identified pitfalls that MUST be handled correctly throug
 
 ### Fix plan (7 steps, prioritized)
 
-- [ ] **34. Preserve observed parent data via hybrid aggregation (RC1)**
+- [x] **34. Preserve observed parent data via hybrid aggregation (RC1)**
   - In `_aggregate_to_parents`: after computing Σ(gmina E_), look up the parent record's M_ anchor data for that year
   - Where M_ observed data exists: keep the aggregated cell proportions but SCALE the aggregated table so its total matches the observed M_ total
   - Formula: `E_parent[y] = aggregated[y] * (M_observed_total[y] / aggregated_total[y])`
@@ -640,13 +640,13 @@ This section documents identified pitfalls that MUST be handled correctly throug
   - Mark these years as `observed=True` in the provenance mask
   - Affects: all 8 subjects at powiat/voivodeship level
 
-- [ ] **35. Protect census-year gmina data from Layer 2 scaling (RC2)**
+- [x] **35. Protect census-year gmina data from Layer 2 scaling (RC2)**
   - In `_estimate_educ_2000`, `_estimate_educ_sex_2000`, `_estimate_educ_1990`: modify the scaling loop to SKIP years where the gmina has observed M_ data
   - After scaling, VERIFY that census-year values are untouched: assert `np.allclose(E_census, M_census)` at census years
   - Belt-and-suspenders: even if scaling accidentally touches census data, restore from M_ original
   - Priority subjects: E_educ_2000 (100% mismatch), E_educ_sex_2000 (100%), E_educ_1990 (50%)
 
-- [ ] **36. Fix interpolation overshooting with tiered spline strategy (RC3)**
+- [x] **36. Fix interpolation overshooting with tiered spline strategy (RC3)**
   - In `_generate_seeds`: implement three-tier interpolation:
     - ≤3 anchors: LINEAR interpolation in log-space (geometric). Simple, no overshoot possible.
     - 4-10 anchors: PCHIP (scipy.interpolate.PchipInterpolator) — shape-preserving monotone cubic
@@ -654,25 +654,25 @@ This section documents identified pitfalls that MUST be handled correctly throug
   - Keep the existing clamping behavior outside anchor range
   - Test: re-check overshoot rates on E_educ_2000 (target: 0% overshoot)
 
-- [ ] **37. Fix Mazowieckie voivodeship scaling discontinuity (RC4)**
+- [x] **37. Fix Mazowieckie voivodeship scaling discontinuity (RC4)**
   - In `_estimate_educ_2000` Layer 2: detect when voivodeship scaling data has a source switch (1400000 → 1300000+1500000)
   - For transition years (2000-2001): compute scaling factors from a LINEAR BLEND between old Mazowieckie totals and new split-voivodeship totals
   - Alternatively: at years where neither old nor new voivodeship data exists, use national-level scaling for Mazowieckie gminas only
   - Target: eliminate all 312 Mazowieckie spikes
 
-- [ ] **38. Update children_ids resolution for boundary changes (RC5)**
+- [x] **38. Update children_ids resolution for boundary changes (RC5)**
   - In `_aggregate_to_parents`: use year-appropriate `children_ids` — try `children_ids.get(year)`, fall back to closest available year, then 1999
   - Handle Warsaw: include rodz=8 (city districts) in aggregation for Warsaw powiat specifically
   - Handle post-1999 powiats: check for children in later snapshots (2002, 2010, etc.)
   - Expected improvement: reduce hierarchical inconsistency from ~10% to <1%
 
-- [ ] **39. Persist observed/estimated status on CrossTable (RC1 downstream)**
+- [x] **39. Persist observed/estimated status on CrossTable (RC1 downstream)**
   - Add `observed_years: set` attribute to `CrossTable` class in geoTERYT_db.py
   - Populate during `_store_estimated_cross_table` based on is_obs parameter
   - Add to `to_dict()`/`from_dict()` serialization
   - Update GUS04G visualization: show filled markers (●) for observed years at ALL admin levels, not just gmina
 
-- [ ] **40. Clean upstream Wesoła + similar BDL data anomalies (RC6)**
+- [x] **40. Clean upstream Wesoła + similar BDL data anomalies (RC6)**
   - Add pre-estimation data validation scan: flag M_ values with >1000% year-over-year change
   - For Wesoła (1412031): NaN-out M_age_sex, M_age_1990 at 2002 (Warsaw merger artifact)
   - Scan all gminas for similar TERYT merger artifacts (municipalities absorbed into cities around 2002)

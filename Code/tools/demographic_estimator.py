@@ -29,7 +29,7 @@ from typing import TYPE_CHECKING, Dict, List, Optional, Set, Tuple, Any
 
 import numpy as np
 import pandas as pd
-from scipy.interpolate import CubicSpline
+from scipy.interpolate import CubicSpline, PchipInterpolator
 
 try:
     import ipfn as _ipfn_module
@@ -167,10 +167,12 @@ def _get_aggregation_children(
     -----
     - Powiat  (teryt[-1] == '0'): children with rodz ∈ {1, 2, 3},
       with encompassing-child deduplication (Warsaw 1999–2001).
+      Falls back to including rodz=8 (city districts) if no
+      rodz ∈ {1,2,3} children are found.
     - Voivodeship (teryt[2:] == '00000'): all powiats + all direct
       gminas with rodz ∈ {1, 2, 3}
     - Country (teryt == '0000000'): all voivodeships
-    - NEVER include rodz 4, 5, 8, 9 in aggregation sums.
+    - NEVER include rodz 4, 5, 9 in aggregation sums.
     """
     from geoTERYT_db import filter_aggregation_children
     tid = record.teryt_id
@@ -196,11 +198,24 @@ def _get_aggregation_children(
 
     # Powiat level (last digit '0')
     if tid[-1] == '0':
+        raw_children = record.get_children(year)
         raw = [
-            child_tid for child_tid in record.get_children(year)
+            child_tid for child_tid in raw_children
             if child_tid[-1] in RODZ_AGGREGATION_SET
         ]
-        return filter_aggregation_children(raw, year, db._records)
+        filtered = filter_aggregation_children(raw, year, db._records)
+
+        # If no rodz ∈ {1,2,3} children found, try rodz=8
+        # (Warsaw city districts post-reorganisation)
+        if not filtered:
+            raw_8 = [
+                child_tid for child_tid in raw_children
+                if child_tid[-1] == '8'
+            ]
+            if raw_8:
+                return raw_8
+
+        return filtered
 
     # Anything else (gmina, sub-division) — no children to aggregate
     return []
@@ -308,6 +323,94 @@ class DemographicEstimator:
             print(msg)
 
     # ------------------------------------------------------------------
+    # Upstream data validation & cleaning
+    # ------------------------------------------------------------------
+
+    # Known TERYT merger artifacts: (teryt_id, subject_id, year_to_nan)
+    _KNOWN_DATA_ANOMALIES: List[Tuple[str, str, int]] = [
+        # Wesoła absorbed into Warsaw in 2002 — M_age_sex has a
+        # spurious spike at 2002 when population drops to near-zero
+        ('1412031', 'M_age_sex', 2002),
+        ('1412031', 'M_age_1990', 2002),
+    ]
+
+    def _validate_upstream_data(self):
+        """Scan M_ cross tables for extreme YoY changes and clean known
+        anomalies before estimation.
+
+        1. NaN-out known data anomalies (TERYT merger artifacts).
+        2. Flag any M_ value with >1000 % year-over-year change for
+           audit (logged but not automatically corrected).
+        """
+        self._log("\n── Upstream data validation ──")
+
+        # ── Step 1: clean known anomalies ──
+        n_cleaned = 0
+        for tid, sid, bad_year in self._KNOWN_DATA_ANOMALIES:
+            rec = self.db._records.get(tid)
+            if rec is None:
+                continue
+            ct = rec.cross_tables.get(sid)
+            if ct is None:
+                continue
+            tbl = ct.tables.get(bad_year)
+            if tbl is None or np.all(np.isnan(tbl)):
+                continue
+            ct.tables[bad_year] = np.full(ct.shape, np.nan)
+            n_cleaned += 1
+            self._log(
+                f"  Cleaned: {tid} / {sid} / {bad_year} "
+                f"(known TERYT merger artifact)"
+            )
+        self._log(f"  Known anomalies cleaned: {n_cleaned}")
+
+        # ── Step 2: scan for extreme YoY changes ──
+        m_subjects = [
+            s for s in ['M_age_sex', 'M_educ_2000', 'M_educ_1990',
+                        'M_educ_sex_2000', 'M_educ_sex_1990',
+                        'M_hh_size_2000', 'M_hh_size_1990',
+                        'M_age_1990']
+        ]
+
+        n_flagged = 0
+        for tid, rec in self.db._records.items():
+            if rec.level != 6:  # only scan gminas
+                continue
+            for sid in m_subjects:
+                ct = rec.cross_tables.get(sid)
+                if ct is None:
+                    continue
+                data_years = ct.years_with_data
+                if len(data_years) < 2:
+                    continue
+                for i in range(1, len(data_years)):
+                    y_prev, y_cur = data_years[i - 1], data_years[i]
+                    t_prev = ct.tables.get(y_prev)
+                    t_cur = ct.tables.get(y_cur)
+                    if t_prev is None or t_cur is None:
+                        continue
+                    sum_prev = np.nansum(np.abs(t_prev))
+                    sum_cur = np.nansum(np.abs(t_cur))
+                    if sum_prev < 1.0:
+                        continue
+                    ratio = sum_cur / sum_prev
+                    if ratio > 11.0 or ratio < 1.0 / 11.0:
+                        if n_flagged < 20:
+                            self._log(
+                                f"  ⚠  {tid}/{sid}: "
+                                f"YoY {y_prev}→{y_cur} "
+                                f"ratio={ratio:.1f}x"
+                            )
+                        n_flagged += 1
+
+        if n_flagged > 20:
+            self._log(
+                f"  … and {n_flagged - 20} more flagged"
+            )
+        self._log(f"  Extreme YoY changes flagged: {n_flagged}")
+        self._log("── Validation complete ──\n")
+
+    # ------------------------------------------------------------------
     # Public entry points
     # ------------------------------------------------------------------
 
@@ -317,6 +420,9 @@ class DemographicEstimator:
         Order: age×sex → educ → educ_sex → hh_size → age_educ
         Within each: Prediction2000 first, then Prediction1990.
         """
+        # Pre-estimation data cleaning
+        self._validate_upstream_data()
+
         pipeline_order = [
             ('age_sex',  '2000'),
             ('age_sex',  '1990'),
@@ -398,6 +504,12 @@ class DemographicEstimator:
             record.cross_tables[e_subject_id] = ct
 
         record.cross_tables[e_subject_id].set_table(year, table)
+
+        # Track observed years on the CrossTable itself
+        if is_observed:
+            record.cross_tables[e_subject_id].observed_years.add(year)
+        else:
+            record.cross_tables[e_subject_id].observed_years.discard(year)
 
         # Store DataSeries counterparts (optional, slow for large runs)
         if self.create_data_series:
@@ -597,22 +709,45 @@ class DemographicEstimator:
                 for yr in year_range:
                     seed_tables[yr] = base.copy()
 
-            elif len(anchor_years) == 2:
-                # Linear interpolation in log-space (geometric interpolation)
-                y1, y2 = anchor_years
-                lt1, lt2 = log_tables
+            elif len(anchor_years) <= 3:
+                # ≤3 anchors: linear interpolation in log-space
+                # (geometric interpolation — no overshoot possible)
                 for yr in year_range:
-                    if yr <= y1:
+                    if yr <= anchor_years[0]:
                         seed_tables[yr] = anchor_tables[0].copy()
-                    elif yr >= y2:
+                    elif yr >= anchor_years[-1]:
                         seed_tables[yr] = anchor_tables[-1].copy()
                     else:
-                        frac = (yr - y1) / (y2 - y1)
-                        log_interp = lt1 * (1 - frac) + lt2 * frac
-                        seed_tables[yr] = np.exp(log_interp)
+                        # Find bracketing anchors
+                        for ai in range(len(anchor_years) - 1):
+                            if anchor_years[ai] <= yr <= anchor_years[ai + 1]:
+                                y1, y2 = anchor_years[ai], anchor_years[ai + 1]
+                                lt1, lt2 = log_tables[ai], log_tables[ai + 1]
+                                frac = (yr - y1) / (y2 - y1)
+                                log_interp = lt1 * (1 - frac) + lt2 * frac
+                                seed_tables[yr] = np.exp(log_interp)
+                                break
+
+            elif len(anchor_years) <= 10:
+                # 4-10 anchors: PCHIP (shape-preserving monotone cubic)
+                ay = np.array(anchor_years, dtype=float)
+                flat_logs = np.array([lt.ravel() for lt in log_tables])
+                n_cells = flat_logs.shape[1]
+                splines = []
+                for ci in range(n_cells):
+                    splines.append(PchipInterpolator(ay, flat_logs[:, ci]))
+
+                for yr in year_range:
+                    if yr < anchor_years[0]:
+                        seed_tables[yr] = anchor_tables[0].copy()
+                    elif yr > anchor_years[-1]:
+                        seed_tables[yr] = anchor_tables[-1].copy()
+                    else:
+                        interp_flat = np.array([sp(yr) for sp in splines])
+                        seed_tables[yr] = np.exp(interp_flat).reshape(core_shape)
 
             else:
-                # ≥3 anchors: natural cubic spline per cell
+                # >10 anchors: natural cubic spline per cell
                 ay = np.array(anchor_years, dtype=float)
                 flat_logs = np.array([lt.ravel() for lt in log_tables])  # (n_anchors, n_cells)
                 n_cells = flat_logs.shape[1]
@@ -877,6 +1012,458 @@ class DemographicEstimator:
         elif ndim == 2:
             return full[np.ix_(non_ogolem_slices[0], non_ogolem_slices[1])]
         return full
+
+    # ------------------------------------------------------------------
+    # Temporal smoothing for Layer 2 scaling factors
+    # ------------------------------------------------------------------
+
+    @staticmethod
+    def _smooth_factors_temporal(
+        factor_series: Dict[int, np.ndarray],
+        halflife: int = 3,
+    ) -> Dict[int, np.ndarray]:
+        """Smooth per-year scaling factor arrays using exponential moving avg.
+
+        Demographic structure evolves slowly.  When Layer 2 applies
+        per-year scaling factors to match voivodeship marginals, the
+        raw factors can jump from year to year (with noise in the
+        underlying data, source switches, etc.).  This produces the
+        sudden jumps the user has flagged.
+
+        The fix: smooth the factor time-series using a symmetric
+        exponential kernel centred on each year.  Census years where
+        ``factor == 1.0`` (no scaling) are excluded from the kernel.
+
+        Parameters
+        ----------
+        factor_series : dict  year → np.ndarray (factors, shape may vary)
+        halflife : int
+            Halflife in years for the exponential kernel (default 3).
+
+        Returns
+        -------
+        dict  year → np.ndarray (smoothed factors)
+        """
+        if len(factor_series) <= 1:
+            return dict(factor_series)   # nothing to smooth
+
+        sorted_years = sorted(factor_series.keys())
+        shape = next(iter(factor_series.values())).shape
+
+        # Stack factors into array  (n_years × *shape)
+        stacked = np.array([factor_series[y] for y in sorted_years])
+        n_years = stacked.shape[0]
+
+        # Build symmetric exponential kernel weights
+        result = np.empty_like(stacked)
+        decay = np.log(2) / max(halflife, 1)
+
+        for i in range(n_years):
+            # weights: exp(-decay * |Δt|)
+            weights = np.exp(-decay * np.abs(
+                np.array(sorted_years) - sorted_years[i]
+            ))
+            # Normalise along time axis
+            w_sum = weights.sum()
+            w = weights / w_sum
+
+            # Weighted average of factors along time axis
+            # w has shape (n_years,), stacked has shape (n_years, *shape)
+            # Broadcast: reshape w to (n_years, 1, 1, ...) for N-D factors
+            w_broad = w.reshape((-1,) + (1,) * len(shape))
+            result[i] = (stacked * w_broad).sum(axis=0)
+
+        smoothed = {yr: result[i] for i, yr in enumerate(sorted_years)}
+        return smoothed
+
+    def _layer2_voiv_scaling_smoothed(
+        self,
+        seeds: Dict[str, Dict[int, np.ndarray]],
+        source_sid: str,
+        year_range: range,
+        dim_names: List[str],
+        dim_labels: Dict[str, List[str]],
+        observed_years_per_gmina: Dict[str, Set[int]],
+        factor_guard: float = 3.0,
+    ) -> int:
+        """Voivodeship marginal scaling with temporal smoothing (Fix 41A).
+
+        Instead of applying each year's scaling factor independently,
+        this method:
+        1. Collects raw scaling factors for every (voiv, year).
+        2. Smooths the factor series temporally per voivodeship.
+        3. Applies the smoothed factors to gmina seeds.
+
+        This eliminates sudden jumps caused by noisy source data.
+
+        Returns
+        -------
+        int : number of voivodeship-year combinations scaled.
+        """
+        full_shape = tuple(len(dim_labels[d]) for d in dim_names)
+        ndim = len(dim_names)
+        ogolem_idx, non_ogolem_slices = self._identify_ogolem(
+            dim_names, dim_labels,
+        )
+        voiv_tids = self._get_voivodeships()
+        n_scaled = 0
+
+        for voiv_tid in voiv_tids:
+            # ── Phase 1: collect raw factors per year ──
+            raw_factors: Dict[int, np.ndarray] = {}
+            gminas_per_year: Dict[int, Dict[str, np.ndarray]] = {}
+
+            for year in year_range:
+                voiv_tbl = self._get_observed_table(
+                    voiv_tid, source_sid, year,
+                )
+                if voiv_tbl is None or voiv_tbl.shape != full_shape:
+                    continue
+
+                gminas = self._collect_voivodeship_gminas(voiv_tid, year)
+                # Aggregate ALL gminas (incl. observed) for factor comp.
+                # (Fix 42: bridge observed years in temporal smoothing)
+                aggregated = np.zeros(full_shape, dtype=float)
+                gmina_tables: Dict[str, np.ndarray] = {}
+                for gid in gminas:
+                    if gid not in seeds or year not in seeds[gid]:
+                        continue
+                    tbl = seeds[gid][year]
+                    aggregated += np.nan_to_num(tbl, nan=0.0)
+                    obs_yrs = observed_years_per_gmina.get(gid, set())
+                    if year not in obs_yrs:
+                        gmina_tables[gid] = tbl  # non-observed only
+
+                if np.sum(aggregated) < EPSILON:
+                    continue
+
+                # Compute cell-wise factors
+                with np.errstate(divide='ignore', invalid='ignore'):
+                    factors = np.where(
+                        aggregated > EPSILON,
+                        voiv_tbl / aggregated,
+                        1.0,
+                    )
+                factors = np.where(np.isnan(factors), 1.0, factors)
+
+                # Guard: skip extreme overall scaling
+                agg_total = np.nansum(aggregated)
+                voiv_total = np.nansum(voiv_tbl)
+                if agg_total > EPSILON and voiv_total > 0:
+                    eff_factor = voiv_total / agg_total
+                    if eff_factor > factor_guard or eff_factor < 1.0 / factor_guard:
+                        self._log(
+                            f"    ⚠  Skipping {voiv_tid} y={year}: "
+                            f"extreme factor {eff_factor:.2f}"
+                        )
+                        continue
+
+                raw_factors[year] = factors
+                gminas_per_year[year] = gmina_tables
+
+            if not raw_factors:
+                continue
+
+            # ── Phase 2: smooth factors temporally ──
+            smoothed = self._smooth_factors_temporal(raw_factors, halflife=3)
+
+            # ── Phase 3: apply smoothed factors ──
+            for year, factors in smoothed.items():
+                gmina_tables = gminas_per_year.get(year)
+                if not gmina_tables:  # None or empty (all observed)
+                    continue
+
+                for gid, tbl in gmina_tables.items():
+                    scaled = np.maximum(tbl * factors, 0.0)
+                    # Recompute ogółem
+                    core = self._extract_core(
+                        scaled, ndim, ogolem_idx, non_ogolem_slices,
+                    )
+                    seeds[gid][year] = self._assemble_with_ogolem(
+                        core, ndim, full_shape,
+                        ogolem_idx, non_ogolem_slices,
+                    )
+                n_scaled += 1
+
+        return n_scaled
+
+    def _layer2_national_scaling_smoothed(
+        self,
+        seeds: Dict[str, Dict[int, np.ndarray]],
+        source_sid: str,
+        year_range: range,
+        dim_names: List[str],
+        dim_labels: Dict[str, List[str]],
+        observed_years_per_gmina: Dict[str, Set[int]],
+    ) -> int:
+        """National marginal scaling with temporal smoothing (Fix 41B).
+
+        Like `_layer2_voiv_scaling_smoothed` but scales against the
+        country-level (teryt 0000000) marginals.
+
+        Returns
+        -------
+        int : number of national-year combinations scaled.
+        """
+        full_shape = tuple(len(dim_labels[d]) for d in dim_names)
+        ndim = len(dim_names)
+        ogolem_idx, non_ogolem_slices = self._identify_ogolem(
+            dim_names, dim_labels,
+        )
+        country_tid = '0000000'
+        n_scaled = 0
+
+        # ── Phase 1: collect raw factors per year ──
+        raw_factors: Dict[int, np.ndarray] = {}
+        gminas_per_year: Dict[int, List[str]] = {}
+
+        for year in year_range:
+            country_tbl = self._get_observed_table(
+                country_tid, source_sid, year,
+            )
+            if country_tbl is None or country_tbl.shape != full_shape:
+                continue
+
+            # Aggregate ALL gminas (incl. observed) for factor comp.
+            # (Fix 42: include observed so smoothing bridges observed yrs)
+            total_agg = np.zeros(full_shape, dtype=float)
+            gminas_in_year: List[str] = []
+            for tid in seeds:
+                if year not in seeds[tid]:
+                    continue
+                total_agg += np.nan_to_num(seeds[tid][year], nan=0.0)
+                obs_yrs = observed_years_per_gmina.get(tid, set())
+                if year not in obs_yrs:
+                    gminas_in_year.append(tid)  # non-observed only
+
+            if np.sum(total_agg) < EPSILON:
+                continue
+
+            # Element-wise factors
+            with np.errstate(divide='ignore', invalid='ignore'):
+                factors = np.where(
+                    total_agg > EPSILON,
+                    country_tbl / total_agg,
+                    1.0,
+                )
+            factors = np.where(np.isnan(factors), 1.0, factors)
+
+            raw_factors[year] = factors
+            gminas_per_year[year] = gminas_in_year
+
+        if not raw_factors:
+            return 0
+
+        # ── Phase 2: smooth factors temporally ──
+        smoothed = self._smooth_factors_temporal(raw_factors, halflife=3)
+
+        # ── Phase 3: apply smoothed factors ──
+        for year, factors in smoothed.items():
+            gminas = gminas_per_year.get(year)
+            if not gminas:  # None or empty (all observed)
+                continue
+
+            for tid in gminas:
+                scaled = np.maximum(seeds[tid][year] * factors, 0.0)
+                # Recompute ogółem
+                core = self._extract_core(
+                    scaled, ndim, ogolem_idx, non_ogolem_slices,
+                )
+                seeds[tid][year] = self._assemble_with_ogolem(
+                    core, ndim, full_shape,
+                    ogolem_idx, non_ogolem_slices,
+                )
+            n_scaled += 1
+
+        return n_scaled
+
+    def _layer2_educ_sex_marginal_smoothed(
+        self,
+        seeds: Dict[str, Dict[int, np.ndarray]],
+        source_sid: str,
+        marginal_sid: str,
+        year_range: range,
+        dim_names: List[str],
+        dim_labels: Dict[str, List[str]],
+        observed_years_per_gmina: Dict[str, Set[int]],
+        factor_guard: float = 3.0,
+    ) -> int:
+        """Voivodeship education-marginal scaling with temporal smoothing.
+
+        For educ_sex subjects: scales education-row totals (summed over
+        sex) to match 1D M_educ_2000 voivodeship data, with smooth
+        factor transitions.
+
+        Returns
+        -------
+        int : number of voivodeship-year combinations scaled.
+        """
+        full_shape = tuple(len(dim_labels[d]) for d in dim_names)
+        ndim = len(dim_names)
+        ogolem_idx, non_ogolem_slices = self._identify_ogolem(
+            dim_names, dim_labels,
+        )
+        voiv_tids = self._get_voivodeships()
+        n_scaled = 0
+
+        # Get 1D education dimensions for marginal matching
+        try:
+            educ_1d_names, educ_1d_labels = self._get_subject_dimensions(
+                marginal_sid,
+            )
+            educ_1d_shape = tuple(
+                len(educ_1d_labels[d]) for d in educ_1d_names
+            )
+        except ValueError:
+            self._log(f"    ⚠  {marginal_sid} not found — skipping L2")
+            return 0
+
+        # Label mapping: M_educ_2000 index → M_educ_sex_2000 row
+        educ_dim_name = dim_names[0]
+        educ_labels_2d = dim_labels[educ_dim_name]
+        educ_labels_1d = educ_1d_labels[educ_1d_names[0]]
+        educ_2d_to_1d: Dict[int, int] = {}
+        for i2d, lbl2d in enumerate(educ_labels_2d):
+            for i1d, lbl1d in enumerate(educ_labels_1d):
+                if lbl2d == lbl1d:
+                    educ_2d_to_1d[i2d] = i1d
+                    break
+
+        sex_non_og = non_ogolem_slices.get(
+            1, list(range(full_shape[1]))
+        )
+        n_educ = len(educ_labels_2d)
+
+        for voiv_tid in voiv_tids:
+            # ── Phase 1: collect raw row factors per year ──
+            raw_factors: Dict[int, np.ndarray] = {}
+            gminas_per_year: Dict[int, Dict[str, np.ndarray]] = {}
+
+            for year in year_range:
+                voiv_tbl = self._get_observed_table(
+                    voiv_tid, marginal_sid, year,
+                )
+                if voiv_tbl is None or voiv_tbl.shape != educ_1d_shape:
+                    continue
+
+                gminas = self._collect_voivodeship_gminas(voiv_tid, year)
+                # Aggregate ALL gminas (incl. observed) for factor comp.
+                # (Fix 42: bridge observed years in temporal smoothing)
+                agg_educ = np.zeros(n_educ, dtype=float)
+                gmina_tables: Dict[str, np.ndarray] = {}
+                for gid in gminas:
+                    if gid not in seeds or year not in seeds[gid]:
+                        continue
+                    tbl = seeds[gid][year]
+                    for ri in range(n_educ):
+                        agg_educ[ri] += sum(
+                            tbl[ri, si] for si in sex_non_og
+                        )
+                    obs_yrs = observed_years_per_gmina.get(gid, set())
+                    if year not in obs_yrs:
+                        gmina_tables[gid] = tbl  # non-observed only
+
+                if np.sum(agg_educ) < EPSILON:
+                    continue
+
+                # Per-row factors
+                educ_factors = np.ones(n_educ, dtype=float)
+                for i2d, i1d in educ_2d_to_1d.items():
+                    target = float(voiv_tbl[i1d])
+                    if agg_educ[i2d] > EPSILON and target > 0:
+                        educ_factors[i2d] = target / agg_educ[i2d]
+
+                # Guard
+                max_f = float(np.max(educ_factors))
+                min_f = float(np.min(educ_factors))
+                if max_f > factor_guard or min_f < 1.0 / factor_guard:
+                    self._log(
+                        f"    ⚠  Skipping {voiv_tid} y={year}: "
+                        f"extreme educ factor [{min_f:.2f}, {max_f:.2f}]"
+                    )
+                    continue
+
+                raw_factors[year] = educ_factors
+                gminas_per_year[year] = gmina_tables
+
+            if not raw_factors:
+                continue
+
+            # ── Phase 2: smooth factors temporally ──
+            smoothed = self._smooth_factors_temporal(raw_factors, halflife=3)
+
+            # ── Phase 3: apply smoothed row factors ──
+            for year, educ_factors in smoothed.items():
+                gmina_tables = gminas_per_year.get(year)
+                if not gmina_tables:  # None or empty (all observed)
+                    continue
+
+                for gid, tbl in gmina_tables.items():
+                    s = tbl.copy()
+                    for ri in range(n_educ):
+                        for si in range(full_shape[1]):
+                            s[ri, si] *= educ_factors[ri]
+                    s = np.maximum(s, 0.0)
+                    core = self._extract_core(
+                        s, ndim, ogolem_idx, non_ogolem_slices,
+                    )
+                    seeds[gid][year] = self._assemble_with_ogolem(
+                        core, ndim, full_shape,
+                        ogolem_idx, non_ogolem_slices,
+                    )
+                n_scaled += 1
+
+        return n_scaled
+
+    # ------------------------------------------------------------------
+    # Census data preservation helpers
+    # ------------------------------------------------------------------
+
+    def _collect_observed_tables(
+        self,
+        seeds: Dict[str, Dict[int, np.ndarray]],
+        source_sid: str,
+        full_shape: tuple,
+    ) -> Dict[str, Dict[int, np.ndarray]]:
+        """Snapshot observed census tables before Layer 2 scaling.
+
+        Returns a dict teryt_id → {year → original_table} for each
+        gmina/year where M_ source data exists.  These can be used
+        after scaling to restore census-year values.
+        """
+        observed: Dict[str, Dict[int, np.ndarray]] = {}
+        for tid in seeds:
+            rec = self.db._records.get(tid)
+            if rec is None:
+                continue
+            ct = rec.cross_tables.get(source_sid)
+            if ct is None or ct.shape != full_shape:
+                continue
+            for yr in ct.years_with_data:
+                tbl = ct.tables[yr]
+                if tbl is not None and not np.all(np.isnan(tbl)):
+                    observed.setdefault(tid, {})[yr] = tbl.copy()
+        return observed
+
+    def _restore_census_data(
+        self,
+        seeds: Dict[str, Dict[int, np.ndarray]],
+        observed: Dict[str, Dict[int, np.ndarray]],
+    ) -> int:
+        """Restore census-year gmina tables from observed snapshots.
+
+        Overwrites any scaling modifications at years where original
+        M_ data existed.  Returns number of restored year-tables.
+        """
+        n_restored = 0
+        for tid, year_tbls in observed.items():
+            if tid not in seeds:
+                continue
+            for yr, orig_tbl in year_tbls.items():
+                if yr in seeds[tid]:
+                    seeds[tid][yr] = orig_tbl.copy()
+                    n_restored += 1
+        return n_restored
 
     # ------------------------------------------------------------------
     # Layer 3: Hierarchical consistency enforcement
@@ -1380,6 +1967,43 @@ class DemographicEstimator:
                 ogolem_idx, non_ogolem_slices,
             )
 
+    def _hybrid_scale_to_observed(
+        self,
+        aggregated: np.ndarray,
+        parent_tid: str,
+        source_sid: str,
+        year: int,
+        full_shape: tuple,
+    ) -> Tuple[np.ndarray, bool]:
+        """Scale an aggregated E_ table to match observed M_ total.
+
+        Returns (scaled_table, has_observed) where has_observed is True
+        if M_ anchor data was found and used for scaling.
+
+        The aggregated cell *proportions* are preserved; only
+        the overall magnitude is adjusted so that
+        ``sum(result) == sum(M_observed)``.
+        """
+        rec = self.db._records.get(parent_tid)
+        if rec is None:
+            return aggregated, False
+
+        ct = rec.cross_tables.get(source_sid)
+        if ct is None or ct.shape != full_shape:
+            return aggregated, False
+
+        m_tbl = ct.tables.get(year)
+        if m_tbl is None or np.all(np.isnan(m_tbl)):
+            return aggregated, False
+
+        m_total = np.nansum(m_tbl)
+        agg_total = np.nansum(aggregated)
+        if agg_total <= EPSILON or m_total <= 0:
+            return aggregated, False
+
+        factor = m_total / agg_total
+        return np.maximum(aggregated * factor, 0.0), True
+
     def _aggregate_to_parents(
         self,
         e_sid: str,
@@ -1387,16 +2011,24 @@ class DemographicEstimator:
         dim_names: List[str],
         dim_labels: Dict[str, List[str]],
         voiv_tids: List[str],
+        source_sid: Optional[str] = None,
     ):
         """Aggregate gmina-level E_ tables up to powiat and voivodeship.
 
         For each (year, voivodeship):
           powiat_table  = Σ gmina_table  for gminas with rodz ∈ {1,2,3}
           voiv_table    = Σ powiat_table + Σ direct-gmina_table
+
+        When *source_sid* is provided, each aggregated parent table is
+        scaled so that its total matches the observed M_ total at that
+        administrative level (hybrid aggregation).  Cell proportions
+        from the gmina aggregation are preserved; only the overall
+        magnitude changes.
         """
         full_shape = tuple(len(dim_labels[d]) for d in dim_names)
         n_pow = 0
         n_voiv = 0
+        n_hybrid = 0
 
         for year in year_range:
             for voiv_tid in voiv_tids:
@@ -1430,9 +2062,21 @@ class DemographicEstimator:
                                 powiat_total += np.nan_to_num(gtbl, nan=0.0)
                                 has_pow_data = True
                         if has_pow_data:
+                            # Hybrid: scale to observed M_ total
+                            pow_is_obs = False
+                            if source_sid is not None:
+                                powiat_total, pow_is_obs = (
+                                    self._hybrid_scale_to_observed(
+                                        powiat_total, child_tid,
+                                        source_sid, year, full_shape,
+                                    )
+                                )
+                                if pow_is_obs:
+                                    n_hybrid += 1
                             self._store_estimated_cross_table(
                                 child_tid, e_sid, year, powiat_total,
-                                dim_names, dim_labels, is_observed=False,
+                                dim_names, dim_labels,
+                                is_observed=pow_is_obs,
                             )
                             voiv_total += powiat_total
                             has_voiv_data = True
@@ -1449,14 +2093,27 @@ class DemographicEstimator:
                                 has_voiv_data = True
 
                 if has_voiv_data:
+                    # Hybrid: scale to observed M_ total
+                    voiv_is_obs = False
+                    if source_sid is not None:
+                        voiv_total, voiv_is_obs = (
+                            self._hybrid_scale_to_observed(
+                                voiv_total, voiv_tid,
+                                source_sid, year, full_shape,
+                            )
+                        )
+                        if voiv_is_obs:
+                            n_hybrid += 1
                     self._store_estimated_cross_table(
                         voiv_tid, e_sid, year, voiv_total,
-                        dim_names, dim_labels, is_observed=False,
+                        dim_names, dim_labels,
+                        is_observed=voiv_is_obs,
                     )
                     n_voiv += 1
 
         self._log(
             f"    Aggregated: {n_pow} powiat-years, {n_voiv} voiv-years"
+            f" ({n_hybrid} hybrid-scaled to M_ observed)"
         )
 
     # ------------------------------------------------------------------
@@ -1500,18 +2157,41 @@ class DemographicEstimator:
             for yr in year_range:
                 result[yr] = anchor_tables[0].copy()
 
-        elif len(anchor_years) == 2:
-            y1, y2 = anchor_years
-            lt1, lt2 = log_tables
+        elif len(anchor_years) <= 3:
+            # ≤3 anchors: linear interpolation in log-space
             for yr in year_range:
-                if yr <= y1:
+                if yr <= anchor_years[0]:
                     result[yr] = anchor_tables[0].copy()
-                elif yr >= y2:
+                elif yr >= anchor_years[-1]:
                     result[yr] = anchor_tables[-1].copy()
                 else:
-                    f = (yr - y1) / (y2 - y1)
-                    result[yr] = np.exp(lt1 * (1 - f) + lt2 * f)
+                    for ai in range(len(anchor_years) - 1):
+                        if anchor_years[ai] <= yr <= anchor_years[ai + 1]:
+                            y1, y2 = anchor_years[ai], anchor_years[ai + 1]
+                            lt1, lt2 = log_tables[ai], log_tables[ai + 1]
+                            f = (yr - y1) / (y2 - y1)
+                            result[yr] = np.exp(lt1 * (1 - f) + lt2 * f)
+                            break
+        elif len(anchor_years) <= 10:
+            # 4-10 anchors: PCHIP (shape-preserving monotone cubic)
+            ay = np.array(anchor_years, dtype=float)
+            flat = np.array([lt.ravel() for lt in log_tables])
+            n_cells = flat.shape[1]
+            core_shape = anchor_tables[0].shape
+            splines = [
+                PchipInterpolator(ay, flat[:, ci])
+                for ci in range(n_cells)
+            ]
+            for yr in year_range:
+                if yr < anchor_years[0]:
+                    result[yr] = anchor_tables[0].copy()
+                elif yr > anchor_years[-1]:
+                    result[yr] = anchor_tables[-1].copy()
+                else:
+                    vals = np.array([sp(yr) for sp in splines])
+                    result[yr] = np.exp(vals).reshape(core_shape)
         else:
+            # >10 anchors: natural cubic spline per cell
             ay = np.array(anchor_years, dtype=float)
             flat = np.array([lt.ravel() for lt in log_tables])
             n_cells = flat.shape[1]
@@ -1965,6 +2645,7 @@ class DemographicEstimator:
         self._log("  Aggregating to powiat and voivodeship levels…")
         self._aggregate_to_parents(
             e_sid, year_range, dim_names, dim_labels, voiv_tids,
+            source_sid=source_sid,
         )
 
         self._log(
@@ -2264,6 +2945,14 @@ class DemographicEstimator:
                 )
                 n_stored += 1
 
+        # ── aggregate to parent levels ──
+        voiv_tids = self._get_voivodeships()
+        self._log("  Aggregating to powiat and voivodeship levels…")
+        self._aggregate_to_parents(
+            e_sid, year_range, dim_names, dim_labels, voiv_tids,
+            source_sid=source_sid,
+        )
+
         self._log(f"  Summary: {n_stored} cell-years for {len(seeds)} gminas")
 
     def _estimate_educ_2000(self, e_sid: str):
@@ -2360,43 +3049,34 @@ class DemographicEstimator:
 
         self._log(f"    Seeds: {n_generated} gminas")
 
-        # ── Layer 2: voivodeship marginal scaling ──
-        self._log("  Layer 2: voivodeship marginal scaling…")
+        # ── Snapshot census data before scaling ──
+        observed_census = self._collect_observed_tables(
+            seeds, source_sid, full_shape,
+        )
+
+        # ── Layer 2: voivodeship marginal scaling (temporally smoothed) ──
+        self._log("  Layer 2: voivodeship marginal scaling (smoothed)…")
         voiv_tids = self._get_voivodeships()
-        n_scaled = 0
 
-        for year in year_range:
-            for voiv_tid in voiv_tids:
-                voiv_tbl = self._get_observed_table(
-                    voiv_tid, source_sid, year,
-                )
-                if voiv_tbl is None or voiv_tbl.shape != full_shape:
-                    continue
+        # Collect observed years per gmina to skip during scaling
+        observed_years_per_gmina: Dict[str, Set[int]] = {}
+        for tid, yr_tbls in observed_census.items():
+            observed_years_per_gmina[tid] = set(yr_tbls.keys())
 
-                # Collect gmina tables for this voivodeship
-                gminas = self._collect_voivodeship_gminas(voiv_tid, year)
-                gmina_tables: Dict[str, np.ndarray] = {}
-                for gid in gminas:
-                    if gid in seeds and year in seeds[gid]:
-                        gmina_tables[gid] = seeds[gid][year]
-
-                if not gmina_tables:
-                    continue
-
-                # Scale gminas to match voivodeship total
-                scaled = self._scale_gminas_to_parent(
-                    gmina_tables, voiv_tbl,
-                    exclude_ogolem=True,
-                    dim_names=dim_names,
-                    dim_labels=dim_labels,
-                )
-                for gid, tbl in scaled.items():
-                    seeds[gid][year] = tbl
-                n_scaled += 1
+        n_scaled = self._layer2_voiv_scaling_smoothed(
+            seeds, source_sid, year_range,
+            dim_names, dim_labels,
+            observed_years_per_gmina,
+            factor_guard=3.0,
+        )
 
         self._log(
             f"    Scaled {n_scaled} voivodeship-year combinations"
         )
+
+        # ── Restore census data (belt-and-suspenders) ──
+        n_restored = self._restore_census_data(seeds, observed_census)
+        self._log(f"    Census data restored: {n_restored} gmina-years")
 
         # ── store ──
         self._log("  Storing results…")
@@ -2425,6 +3105,7 @@ class DemographicEstimator:
         self._log("  Aggregating to powiat and voivodeship levels…")
         self._aggregate_to_parents(
             e_sid, year_range, dim_names, dim_labels, voiv_tids,
+            source_sid=source_sid,
         )
 
         self._log(
@@ -2491,62 +3172,33 @@ class DemographicEstimator:
             dim_names, dim_labels, exclude_ogolem=True,
         )
 
-        # ── Layer 2: national marginal scaling ──
+        # ── Snapshot census data before scaling ──
+        observed_census = self._collect_observed_tables(
+            seeds, source_sid, full_shape,
+        )
+        observed_years_per_gmina: Dict[str, Set[int]] = {
+            tid: set(yr_tbls.keys())
+            for tid, yr_tbls in observed_census.items()
+        }
+
+        # ── Layer 2: national marginal scaling (temporally smoothed) ──
         # M_educ_1990 at country level (teryt 0000000) has H_sex_educ
         # data for 1986–88 and 1991–94.
-        self._log("  Layer 2: national marginal scaling…")
-        country_tid = '0000000'
-        n_scaled = 0
+        self._log("  Layer 2: national marginal scaling (smoothed)…")
 
-        for year in year_range:
-            country_tbl = self._get_observed_table(
-                country_tid, source_sid, year,
-            )
-            if country_tbl is None or country_tbl.shape != full_shape:
-                continue
-
-            # Aggregate all gmina estimates
-            total_agg = np.zeros(full_shape, dtype=float)
-            gminas_in_year: List[str] = []
-            for tid in seeds:
-                if year not in seeds[tid]:
-                    continue
-                total_agg += np.nan_to_num(
-                    seeds[tid][year], nan=0.0,
-                )
-                gminas_in_year.append(tid)
-
-            if not gminas_in_year:
-                continue
-
-            # Element-wise scaling
-            with np.errstate(divide='ignore', invalid='ignore'):
-                factors = np.where(
-                    total_agg > EPSILON,
-                    country_tbl / total_agg,
-                    1.0,
-                )
-            # NaN in country data → no constraint for that category
-            factors = np.where(np.isnan(factors), 1.0, factors)
-
-            for tid in gminas_in_year:
-                seeds[tid][year] = np.maximum(
-                    seeds[tid][year] * factors, 0.0,
-                )
-                # Recompute ogółem
-                core = self._extract_core(
-                    seeds[tid][year], ndim,
-                    ogolem_idx, non_ogolem_slices,
-                )
-                seeds[tid][year] = self._assemble_with_ogolem(
-                    core, ndim, full_shape,
-                    ogolem_idx, non_ogolem_slices,
-                )
-            n_scaled += 1
+        n_scaled = self._layer2_national_scaling_smoothed(
+            seeds, source_sid, year_range,
+            dim_names, dim_labels,
+            observed_years_per_gmina,
+        )
 
         self._log(
             f"    Scaled {n_scaled} national-year combinations"
         )
+
+        # ── Restore census data (belt-and-suspenders) ──
+        n_restored = self._restore_census_data(seeds, observed_census)
+        self._log(f"    Census data restored: {n_restored} gmina-years")
 
         # ── store ──
         self._log("  Storing results…")
@@ -2576,6 +3228,7 @@ class DemographicEstimator:
         self._log("  Aggregating to powiat and voivodeship levels…")
         self._aggregate_to_parents(
             e_sid, year_range, dim_names, dim_labels, voiv_tids,
+            source_sid=source_sid,
         )
 
         self._log(
@@ -2678,100 +3331,35 @@ class DemographicEstimator:
 
         self._log(f"    Seeds: {n_generated} gminas")
 
-        # ── Layer 2: voivodeship education-marginal scaling ──
+        # ── Snapshot census data before scaling ──
+        observed_census = self._collect_observed_tables(
+            seeds, source_sid, full_shape,
+        )
+        observed_years_per_gmina: Dict[str, Set[int]] = {
+            tid: set(yr_tbls.keys())
+            for tid, yr_tbls in observed_census.items()
+        }
+
+        # ── Layer 2: voivodeship education-marginal scaling (smoothed) ──
         # Use M_educ_2000 (1D, no ogółem) at voivodeship level to
         # constrain education marginals (sum across non-ogółem sex).
-        self._log("  Layer 2: voivodeship education-marginal scaling…")
-        voiv_tids = self._get_voivodeships()
+        self._log("  Layer 2: voivodeship education-marginal scaling (smoothed)…")
         marginal_sid = 'M_educ_2000'
-        n_scaled = 0
 
-        try:
-            educ_1d_names, educ_1d_labels = self._get_subject_dimensions(
-                marginal_sid,
-            )
-            educ_1d_shape = tuple(
-                len(educ_1d_labels[d]) for d in educ_1d_names
-            )
-        except ValueError:
-            educ_1d_shape = None
-            self._log("    ⚠  M_educ_2000 not found — skipping Layer 2")
-
-        if educ_1d_shape is not None:
-            # Label mapping: M_educ_2000 index → M_educ_sex_2000 row
-            educ_dim_name = dim_names[0]  # education dimension
-            educ_labels_2d = dim_labels[educ_dim_name]
-            educ_labels_1d = educ_1d_labels[educ_1d_names[0]]
-            educ_2d_to_1d: Dict[int, int] = {}
-            for i2d, lbl2d in enumerate(educ_labels_2d):
-                for i1d, lbl1d in enumerate(educ_labels_1d):
-                    if lbl2d == lbl1d:
-                        educ_2d_to_1d[i2d] = i1d
-                        break
-
-            sex_non_og = non_ogolem_slices.get(
-                1, list(range(full_shape[1]))
-            )
-
-            for year in year_range:
-                for voiv_tid in voiv_tids:
-                    voiv_tbl = self._get_observed_table(
-                        voiv_tid, marginal_sid, year,
-                    )
-                    if voiv_tbl is None:
-                        continue
-                    if voiv_tbl.shape != educ_1d_shape:
-                        continue
-
-                    gminas = self._collect_voivodeship_gminas(
-                        voiv_tid, year,
-                    )
-                    gmina_tables: Dict[str, np.ndarray] = {}
-                    for gid in gminas:
-                        if gid in seeds and year in seeds[gid]:
-                            gmina_tables[gid] = seeds[gid][year]
-
-                    if not gmina_tables:
-                        continue
-
-                    # Sum across gminas: education marginal
-                    # (sum of non-ogółem sex per education row)
-                    n_educ = len(educ_labels_2d)
-                    agg_educ = np.zeros(n_educ, dtype=float)
-                    for tbl in gmina_tables.values():
-                        for ri in range(n_educ):
-                            agg_educ[ri] += sum(
-                                tbl[ri, si] for si in sex_non_og
-                            )
-
-                    # Per-row scaling factors
-                    educ_factors = np.ones(n_educ, dtype=float)
-                    for i2d, i1d in educ_2d_to_1d.items():
-                        target = float(voiv_tbl[i1d])
-                        if agg_educ[i2d] > EPSILON and target > 0:
-                            educ_factors[i2d] = target / agg_educ[i2d]
-
-                    # Apply row-wise scaling to each gmina
-                    for gid in gmina_tables:
-                        tbl = gmina_tables[gid].copy()
-                        for ri in range(n_educ):
-                            for si in range(full_shape[1]):
-                                tbl[ri, si] *= educ_factors[ri]
-                        tbl = np.maximum(tbl, 0.0)
-                        # Recompute ogółem on sex dimension
-                        core = self._extract_core(
-                            tbl, ndim,
-                            ogolem_idx, non_ogolem_slices,
-                        )
-                        seeds[gid][year] = self._assemble_with_ogolem(
-                            core, ndim, full_shape,
-                            ogolem_idx, non_ogolem_slices,
-                        )
-                    n_scaled += 1
+        n_scaled = self._layer2_educ_sex_marginal_smoothed(
+            seeds, source_sid, marginal_sid,
+            year_range, dim_names, dim_labels,
+            observed_years_per_gmina,
+            factor_guard=3.0,
+        )
 
         self._log(
             f"    Scaled {n_scaled} voivodeship-year combinations"
         )
+
+        # ── Restore census data (belt-and-suspenders) ──
+        n_restored = self._restore_census_data(seeds, observed_census)
+        self._log(f"    Census data restored: {n_restored} gmina-years")
 
         # ── store ──
         self._log("  Storing results…")
@@ -2797,9 +3385,11 @@ class DemographicEstimator:
                 n_stored += 1
 
         # ── aggregate ──
+        voiv_tids = self._get_voivodeships()
         self._log("  Aggregating to powiat and voivodeship levels…")
         self._aggregate_to_parents(
             e_sid, year_range, dim_names, dim_labels, voiv_tids,
+            source_sid=source_sid,
         )
 
         self._log(
@@ -3031,57 +3621,28 @@ class DemographicEstimator:
 
         self._log(f"    Seeds: {len(seeds)} gminas")
 
-        # ── Phase C: Layer 2 — national marginal scaling ──
-        self._log("  Phase C: national marginal scaling…")
-        n_scaled = 0
+        # ── Phase C: Layer 2 — national marginal scaling (smoothed) ──
+        self._log("  Phase C: national marginal scaling (smoothed)…")
 
-        for year in year_range:
-            country_tbl = self._get_observed_table(
-                country_tid, source_sid, year,
-            )
-            if country_tbl is None:
-                continue
-            if country_tbl.shape != full_shape:
-                continue
+        # Snapshot observed census data before scaling
+        observed_census = self._collect_observed_tables(
+            seeds, source_sid, full_shape,
+        )
+        observed_years_per_gmina: Dict[str, set] = {}
+        for tid, yr_dict in observed_census.items():
+            observed_years_per_gmina[tid] = set(yr_dict.keys())
 
-            total_agg = np.zeros(full_shape, dtype=float)
-            gminas_in_year: List[str] = []
-            for tid in seeds:
-                if year not in seeds[tid]:
-                    continue
-                total_agg += np.nan_to_num(
-                    seeds[tid][year], nan=0.0,
-                )
-                gminas_in_year.append(tid)
+        n_scaled = self._layer2_national_scaling_smoothed(
+            seeds, source_sid, year_range,
+            dim_names, dim_labels,
+            observed_years_per_gmina,
+        )
 
-            if not gminas_in_year:
-                continue
-
-            with np.errstate(divide='ignore', invalid='ignore'):
-                factors = np.where(
-                    total_agg > EPSILON,
-                    country_tbl / total_agg,
-                    1.0,
-                )
-            # NaN in country data → no constraint for that category
-            factors = np.where(np.isnan(factors), 1.0, factors)
-
-            for tid in gminas_in_year:
-                seeds[tid][year] = np.maximum(
-                    seeds[tid][year] * factors, 0.0,
-                )
-                core = self._extract_core(
-                    seeds[tid][year], ndim,
-                    ogolem_idx, non_ogolem_slices,
-                )
-                seeds[tid][year] = self._assemble_with_ogolem(
-                    core, ndim, full_shape,
-                    ogolem_idx, non_ogolem_slices,
-                )
-            n_scaled += 1
-
+        # Restore census data that may have been affected
+        n_restored = self._restore_census_data(seeds, observed_census)
         self._log(
             f"    Scaled {n_scaled} national-year combinations"
+            f" (restored {n_restored} observed year-tables)"
         )
 
         # ── Phase D: store results ──
@@ -3111,6 +3672,7 @@ class DemographicEstimator:
         self._log("  Aggregating to powiat and voivodeship levels…")
         self._aggregate_to_parents(
             e_sid, year_range, dim_names, dim_labels, voiv_tids,
+            source_sid=source_sid,
         )
 
         self._log(
@@ -3241,6 +3803,7 @@ class DemographicEstimator:
         self._log("  Aggregating to powiat and voivodeship levels…")
         self._aggregate_to_parents(
             e_sid, year_range, dim_names, dim_labels, voiv_tids,
+            source_sid=source_sid,
         )
 
         self._log(
@@ -3326,6 +3889,7 @@ class DemographicEstimator:
         self._log("  Aggregating to powiat and voivodeship levels…")
         self._aggregate_to_parents(
             e_sid, year_range, dim_names, dim_labels, voiv_tids,
+            source_sid=source_sid,
         )
 
         self._log(
@@ -3735,6 +4299,74 @@ class DemographicEstimator:
 
         self._log(f"    [6] Sub-division consistency: {n_subdiv_fail} failures "
                   f"/ {n_subdiv_checked} checked")
+
+        # ── 7. Education ↔ age×sex population coherence ──
+        # Education data covers pop 13+ (1990) or 15+ (2000).
+        # Check: E_educ total ≈ E_age_sex total − (0-4)+(5-9)+(10-14).
+        is_educ = 'educ' in e_subject_id and 'sex' not in e_subject_id
+        n_educ_pop_fail = 0
+        n_educ_pop_checked = 0
+        EDUC_POP_TOL_PCT = 5.0  # 5% tolerance (different age boundaries)
+        YOUNG_AGE_LABELS = {'0-4', '5-9', '10-14'}
+
+        if is_educ:
+            # Determine which E_age_sex subject to compare against
+            section = '2000' if '2000' in e_subject_id else '1990'
+            age_sex_sid = f'E_age_sex_{section}'
+
+            for tid, rec in e_records.items():
+                if rec.level != 6:   # gmina only
+                    continue
+                e_ct = rec.cross_tables.get(e_subject_id)
+                a_ct = rec.cross_tables.get(age_sex_sid)
+                if e_ct is None or a_ct is None:
+                    continue
+                # Identify young-age indices in age×sex
+                if hasattr(a_ct, 'dim_names') and a_ct.dim_names:
+                    age_dim = a_ct.dim_names[0]
+                    age_labels = a_ct.dim_labels.get(age_dim, [])
+                    young_idx = [
+                        i for i, lbl in enumerate(age_labels)
+                        if lbl in YOUNG_AGE_LABELS
+                    ]
+                else:
+                    young_idx = []
+
+                for yr in year_range:
+                    e_tbl = e_ct.tables.get(yr)
+                    a_tbl = a_ct.tables.get(yr)
+                    if e_tbl is None or a_tbl is None:
+                        continue
+                    if np.all(np.isnan(e_tbl)) or np.all(np.isnan(a_tbl)):
+                        continue
+
+                    educ_total = float(np.nansum(e_tbl))
+                    age_sex_total = float(np.nansum(a_tbl))
+                    # Subtract young age groups
+                    young_pop = 0.0
+                    for yi in young_idx:
+                        young_pop += float(np.nansum(a_tbl[yi]))
+                    eligible_pop = age_sex_total - young_pop
+
+                    if eligible_pop <= 0:
+                        continue
+                    n_educ_pop_checked += 1
+                    pct_err = 100 * abs(educ_total - eligible_pop) / eligible_pop
+                    if pct_err > EDUC_POP_TOL_PCT:
+                        _add(tid, rec.name, yr, 'educ_age_coherence',
+                             'WARN',
+                             f'educ_total={educ_total:.0f} '
+                             f'eligible_pop={eligible_pop:.0f} '
+                             f'err={pct_err:.1f}%')
+                        n_educ_pop_fail += 1
+
+            self._log(
+                f"    [7] Educ↔age_sex coherence: {n_educ_pop_fail} warnings "
+                f"/ {n_educ_pop_checked} checked (tol={EDUC_POP_TOL_PCT}%)"
+            )
+        else:
+            self._log(f"    [7] Educ↔age_sex coherence: skipped "
+                      f"(not applicable for {e_subject_id})")
 
         df = pd.DataFrame(issues)
         if df.empty:
