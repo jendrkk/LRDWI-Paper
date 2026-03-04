@@ -1086,15 +1086,27 @@ class DemographicEstimator:
         observed_years_per_gmina: Dict[str, Set[int]],
         factor_guard: float = 3.0,
     ) -> int:
-        """Voivodeship marginal scaling with temporal smoothing (Fix 41A).
+        """Voivodeship marginal scaling with temporal smoothing.
 
-        Instead of applying each year's scaling factor independently,
-        this method:
-        1. Collects raw scaling factors for every (voiv, year).
-        2. Smooths the factor series temporally per voivodeship.
-        3. Applies the smoothed factors to gmina seeds.
+        Fix 44: Growth-rate-deviation approach.
+        ----------------------------------------
+        Instead of computing ``factors = voiv / aggregate`` (which forces
+        all gminas to match voivodeship-level *proportions*), we compute
+        the *deviation* between voivodeship temporal growth and the
+        aggregate's Layer 1 growth relative to a shared census baseline:
 
-        This eliminates sudden jumps caused by noisy source data.
+            voiv_growth = voiv[year]  / voiv[closest_census]
+            agg_growth  = agg[year]  / agg[closest_census]
+            factors     = voiv_growth / agg_growth
+
+        Properties:
+        - At census years (year == closest_census): factors ≈ 1.0.
+        - Between censuses: factors capture how each *category* at the
+          voivodeship level evolved differently than the aggregate of
+          Layer 1 interpolations — typically a few percent.
+        - Each gmina's own census-derived category proportions are
+          *preserved*, with only small adjustments for deviations.
+        - No coverage-gap inflation (ratios of same-source values).
 
         Returns
         -------
@@ -1109,8 +1121,9 @@ class DemographicEstimator:
         n_scaled = 0
 
         for voiv_tid in voiv_tids:
-            # ── Phase 1: collect raw factors per year ──
-            raw_factors: Dict[int, np.ndarray] = {}
+            # ── Phase 1: collect voiv & aggregate data for all years ──
+            voiv_data: Dict[int, np.ndarray] = {}
+            agg_data: Dict[int, np.ndarray] = {}
             gminas_per_year: Dict[int, Dict[str, np.ndarray]] = {}
 
             for year in year_range:
@@ -1121,8 +1134,6 @@ class DemographicEstimator:
                     continue
 
                 gminas = self._collect_voivodeship_gminas(voiv_tid, year)
-                # Aggregate ALL gminas (incl. observed) for factor comp.
-                # (Fix 42: bridge observed years in temporal smoothing)
                 aggregated = np.zeros(full_shape, dtype=float)
                 gmina_tables: Dict[str, np.ndarray] = {}
                 for gid in gminas:
@@ -1132,50 +1143,85 @@ class DemographicEstimator:
                     aggregated += np.nan_to_num(tbl, nan=0.0)
                     obs_yrs = observed_years_per_gmina.get(gid, set())
                     if year not in obs_yrs:
-                        gmina_tables[gid] = tbl  # non-observed only
+                        gmina_tables[gid] = tbl
 
                 if np.sum(aggregated) < EPSILON:
                     continue
 
-                # Compute cell-wise factors
+                voiv_data[year] = voiv_tbl
+                agg_data[year] = aggregated
+                gminas_per_year[year] = gmina_tables
+
+            if not voiv_data:
+                continue
+
+            # ── Find census-year baselines ──
+            census_candidates = sorted(
+                y for y in CENSUS_YEARS
+                if y in voiv_data and y in agg_data
+            )
+            if not census_candidates:
+                # Fallback: use the year with smallest coverage gap
+                best_yr = min(
+                    voiv_data.keys(),
+                    key=lambda y: abs(
+                        np.nansum(voiv_data[y])
+                        / max(np.nansum(agg_data[y]), EPSILON) - 1.0
+                    ),
+                )
+                census_candidates = [best_yr]
+
+            # ── Phase 2: compute growth-rate-deviation factors ──
+            raw_factors: Dict[int, np.ndarray] = {}
+            for year in voiv_data:
+                closest_cy = min(
+                    census_candidates, key=lambda cy: abs(year - cy),
+                )
+                voiv_base = voiv_data[closest_cy]
+                agg_base = agg_data[closest_cy]
+                voiv_current = voiv_data[year]
+                agg_current = agg_data[year]
+
                 with np.errstate(divide='ignore', invalid='ignore'):
+                    voiv_growth = np.where(
+                        voiv_base > EPSILON,
+                        voiv_current / voiv_base, 1.0,
+                    )
+                    agg_growth = np.where(
+                        agg_base > EPSILON,
+                        agg_current / agg_base, 1.0,
+                    )
                     factors = np.where(
-                        aggregated > EPSILON,
-                        voiv_tbl / aggregated,
-                        1.0,
+                        agg_growth > EPSILON,
+                        voiv_growth / agg_growth, 1.0,
                     )
                 factors = np.where(np.isnan(factors), 1.0, factors)
 
-                # Guard: skip extreme overall scaling
-                agg_total = np.nansum(aggregated)
-                voiv_total = np.nansum(voiv_tbl)
-                if agg_total > EPSILON and voiv_total > 0:
-                    eff_factor = voiv_total / agg_total
-                    if eff_factor > factor_guard or eff_factor < 1.0 / factor_guard:
-                        self._log(
-                            f"    ⚠  Skipping {voiv_tid} y={year}: "
-                            f"extreme factor {eff_factor:.2f}"
-                        )
-                        continue
+                # Guard: skip if any cell deviates too far from 1.0
+                max_dev = float(np.max(np.abs(factors - 1.0)))
+                if max_dev > (factor_guard - 1.0):
+                    self._log(
+                        f"    ⚠  Skipping {voiv_tid} y={year}: "
+                        f"extreme growth-rate deviation {max_dev:.2f}"
+                    )
+                    continue
 
                 raw_factors[year] = factors
-                gminas_per_year[year] = gmina_tables
 
             if not raw_factors:
                 continue
 
-            # ── Phase 2: smooth factors temporally ──
+            # ── Phase 3: smooth factors temporally ──
             smoothed = self._smooth_factors_temporal(raw_factors, halflife=3)
 
-            # ── Phase 3: apply smoothed factors ──
+            # ── Phase 4: apply smoothed factors ──
             for year, factors in smoothed.items():
                 gmina_tables = gminas_per_year.get(year)
-                if not gmina_tables:  # None or empty (all observed)
+                if not gmina_tables:
                     continue
 
                 for gid, tbl in gmina_tables.items():
                     scaled = np.maximum(tbl * factors, 0.0)
-                    # Recompute ogółem
                     core = self._extract_core(
                         scaled, ndim, ogolem_idx, non_ogolem_slices,
                     )
@@ -1196,10 +1242,10 @@ class DemographicEstimator:
         dim_labels: Dict[str, List[str]],
         observed_years_per_gmina: Dict[str, Set[int]],
     ) -> int:
-        """National marginal scaling with temporal smoothing (Fix 41B).
+        """National marginal scaling with temporal smoothing.
 
-        Like `_layer2_voiv_scaling_smoothed` but scales against the
-        country-level (teryt 0000000) marginals.
+        Fix 44: growth-rate-deviation approach (same logic as
+        ``_layer2_voiv_scaling_smoothed``).
 
         Returns
         -------
@@ -1213,8 +1259,9 @@ class DemographicEstimator:
         country_tid = '0000000'
         n_scaled = 0
 
-        # ── Phase 1: collect raw factors per year ──
-        raw_factors: Dict[int, np.ndarray] = {}
+        # ── Phase 1: collect country & aggregate data for all years ──
+        country_data: Dict[int, np.ndarray] = {}
+        agg_data: Dict[int, np.ndarray] = {}
         gminas_per_year: Dict[int, List[str]] = {}
 
         for year in year_range:
@@ -1224,8 +1271,6 @@ class DemographicEstimator:
             if country_tbl is None or country_tbl.shape != full_shape:
                 continue
 
-            # Aggregate ALL gminas (incl. observed) for factor comp.
-            # (Fix 42: include observed so smoothing bridges observed yrs)
             total_agg = np.zeros(full_shape, dtype=float)
             gminas_in_year: List[str] = []
             for tid in seeds:
@@ -1234,38 +1279,71 @@ class DemographicEstimator:
                 total_agg += np.nan_to_num(seeds[tid][year], nan=0.0)
                 obs_yrs = observed_years_per_gmina.get(tid, set())
                 if year not in obs_yrs:
-                    gminas_in_year.append(tid)  # non-observed only
+                    gminas_in_year.append(tid)
 
             if np.sum(total_agg) < EPSILON:
                 continue
 
-            # Element-wise factors
-            with np.errstate(divide='ignore', invalid='ignore'):
-                factors = np.where(
-                    total_agg > EPSILON,
-                    country_tbl / total_agg,
-                    1.0,
-                )
-            factors = np.where(np.isnan(factors), 1.0, factors)
-
-            raw_factors[year] = factors
+            country_data[year] = country_tbl
+            agg_data[year] = total_agg
             gminas_per_year[year] = gminas_in_year
 
-        if not raw_factors:
+        if not country_data:
             return 0
 
-        # ── Phase 2: smooth factors temporally ──
+        # ── Find census-year baselines ──
+        census_candidates = sorted(
+            y for y in CENSUS_YEARS
+            if y in country_data and y in agg_data
+        )
+        if not census_candidates:
+            best_yr = min(
+                country_data.keys(),
+                key=lambda y: abs(
+                    np.nansum(country_data[y])
+                    / max(np.nansum(agg_data[y]), EPSILON) - 1.0
+                ),
+            )
+            census_candidates = [best_yr]
+
+        # ── Phase 2: compute growth-rate-deviation factors ──
+        raw_factors: Dict[int, np.ndarray] = {}
+        for year in country_data:
+            closest_cy = min(
+                census_candidates, key=lambda cy: abs(year - cy),
+            )
+            country_base = country_data[closest_cy]
+            agg_base = agg_data[closest_cy]
+            country_current = country_data[year]
+            agg_current = agg_data[year]
+
+            with np.errstate(divide='ignore', invalid='ignore'):
+                country_growth = np.where(
+                    country_base > EPSILON,
+                    country_current / country_base, 1.0,
+                )
+                agg_growth = np.where(
+                    agg_base > EPSILON,
+                    agg_current / agg_base, 1.0,
+                )
+                factors = np.where(
+                    agg_growth > EPSILON,
+                    country_growth / agg_growth, 1.0,
+                )
+            factors = np.where(np.isnan(factors), 1.0, factors)
+            raw_factors[year] = factors
+
+        # ── Phase 3: smooth factors temporally ──
         smoothed = self._smooth_factors_temporal(raw_factors, halflife=3)
 
-        # ── Phase 3: apply smoothed factors ──
+        # ── Phase 4: apply smoothed factors ──
         for year, factors in smoothed.items():
             gminas = gminas_per_year.get(year)
-            if not gminas:  # None or empty (all observed)
+            if not gminas:
                 continue
 
             for tid in gminas:
                 scaled = np.maximum(seeds[tid][year] * factors, 0.0)
-                # Recompute ogółem
                 core = self._extract_core(
                     scaled, ndim, ogolem_idx, non_ogolem_slices,
                 )
@@ -1290,9 +1368,12 @@ class DemographicEstimator:
     ) -> int:
         """Voivodeship education-marginal scaling with temporal smoothing.
 
-        For educ_sex subjects: scales education-row totals (summed over
-        sex) to match 1D M_educ_2000 voivodeship data, with smooth
-        factor transitions.
+        Fix 44: growth-rate-deviation approach.
+        ----------------------------------------
+        Instead of ``educ_factors[cat] = voiv[cat] / agg[cat]`` (which
+        pushes every gmina's proportions toward the voivodeship average),
+        compute the *deviation* of voivodeship temporal growth from the
+        aggregate's Layer 1 growth relative to a census-year baseline.
 
         Returns
         -------
@@ -1335,8 +1416,9 @@ class DemographicEstimator:
         n_educ = len(educ_labels_2d)
 
         for voiv_tid in voiv_tids:
-            # ── Phase 1: collect raw row factors per year ──
-            raw_factors: Dict[int, np.ndarray] = {}
+            # ── Phase 1: collect voiv & aggregate educ data ──
+            voiv_educ_data: Dict[int, np.ndarray] = {}   # year → 1D voiv
+            agg_educ_data: Dict[int, np.ndarray] = {}    # year → 1D agg
             gminas_per_year: Dict[int, Dict[str, np.ndarray]] = {}
 
             for year in year_range:
@@ -1347,8 +1429,6 @@ class DemographicEstimator:
                     continue
 
                 gminas = self._collect_voivodeship_gminas(voiv_tid, year)
-                # Aggregate ALL gminas (incl. observed) for factor comp.
-                # (Fix 42: bridge observed years in temporal smoothing)
                 agg_educ = np.zeros(n_educ, dtype=float)
                 gmina_tables: Dict[str, np.ndarray] = {}
                 for gid in gminas:
@@ -1361,41 +1441,78 @@ class DemographicEstimator:
                         )
                     obs_yrs = observed_years_per_gmina.get(gid, set())
                     if year not in obs_yrs:
-                        gmina_tables[gid] = tbl  # non-observed only
+                        gmina_tables[gid] = tbl
 
                 if np.sum(agg_educ) < EPSILON:
                     continue
 
-                # Per-row factors
+                voiv_educ_data[year] = voiv_tbl
+                agg_educ_data[year] = agg_educ
+                gminas_per_year[year] = gmina_tables
+
+            if not voiv_educ_data:
+                continue
+
+            # ── Find census-year baselines ──
+            census_candidates = sorted(
+                y for y in CENSUS_YEARS
+                if y in voiv_educ_data and y in agg_educ_data
+            )
+            if not census_candidates:
+                best_yr = min(
+                    voiv_educ_data.keys(),
+                    key=lambda y: abs(
+                        np.nansum(voiv_educ_data[y])
+                        / max(np.nansum(agg_educ_data[y]), EPSILON) - 1.0
+                    ),
+                )
+                census_candidates = [best_yr]
+
+            # ── Phase 2: growth-rate-deviation factors per educ row ──
+            raw_factors: Dict[int, np.ndarray] = {}
+            for year in voiv_educ_data:
+                closest_cy = min(
+                    census_candidates, key=lambda cy: abs(year - cy),
+                )
+                voiv_base = voiv_educ_data[closest_cy]
+                agg_base = agg_educ_data[closest_cy]
+                voiv_current = voiv_educ_data[year]
+                agg_current = agg_educ_data[year]
+
                 educ_factors = np.ones(n_educ, dtype=float)
                 for i2d, i1d in educ_2d_to_1d.items():
-                    target = float(voiv_tbl[i1d])
-                    if agg_educ[i2d] > EPSILON and target > 0:
-                        educ_factors[i2d] = target / agg_educ[i2d]
+                    vb = float(voiv_base[i1d])
+                    vc = float(voiv_current[i1d])
+                    ab = float(agg_base[i2d])
+                    ac = float(agg_current[i2d])
+
+                    voiv_gr = vc / vb if vb > EPSILON else 1.0
+                    agg_gr = ac / ab if ab > EPSILON else 1.0
+                    educ_factors[i2d] = (
+                        voiv_gr / agg_gr if agg_gr > EPSILON else 1.0
+                    )
 
                 # Guard
-                max_f = float(np.max(educ_factors))
-                min_f = float(np.min(educ_factors))
-                if max_f > factor_guard or min_f < 1.0 / factor_guard:
+                max_dev = float(np.max(np.abs(educ_factors - 1.0)))
+                if max_dev > (factor_guard - 1.0):
                     self._log(
                         f"    ⚠  Skipping {voiv_tid} y={year}: "
-                        f"extreme educ factor [{min_f:.2f}, {max_f:.2f}]"
+                        f"extreme educ growth deviation {max_dev:.2f}"
                     )
                     continue
 
                 raw_factors[year] = educ_factors
-                gminas_per_year[year] = gmina_tables
 
             if not raw_factors:
                 continue
 
-            # ── Phase 2: smooth factors temporally ──
+            # ── Phase 3: smooth factors temporally ──
             smoothed = self._smooth_factors_temporal(raw_factors, halflife=3)
 
-            # ── Phase 3: apply smoothed row factors ──
+            # ── Phase 4: apply smoothed row factors ──
             for year, educ_factors in smoothed.items():
                 gmina_tables = gminas_per_year.get(year)
-                if not gmina_tables:  # None or empty (all observed)
+                if not gmina_tables:
                     continue
 
                 for gid, tbl in gmina_tables.items():
@@ -2850,17 +2967,50 @@ class DemographicEstimator:
         self._log(f"    Seeds: {len(seeds)} gminas")
 
         # ── Step 4: Phase C — Layer 2 (old voi constraints) ──
+        # Fix 44: growth-rate-deviation — voivodeship data only
+        # adjusts HOW FAST each cell grows, not WHAT the proportions are.
+        # Census 1988 serves as baseline; factors ≈ 1.0 at baseline.
         self._log("  Phase C: old voivodeship marginal scaling (1986–1994)…")
-        # Get old voivodeship teryt_ids
         country_rec = self.db._records.get('0000000')
         old_voi_tids = (
             country_rec.children_ids.get('old', [])
             if country_rec is not None else []
         )
 
+        BASELINE_YEAR = 1988
+        factor_guard = 5.0
+
+        # Pre-compute 1988 baselines per old voivodeship
+        ov_baselines: Dict[str, tuple] = {}
+        for ov_tid in old_voi_tids:
+            ov_rec = self.db._records.get(ov_tid)
+            if ov_rec is None:
+                continue
+            ov_ct = ov_rec.cross_tables.get(source_sid)
+            if ov_ct is None or ov_ct.shape != full_shape:
+                continue
+            ov_tbl_base = ov_ct.tables.get(BASELINE_YEAR)
+            if ov_tbl_base is None or np.all(np.isnan(ov_tbl_base)):
+                continue
+            children = ov_rec.get_children(BASELINE_YEAR)
+            gminas_base = [
+                g for g in children
+                if g in seeds and BASELINE_YEAR in seeds[g]
+            ]
+            if not gminas_base:
+                continue
+            agg_base = np.zeros(full_shape, dtype=float)
+            for g in gminas_base:
+                agg_base += np.nan_to_num(
+                    seeds[g][BASELINE_YEAR], nan=0.0,
+                )
+            ov_baselines[ov_tid] = (ov_tbl_base, agg_base)
+
         n_scaled = 0
         for year in range(1986, 1995):
             for ov_tid in old_voi_tids:
+                if ov_tid not in ov_baselines:
+                    continue
                 ov_rec = self.db._records.get(ov_tid)
                 if ov_rec is None:
                     continue
@@ -2871,7 +3021,6 @@ class DemographicEstimator:
                 if ov_tbl is None or np.all(np.isnan(ov_tbl)):
                     continue
 
-                # Collect gminas under this old voi
                 children = ov_rec.get_children(year)
                 gminas_in_ov = [
                     g for g in children
@@ -2880,15 +3029,30 @@ class DemographicEstimator:
                 if not gminas_in_ov:
                     continue
 
-                # Scale gmina tables to match old voi total
                 agg = np.zeros(full_shape, dtype=float)
                 for g in gminas_in_ov:
                     agg += np.nan_to_num(seeds[g][year], nan=0.0)
 
+                # Growth-rate-deviation factors
+                ov_tbl_base, agg_base = ov_baselines[ov_tid]
                 with np.errstate(divide='ignore', invalid='ignore'):
-                    factors = np.where(
-                        agg > EPSILON, ov_tbl / agg, 1.0,
+                    voiv_growth = np.where(
+                        ov_tbl_base > EPSILON,
+                        ov_tbl / ov_tbl_base, 1.0,
                     )
+                    agg_growth = np.where(
+                        agg_base > EPSILON,
+                        agg / agg_base, 1.0,
+                    )
+                    factors = np.where(
+                        agg_growth > EPSILON,
+                        voiv_growth / agg_growth, 1.0,
+                    )
+                # Guard against extreme factors
+                factors = np.clip(
+                    factors, 1.0 / factor_guard, factor_guard,
+                )
+
                 for g in gminas_in_ov:
                     seeds[g][year] = np.maximum(
                         seeds[g][year] * factors, 0.0,
