@@ -2164,9 +2164,11 @@ class GeoTERYTDatabase:
                 if level == 2:  # Voivodeship
                     parent_map[tid] = '0000000'
                     # Children = powiats under this voivodeship
+                    # Filter: same woj code, gmi+rodz == '000' (true powiats),
+                    # and powiat code != '00' (excludes voivodeship itself).
                     ch = [t for t in valid_ids
                           if len(t) == 7 and t[:2] == woj
-                          and t[4:6] == '00' and t[2:4] != '00']
+                          and t[4:] == '000' and t[2:4] != '00']
                     children_map[tid] = sorted(ch)
                     
                 elif level == 5:  # Powiat
@@ -3496,32 +3498,63 @@ class GeoTERYTDatabase:
         # Detect variable ID column
         var_col = 'var_id' if 'var_id' in df_expanded.columns else 'variableId'
         
+        # ── Build reverse lookup: TERYT code → all records that claim
+        #    this code in their historical_codes.  This allows census data
+        #    published under a *new* code to be propagated back to the
+        #    canonical record that used an *old* code (and vice-versa).
+        code_to_records: Dict[str, List[TERYTRecord]] = {}
+        for tid, rec in self._records.items():
+            for hc in rec.historical_codes:
+                code_to_records.setdefault(hc, []).append(rec)
+            # Also ensure the record's own teryt_id is present
+            code_to_records.setdefault(tid, []).append(rec)
+        # De-duplicate lists (a record can appear via teryt_id AND
+        # historical_codes)
+        for code in code_to_records:
+            seen = set()
+            deduped = []
+            for r in code_to_records[code]:
+                if id(r) not in seen:
+                    seen.add(id(r))
+                    deduped.append(r)
+            code_to_records[code] = deduped
+
         matched = 0
         unmatched = 0
         unmatched_teryts = set()
         total_points = 0
-        
+        propagated_points = 0
+
         # Group by teryt_id for efficient loading
         for teryt_id, group in df_expanded.groupby('teryt_id'):
             teryt_id = str(teryt_id).zfill(7)
-            
-            # Try exact match
-            record = self._records.get(teryt_id)
-            
-            # Try 6-digit match if exact match fails
-            if record is None:
+
+            # Resolve target records via historical_codes reverse lookup
+            target_records = code_to_records.get(teryt_id, [])
+
+            # Fallback 1: exact match (already covered by code_to_records,
+            # but kept for robustness)
+            if not target_records:
+                record = self._records.get(teryt_id)
+                if record:
+                    target_records = [record]
+
+            # Fallback 2: 6-digit prefix match
+            if not target_records:
                 short_id = teryt_id[:6]
-                candidates = [tid for tid in self._records if tid[:6] == short_id and tid[-1] in ['1','2','3']]
+                candidates = [tid for tid in self._records
+                              if tid[:6] == short_id and tid[-1] in ['1','2','3']]
                 if len(candidates) == 1:
-                    record = self._records[candidates[0]]
-            
-            if record is None:
+                    target_records = [self._records[candidates[0]]]
+
+            if not target_records:
                 unmatched += 1
                 unmatched_teryts.add(teryt_id)
                 continue
-            
+
             matched += 1
-            
+            is_propagated = len(target_records) > 1
+
             # Load each variable's time series
             for var_id, var_group in group.groupby(var_col):
                 # Get categories for this variable
@@ -3530,41 +3563,47 @@ class GeoTERYTDatabase:
                     vals = var_group[col].unique()
                     if len(vals) == 1:
                         categories[col] = str(vals[0])
-                
+
                 var_name = ""
                 for cat in list(categories.values()):
                     var_name += f"{cat}/"
-                
-                # Add data points for each year
+
+                # Add data points for each year — onto ALL target records
                 for _, row in var_group.iterrows():
                     year = row.get('year')
                     val = row.get('val')
                     if year is not None and val is not None:
-                        record.add_data_point(
-                            source_type=source_type,
-                            subject_id=subject_id,
-                            variable_id=str(var_id),
-                            year=year,
-                            value=val,
-                            categories=categories,
-                            subject_name=subject_name,
-                            variable_name=var_name
-                        )
-                        total_points += 1
-        
+                        for record in target_records:
+                            record.add_data_point(
+                                source_type=source_type,
+                                subject_id=subject_id,
+                                variable_id=str(var_id),
+                                year=year,
+                                value=val,
+                                categories=categories,
+                                subject_name=subject_name,
+                                variable_name=var_name
+                            )
+                            total_points += 1
+                        if is_propagated:
+                            propagated_points += len(target_records) - 1
+
         stats = {
             'matched_teryts': matched,
             'unmatched_teryts': unmatched,
             'total_data_points': total_points,
+            'propagated_data_points': propagated_points,
             'unmatched_teryt_ids': sorted(unmatched_teryts)
         }
-        
+
         if verbose:
             print(f"  ✓ Loaded {total_points:,} data points for subject {subject_id}")
             print(f"  ✓ Matched {matched} TERYT records, {unmatched} unmatched")
+            if propagated_points > 0:
+                print(f"  ✓ Propagated {propagated_points:,} points via historical_codes")
             if unmatched > 0:
                 print(f"  ⚠ Unmatched TERYT IDs (first 10): {sorted(unmatched_teryts)[:10]}")
-        
+
         return stats
     
     def aggregate_data(self, records: List[TERYTRecord], subject_id: str, year,
@@ -5258,14 +5297,51 @@ class GeoTERYTDatabase:
         
         for sid in subject_ids:
             recovered = 0
-            
+
+            # ── Phase 0: Copy entire subjects from sibling records ──
+            # When a record has NO data for a subject but shares
+            # historical_codes with a record that does, copy the data over.
+            for teryt_id, record in self._records.items():
+                if not record.historical_codes:
+                    continue
+                subj_data = record.get_data_by_subject(sid)
+                if subj_data:
+                    continue  # already has data for this subject
+
+                # Look for sibling records that DO have this subject
+                for hc in record.historical_codes:
+                    if hc == teryt_id:
+                        continue
+                    sibling = self._records.get(hc)
+                    if sibling is None:
+                        continue
+                    sib_data = sibling.get_data_by_subject(sid)
+                    if not sib_data:
+                        continue
+                    # Copy all DataSeries from sibling to this record
+                    for skey, sds in sib_data.items():
+                        src_type, sub_id, var_id = skey
+                        for ts, val in sds.values.dropna().items():
+                            record.add_data_point(
+                                source_type=src_type,
+                                subject_id=sub_id,
+                                variable_id=var_id,
+                                year=ts.year if hasattr(ts, 'year') else int(ts),
+                                value=val,
+                                categories=sds.categories,
+                                subject_name=sds.subject_name,
+                                variable_name=sds.variable_name,
+                            )
+                            recovered += 1
+                    break  # use first sibling with data
+
             # ── Phase 1: Level 6 (gminas) ──
             for teryt_id, record in self._records.items():
                 if record.level != 6:
                     continue
                 if not record.historical_codes:
                     continue
-                
+
                 subj_data = record.get_data_by_subject(sid)
                 if not subj_data:
                     continue

@@ -1298,6 +1298,48 @@ class DemographicEstimator:
         if not country_data:
             return 0
 
+        # ── Interpolate country_data for gap years ──
+        # When the national constraint is sparse (e.g., H_sex_educ only
+        # available 1986-88, 1991-94), linearly interpolate cell-by-cell
+        # to fill all years in year_range that have aggregated gmina data.
+        available_years = sorted(country_data.keys())
+        if len(available_years) >= 2:
+            all_years_with_agg = sorted(
+                y for y in year_range
+                if y not in country_data and y in agg_data
+            )
+            for gap_yr in all_years_with_agg:
+                # Find bracketing years
+                lower = [y for y in available_years if y <= gap_yr]
+                upper = [y for y in available_years if y >= gap_yr]
+                if lower and upper:
+                    y0, y1 = lower[-1], upper[0]
+                    if y0 == y1:
+                        interp_tbl = country_data[y0].copy()
+                    else:
+                        alpha = (gap_yr - y0) / (y1 - y0)
+                        interp_tbl = (
+                            (1 - alpha) * country_data[y0]
+                            + alpha * country_data[y1]
+                        )
+                elif lower:
+                    # Extrapolate forward from last available
+                    interp_tbl = country_data[lower[-1]].copy()
+                elif upper:
+                    # Extrapolate backward from first available
+                    interp_tbl = country_data[upper[0]].copy()
+                else:
+                    continue
+                country_data[gap_yr] = interp_tbl
+                # These gminas were not originally in gminas_per_year,
+                # so build the list now.
+                gminas_in_year = [
+                    tid for tid in seeds
+                    if gap_yr in seeds[tid]
+                    and gap_yr not in observed_years_per_gmina.get(tid, set())
+                ]
+                gminas_per_year[gap_yr] = gminas_in_year
+
         # ── Find census-year baselines ──
         census_candidates = sorted(
             y for y in CENSUS_YEARS
@@ -1573,11 +1615,21 @@ class DemographicEstimator:
         self,
         seeds: Dict[str, Dict[int, np.ndarray]],
         observed: Dict[str, Dict[int, np.ndarray]],
+        blend_weight: float = 1.0,
     ) -> int:
-        """Restore census-year gmina tables from observed snapshots.
+        """Restore census-year gmina tables, blending with scaled values.
 
-        Overwrites any scaling modifications at years where original
-        M_ data existed.  Returns number of restored year-tables.
+        Instead of hard-overwriting (which creates discontinuities at
+        census-year boundaries), we blend the original M_ value with the
+        Layer-2-scaled value:
+
+            restored = blend_weight * original + (1 - blend_weight) * scaled
+
+        A blend_weight of 1.0 reproduces the old behaviour (hard restore).
+        A blend_weight < 1.0 preserves some of the scaling adjustment,
+        reducing spikes.
+
+        Returns number of restored year-tables.
         """
         n_restored = 0
         for tid, year_tbls in observed.items():
@@ -1585,7 +1637,14 @@ class DemographicEstimator:
                 continue
             for yr, orig_tbl in year_tbls.items():
                 if yr in seeds[tid]:
-                    seeds[tid][yr] = orig_tbl.copy()
+                    scaled_tbl = seeds[tid][yr]
+                    if blend_weight >= 1.0:
+                        seeds[tid][yr] = orig_tbl.copy()
+                    else:
+                        seeds[tid][yr] = (
+                            blend_weight * orig_tbl
+                            + (1.0 - blend_weight) * scaled_tbl
+                        )
                     n_restored += 1
         return n_restored
 
