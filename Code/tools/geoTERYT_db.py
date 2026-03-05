@@ -1,9 +1,20 @@
 """
-GeoTERYT Database Module - Version 4.0
+GeoTERYT Database Module - Version 5.2
 ======================================
 
 A comprehensive database system for Polish administrative divisions (TERYT) 
 with full geometry support, historical tracking, and overlay operations.
+
+NEW in v5.2:
+- Added est_pop attribute to TERYTRecord (estimated population from E_age_sex)
+- Changed pop_class from pd.DataFrame to Dict[int, Dict[tuple, float]]
+  Keys: year -> {(pop_class_code, pop_class_label): population_amount}
+- Added extract_est_population() for filling est_pop from E_ cross tables
+- Added classify_est_population() for gmina-level pop-class using est_pop
+  Handles rodz 1/2 directly, rodz 3 via children (rodz 4/5) with fallback
+- Added aggregate_pop_class() to roll up gmina pop_class to powiat/voivodeship
+- Added export_tables_json() for JSON export of estimated tables
+- Updated save_complete() and load_complete_database() for new attributes
 
 NEW in v4.0:
 - Added DataSeries class for storing numerical time series on records
@@ -798,19 +809,22 @@ class TERYTRecord:
         # Key: subject_id -> CrossTable
         self.cross_tables: Dict[str, 'CrossTable'] = {}
         
-        # Population and classification (NEW in v4.2)
+        # Population and classification (NEW in v4.2, updated v5.2)
         # Total population time series indexed by DatetimeIndex
         self.pop: pd.Series = pd.Series(
             data=np.nan,
             index=DATETIME_INDEX_FULL,
             dtype=float
         )
-        # Urban/rural classification DataFrame indexed by DatetimeIndex
-        self.pop_class: pd.DataFrame = pd.DataFrame(
-            {'pop_class_code': pd.Series(dtype=int),
-             'pop_class_label': pd.Series(dtype=str)},
-            index=pd.DatetimeIndex([])
+        # Estimated population from E_age_sex tables (NEW in v5.2)
+        self.est_pop: pd.Series = pd.Series(
+            data=np.nan,
+            index=DATETIME_INDEX_FULL,
+            dtype=float
         )
+        # Population distribution across locality classes (CHANGED in v5.2)
+        # Dict: year (int) -> {(pop_class_code, pop_class_label): population_amount}
+        self.pop_class: Dict[int, Dict[Tuple[int, str], float]] = {}
     
     def add_year(self, year: int):
         """Add a year when this division was valid."""
@@ -872,10 +886,7 @@ class TERYTRecord:
         """Get parent teryt_id for a given year.
         
         Falls back to nearest available year if exact year not found.
-        For years 1986-1998, uses the 1999 hierarchy.
         """
-        if isinstance(year, int) and year < 1999:
-            year = 1999
         if year in self.parent_id:
             return self.parent_id[year]
         # Fallback: try nearest year
@@ -892,12 +903,9 @@ class TERYTRecord:
         """Get children teryt_ids for a given year.
         
         Falls back to nearest available year if exact year not found.
-        For years 1986-1998, uses the 1999 hierarchy.
         Special key 'old' returns old voivodeship children (country only).
         Special key 'nuts' returns NUTS-split children (country only).
         """
-        if isinstance(year, int) and year < 1999:
-            year = 1999
         if year in self.children_ids:
             return self.children_ids[year]
         # Fallback: try nearest year
@@ -1214,6 +1222,8 @@ class TERYTRecord:
             'cross_table_subjects': self.list_cross_tables(),
             'has_pop': bool(self.pop.notna().any()),
             'pop_years': sorted([ts.year for ts in self.pop.dropna().index]) if self.pop.notna().any() else [],
+            'has_est_pop': bool(self.est_pop.notna().any()),
+            'est_pop_years': sorted([ts.year for ts in self.est_pop.dropna().index]) if self.est_pop.notna().any() else [],
             'has_pop_class': len(self.pop_class) > 0,
         }
     
@@ -2062,7 +2072,8 @@ class GeoTERYTDatabase:
             'elapsed_seconds': elapsed,
         }
     
-    def link_children_to_parents(self, verbose: bool = True):
+    def link_children_to_parents(self, verbose: bool = True,
+                                min_year: int = 1986):
         """
         Link child units to their parents based on TERYT hierarchy.
         
@@ -2072,8 +2083,7 @@ class GeoTERYTDatabase:
         
         Rules
         -----
-        * For years 1986-1998 the 1999 snapshot is used (pre-reform data is
-          unavailable).
+        * For years 1986-1998 the earliest snapshot (usually 1999) is used.
         * For years 1999+ the snapshot of each year is used.
         * The country record '0000000' has THREE kinds of children dict
           entries:
@@ -2085,11 +2095,16 @@ class GeoTERYTDatabase:
         * Old voivodeships ('5100000'–'9900000') and Mazowieckie split
           units ('1300000', '1500000') are NEVER parents of ordinary
           records; '0000000' is always their parent for all years.
+        * City districts (rodz 8/9) whose computed parent gmina does not
+          exist are reassigned to the encompassing rodz-1 gmina of the
+          same powiat (Warsaw dzielnice fix).
         
         Parameters
         ----------
         verbose : bool
             Print progress.
+        min_year : int
+            Earliest year to build hierarchy for (default 1986).
         """
         if verbose:
             print("Linking children to parents (year-keyed)...")
@@ -2112,12 +2127,12 @@ class GeoTERYTDatabase:
         if not snapshot_years:
             snapshot_years = [1999]
         
-        # We always use 1999 as the baseline for pre-reform years
         MIN_SNAPSHOT = min(snapshot_years)
         
         # Build the complete set of hierarchy years:
-        # key 1999 covers 1986-1999; then each year 2000+ individually
-        hierarchy_years = sorted(set(snapshot_years))
+        # All years from min_year to max snapshot, using closest available
+        # snapshot for pre-MIN_SNAPSHOT years
+        hierarchy_years = sorted(set(snapshot_years) | set(range(min_year, MIN_SNAPSHOT)))
         
         # ── Pre-compute all_teryt_ids for efficient lookup ──
         all_tids_set = set(self._records.keys())
@@ -2175,12 +2190,48 @@ class GeoTERYTDatabase:
                     elif rodz in ('8', '9'):
                         parent_map[tid] = woj + pow_code + gmi + '1'
             
+            # ── Fix orphan city districts (Warsaw dzielnice fix) ──
+            # For rodz 8/9 records whose computed parent doesn't exist,
+            # reassign to the encompassing rodz-1 gmina of the same powiat.
+            orphan_districts = []
+            for tid, pid in parent_map.items():
+                if tid[6] in ('8', '9') and pid not in valid_ids:
+                    orphan_districts.append(tid)
+            
+            if orphan_districts:
+                # Group by powiat (first 4 digits)
+                powiat_to_rodz1 = {}
+                for tid in valid_ids:
+                    rec = self._records.get(tid)
+                    if rec and rec.level == 6 and tid[6] == '1':
+                        key = tid[:4]
+                        powiat_to_rodz1.setdefault(key, []).append(tid)
+                
+                for otid in orphan_districts:
+                    pow_key = otid[:4]
+                    candidates = powiat_to_rodz1.get(pow_key, [])
+                    if len(candidates) == 1:
+                        new_parent = candidates[0]
+                        parent_map[otid] = new_parent
+                        # Also add to that parent's children
+                        if new_parent in children_map:
+                            if otid not in children_map[new_parent]:
+                                children_map[new_parent].append(otid)
+                                children_map[new_parent].sort()
+                        else:
+                            children_map[new_parent] = [otid]
+            
             return parent_map, children_map
         
         # ── Build hierarchy for each snapshot year ──
-        year_hierarchies = {}  # snap_year → (parent_map, children_map)
+        # Cache: snapshot data is reused for all pre-MIN_SNAPSHOT years
+        year_hierarchies = {}
+        snapshot_cache = {}
         for sy in hierarchy_years:
-            year_hierarchies[sy] = _build_for_snapshot(sy)
+            snap = max(sy, MIN_SNAPSHOT)
+            if snap not in snapshot_cache:
+                snapshot_cache[snap] = _build_for_snapshot(snap)
+            year_hierarchies[sy] = snapshot_cache[snap]
         
         # ── Assign to records ──
         # Collect all teryt_ids that appear in any year
@@ -2244,7 +2295,13 @@ class GeoTERYTDatabase:
         if verbose:
             n_with_parent = sum(1 for r in self._records.values() if r.parent_id)
             n_with_children = sum(1 for r in self._records.values() if r.children_ids)
-            print(f"  ✓ Linked hierarchy for {len(hierarchy_years)} snapshot years")
+            n_orphan_fixed = sum(
+                1 for r in self._records.values()
+                if r.level == 6 and r.rodz in ('8', '9')
+                and any(r.parent_id.get(y) for y in hierarchy_years)
+            )
+            print(f"  ✓ Linked hierarchy for {len(hierarchy_years)} years "
+                  f"({min(hierarchy_years)}–{max(hierarchy_years)})")
             print(f"    Records with parent:   {n_with_parent}")
             print(f"    Records with children: {n_with_children}")
     
@@ -5407,6 +5464,8 @@ class GeoTERYTDatabase:
                 if subj_data:
                     # New voivodeships: all even 02-32 
                     new_voi_ids = [f"{x:02d}00000" for x in range(2, 34, 2)]
+                    # Old voivodeships: 
+                    old_voi_ids = [f"{100-x}00000" for x in range(1, 50)]
                     
                     for key, ds in subj_data.items():
                         nan_mask = ds.values.isna()
@@ -5415,9 +5474,14 @@ class GeoTERYTDatabase:
                         nan_timestamps = ds.values.index[nan_mask]
                         
                         for ts in nan_timestamps:
+                            if ts > pd.Timestamp(1994, 12, 31):
+                                voi_ids = new_voi_ids
+                            else:
+                                voi_ids = old_voi_ids
+                            
                             total = 0.0
                             found_any = False
-                            for vid in new_voi_ids:
+                            for vid in voi_ids: # new_voi_ids
                                 voi = self._records.get(vid)
                                 if voi is None:
                                     continue
@@ -5507,6 +5571,16 @@ class GeoTERYTDatabase:
                     if ts in new_index and not pd.isna(old_pop[ts]):
                         new_pop[ts] = old_pop[ts]
                 record.pop = new_pop
+                changed = True
+            
+            # Extend est_pop series (NEW in v5.2)
+            if record.est_pop is not None:
+                old_est = record.est_pop
+                new_est = pd.Series(data=np.nan, index=new_index, dtype=float)
+                for ts in old_est.index:
+                    if ts in new_index and not pd.isna(old_est[ts]):
+                        new_est[ts] = old_est[ts]
+                record.est_pop = new_est
                 changed = True
             
             if changed:
@@ -5653,12 +5727,17 @@ class GeoTERYTDatabase:
         Classify each TERYTRecord by urban/rural based on pop data and rodz.
         
         Applied only to level=6 records with at least one year of pop data.
-        Stores result in TERYTRecord.pop_class as pd.DataFrame with columns
-        pop_class_code (int) and pop_class_label (str).
+        Stores result in TERYTRecord.pop_class as Dict[int, Dict[tuple, float]]
+        where keys are years and values map (pop_class_code, pop_class_label)
+        to population amounts.
         
-        Classification:
-        - rodz in ['1','4','8','9'] (urban): classified by population size
-        - rodz in ['2','5'] (rural): always class 1 ('wieś')
+        Classification codes:
+        - 1: 'wieś' (rural, rodz in ['2','5'])
+        - 2: 'miasto do 20 000'
+        - 3: 'miasto od 20 001 do 50 000'
+        - 4: 'miasto od 50 001 do 100 000'
+        - 5: 'miasto od 100 001 do 500 000'
+        - 6: 'miasto 500 001 i więcej'
         
         Parameters:
         - verbose: Print progress
@@ -5674,64 +5753,441 @@ class GeoTERYTDatabase:
             if not record.pop.notna().any():
                 continue
             
-            rows = []
-            for ts in DATETIME_INDEX_FULL:
+            pop_class_dict: Dict[int, Dict[Tuple[int, str], float]] = {}
+            for year in YEAR_RANGE_FULL:
+                ts = pd.Timestamp(year, 1, 1)
                 pop_val = record.pop.get(ts, np.nan)
                 
                 if record.rodz in ['2', '5']:
-                    rows.append({
-                        'date': ts,
-                        'pop_class_code': 1,
-                        'pop_class_label': 'wieś'
-                    })
+                    if pd.notna(pop_val) and pop_val > 0:
+                        pop_class_dict[year] = {(1, 'wieś'): float(pop_val)}
                 elif record.rodz in ['1', '4', '8', '9']:
-                    if pd.isna(pop_val):
-                        rows.append({
-                            'date': ts,
-                            'pop_class_code': np.nan,
-                            'pop_class_label': ''
-                        })
-                    elif pop_val <= 20000:
-                        rows.append({
-                            'date': ts,
-                            'pop_class_code': 2,
-                            'pop_class_label': 'miasto do 20 000'
-                        })
-                    elif pop_val <= 50000:
-                        rows.append({
-                            'date': ts,
-                            'pop_class_code': 3,
-                            'pop_class_label': 'miasto od 20 001 do 50 000'
-                        })
-                    elif pop_val <= 100000:
-                        rows.append({
-                            'date': ts,
-                            'pop_class_code': 4,
-                            'pop_class_label': 'miasto od 50 001 do 100 000'
-                        })
-                    elif pop_val <= 500000:
-                        rows.append({
-                            'date': ts,
-                            'pop_class_code': 5,
-                            'pop_class_label': 'miasto od 100 001 do 500 000'
-                        })
-                    else:
-                        rows.append({
-                            'date': ts,
-                            'pop_class_code': 6,
-                            'pop_class_label': 'miasto 500 001 i więcej'
-                        })
-                else:
-                    continue
+                    if pd.isna(pop_val) or pop_val <= 0:
+                        continue
+                    code, label = self._classify_urban_pop(pop_val)
+                    pop_class_dict[year] = {(code, label): float(pop_val)}
+                # rodz 3 handled by classify_est_population
             
-            if rows:
-                record.pop_class = pd.DataFrame(rows).set_index('date')
+            if pop_class_dict:
+                record.pop_class = pop_class_dict
                 count += 1
         
         if verbose:
             print(f"  ✓ Classified {count} records by urban/rural")
         
         return count
+
+    @staticmethod
+    def _classify_urban_pop(pop_val: float) -> Tuple[int, str]:
+        """Return (code, label) for an urban population value."""
+        if pop_val <= 20000:
+            return (2, 'miasto do 20 000')
+        elif pop_val <= 50000:
+            return (3, 'miasto od 20 001 do 50 000')
+        elif pop_val <= 100000:
+            return (4, 'miasto od 50 001 do 100 000')
+        elif pop_val <= 500000:
+            return (5, 'miasto od 100 001 do 500 000')
+        else:
+            return (6, 'miasto 500 001 i więcej')
+
+    # ==========================================================================
+    # ESTIMATED-POPULATION METHODS (NEW in v5.2)
+    # ==========================================================================
+
+    def extract_est_population(self, verbose: bool = True) -> int:
+        """
+        Extract estimated total population from E_age_sex cross tables.
+
+        For each level-6 record, looks up E_age_sex_2000 and E_age_sex_1990.
+        The total population is the ogółem×ogółem cell (index [0,0] in
+        the standard 16×3 age×sex layout).
+
+        Fills TERYTRecord.est_pop (a pd.Series indexed by DATETIME_INDEX_FULL).
+
+        Returns:
+            Number of records for which est_pop was filled.
+        """
+        E_AGE_SEX_SIDS = ['E_age_sex_2000', 'E_age_sex_1990']
+        count = 0
+
+        for record in self._records.values():
+            filled = False
+            for sid in E_AGE_SEX_SIDS:
+                ct = record.cross_tables.get(sid)
+                if ct is None:
+                    continue
+                # Find ogółem index per dim
+                og_indices = {}
+                for dname in ct.dim_names:
+                    labels = ct.dim_labels.get(dname, [])
+                    og_idx = next(
+                        (i for i, l in enumerate(labels)
+                         if l.lower() in {'ogółem', 'total'}),
+                        None
+                    )
+                    if og_idx is None:
+                        break
+                    og_indices[dname] = og_idx
+                else:
+                    # All dims have ogółem
+                    idx_tuple = tuple(og_indices[d] for d in ct.dim_names)
+                    for year, tbl in ct.tables.items():
+                        if tbl is None or np.all(np.isnan(tbl)):
+                            continue
+                        val = tbl[idx_tuple] if len(idx_tuple) > 1 else tbl[idx_tuple[0]]
+                        if pd.notna(val) and val > 0:
+                            ts = pd.Timestamp(year, 1, 1)
+                            if ts in record.est_pop.index:
+                                # Only fill if not yet filled (2000 has priority)
+                                if pd.isna(record.est_pop.get(ts, np.nan)):
+                                    record.est_pop[ts] = float(val)
+                                    filled = True
+            if filled:
+                count += 1
+
+        if verbose:
+            total_with = sum(1 for r in self._records.values()
+                             if r.est_pop.notna().any())
+            print(f"  ✓ Extracted est_pop for {count} records "
+                  f"({total_with} total with est_pop)")
+        return count
+
+    def classify_est_population(self, verbose: bool = True) -> int:
+        """
+        Classify gminas (rodz in {1,2,3}) by population class using est_pop.
+
+        For each year in YEAR_RANGE_FULL (1986-2025):
+        - rodz 1 (urban): entire est_pop classified as a city of given size
+        - rodz 2 (rural): entire est_pop classified as 'wieś'
+        - rodz 3 (urban-rural): split via children rodz=4 (town) and rodz=5
+          (rural area):
+            Case A: children 4 and 5 have est_pop for this year → use directly
+            Case B: children missing → find closest year with data, compute
+                    fraction, apply to parent est_pop
+
+        Stores in TERYTRecord.pop_class:
+            Dict[int, Dict[Tuple[int,str], float]]
+
+        Returns:
+            Number of gmina records classified.
+        """
+        count = 0
+
+        for tid, record in self._records.items():
+            if record.level != LEVEL_GMINA:
+                continue
+            if record.rodz not in RODZ_AGGREGATION_SET:
+                continue
+
+            pop_class_dict: Dict[int, Dict[Tuple[int, str], float]] = {}
+
+            for year in YEAR_RANGE_FULL:
+                ts = pd.Timestamp(year, 1, 1)
+                est = record.est_pop.get(ts, np.nan)
+                if pd.isna(est) or est <= 0:
+                    continue
+
+                if record.rodz == '2':
+                    # Rural — everything is 'wieś'
+                    pop_class_dict[year] = {(1, 'wieś'): float(est)}
+
+                elif record.rodz == '1':
+                    # Urban — classify by city size
+                    code, label = self._classify_urban_pop(est)
+                    pop_class_dict[year] = {(code, label): float(est)}
+
+                elif record.rodz == '3':
+                    # Urban-rural — split via children (rodz 4 and 5)
+                    child4_tid = tid[:-1] + '4'
+                    child5_tid = tid[:-1] + '5'
+                    rec4 = self._records.get(child4_tid)
+                    rec5 = self._records.get(child5_tid)
+
+                    # Try to get est_pop for children at this year
+                    pop4 = self._get_child_pop(rec4, year)
+                    pop5 = self._get_child_pop(rec5, year)
+
+                    if pop4 is not None and pop5 is not None:
+                        # Case A: both children have data
+                        pass  # use pop4, pop5 directly
+                    else:
+                        # Case B: fallback — find closest year with both present
+                        pop4, pop5 = self._impute_child_split(
+                            rec4, rec5, year, est
+                        )
+
+                    yr_dict: Dict[Tuple[int, str], float] = {}
+                    if pop4 is not None and pop4 > 0:
+                        code4, label4 = self._classify_urban_pop(pop4)
+                        yr_dict[(code4, label4)] = yr_dict.get(
+                            (code4, label4), 0.0
+                        ) + pop4
+                    if pop5 is not None and pop5 > 0:
+                        yr_dict[(1, 'wieś')] = yr_dict.get(
+                            (1, 'wieś'), 0.0
+                        ) + pop5
+
+                    if yr_dict:
+                        pop_class_dict[year] = yr_dict
+
+            if pop_class_dict:
+                record.pop_class = pop_class_dict
+                count += 1
+
+        if verbose:
+            print(f"  ✓ Classified {count} gminas (rodz 1/2/3) by locality type")
+        return count
+
+    def _get_child_pop(
+        self, child_rec: Optional['TERYTRecord'], year: int
+    ) -> Optional[float]:
+        """Get est_pop or pop for a child record at a given year."""
+        if child_rec is None:
+            return None
+        ts = pd.Timestamp(year, 1, 1)
+        # Prefer est_pop, fall back to pop
+        val = child_rec.est_pop.get(ts, np.nan)
+        if pd.notna(val) and val > 0:
+            return float(val)
+        val = child_rec.pop.get(ts, np.nan)
+        if pd.notna(val) and val > 0:
+            return float(val)
+        return None
+
+    def _impute_child_split(
+        self,
+        rec4: Optional['TERYTRecord'],
+        rec5: Optional['TERYTRecord'],
+        target_year: int,
+        parent_pop: float,
+    ) -> Tuple[Optional[float], Optional[float]]:
+        """Impute rodz-4 and rodz-5 populations from the closest available year.
+
+        Finds the nearest year where both rec4 and rec5 have population data,
+        computes the fraction each holds, and applies that fraction to
+        ``parent_pop`` at the target year.
+
+        Returns (pop4, pop5) or (None, None) if no reference year is found.
+        """
+        if rec4 is None or rec5 is None:
+            return (None, None)
+
+        # Search outward from target_year for the nearest year with both present
+        for offset in range(0, len(YEAR_RANGE_FULL)):
+            for candidate in (target_year - offset, target_year + offset):
+                if candidate < YEAR_RANGE_FULL[0] or candidate > YEAR_RANGE_FULL[-1]:
+                    continue
+                p4 = self._get_child_pop(rec4, candidate)
+                p5 = self._get_child_pop(rec5, candidate)
+                if p4 is not None and p5 is not None:
+                    total = p4 + p5
+                    if total > 0:
+                        frac4 = p4 / total
+                        frac5 = p5 / total
+                        return (parent_pop * frac4, parent_pop * frac5)
+        return (None, None)
+
+    def aggregate_pop_class(self, verbose: bool = True) -> int:
+        """
+        Aggregate gmina-level pop_class to powiat and voivodeship levels.
+
+        For each year, sums the pop_class distributions of all children
+        gminas (rodz in RODZ_AGGREGATION_SET) into their parent powiat,
+        then sums powiats into voivodeships (new 16), and also sums
+        gminas into old voivodeships (49, pre-1999) via old_woj_id.
+
+        Returns:
+            Number of higher-level records whose pop_class was filled.
+        """
+        count = 0
+
+        # Determine a representative post-reform year for children lookup
+        snapshot_years = sorted(y for y in self._by_year if isinstance(y, int))
+        ref_year = max(snapshot_years) if snapshot_years else 2020
+
+        # ── Phase 1: Powiat ──
+        for tid, record in self._records.items():
+            if record.level != LEVEL_POWIAT:
+                continue
+            # Collect gmina children using latest available year
+            children = record.get_children(ref_year)
+            agg: Dict[int, Dict[Tuple[int, str], float]] = {}
+            for ctid in children:
+                crec = self._records.get(ctid)
+                if crec is None or crec.level != LEVEL_GMINA:
+                    continue
+                if crec.rodz not in RODZ_AGGREGATION_SET:
+                    continue
+                for year, dist in crec.pop_class.items():
+                    yr_agg = agg.setdefault(year, {})
+                    for key, val in dist.items():
+                        yr_agg[key] = yr_agg.get(key, 0.0) + val
+            if agg:
+                record.pop_class = agg
+                count += 1
+
+        # ── Phase 2: New voivodeships (16) ──
+        for tid, record in self._records.items():
+            if record.level != LEVEL_VOIVODESHIP:
+                continue
+            children = record.get_children(ref_year)
+            agg: Dict[int, Dict[Tuple[int, str], float]] = {}
+            for ctid in children:
+                crec = self._records.get(ctid)
+                if crec is None or crec.level != LEVEL_POWIAT:
+                    continue
+                for year, dist in crec.pop_class.items():
+                    yr_agg = agg.setdefault(year, {})
+                    for key, val in dist.items():
+                        yr_agg[key] = yr_agg.get(key, 0.0) + val
+            if agg:
+                record.pop_class = agg
+                count += 1
+
+        # ── Phase 3: Old voivodeships (49, pre-1999) ──
+        # Map old_woj_id -> list of gmina records
+        old_woj_map: Dict[int, List['TERYTRecord']] = {}
+        for rec in self._records.values():
+            if rec.level != LEVEL_GMINA:
+                continue
+            if rec.rodz not in RODZ_AGGREGATION_SET:
+                continue
+            if rec.old_woj_id is not None:
+                old_woj_map.setdefault(rec.old_woj_id, []).append(rec)
+
+        # Find old-voivodeship records (level=2 with old_woj_id or
+        # use the 'old' children key from country)
+        country_rec = self._records.get('0000000')
+        old_woj_tids: List[str] = []
+        if country_rec:
+            old_woj_tids = country_rec.get_children('old')
+
+        for owt in old_woj_tids:
+            orec = self._records.get(owt)
+            if orec is None:
+                continue
+            # Aggregate from gminas that belong to this old voivodeship
+            agg: Dict[int, Dict[Tuple[int, str], float]] = {}
+            for rec in self._records.values():
+                if rec.level != LEVEL_GMINA:
+                    continue
+                if rec.rodz not in RODZ_AGGREGATION_SET:
+                    continue
+                if rec.old_woj != orec.name:
+                    continue
+                for year, dist in rec.pop_class.items():
+                    yr_agg = agg.setdefault(year, {})
+                    for key, val in dist.items():
+                        yr_agg[key] = yr_agg.get(key, 0.0) + val
+            if agg:
+                orec.pop_class = agg
+                count += 1
+
+        if verbose:
+            print(f"  ✓ Aggregated pop_class for {count} higher-level records")
+        return count
+
+    def export_tables_json(
+        self,
+        teryt_ids: Union[str, List[str]],
+        years: Union[int, List[int], None] = None,
+        subject_ids: Optional[List[str]] = None,
+    ) -> dict:
+        """
+        Export estimated cross tables as a JSON-serializable dictionary.
+
+        Parameters:
+        - teryt_ids: Single TERYT ID or list. If multiple, tables are
+          aggregated (summed) across the records.
+        - years: Single year, list of years, or None (all available years).
+          When multiple years, the outermost key level is year.
+        - subject_ids: List of subject IDs to export (default: all E_*).
+
+        Returns:
+            Nested dict: {year: {subject_id: {dim_label_combo: value, ...}, ...}, ...}
+            For single year, the year wrapper is still present for consistency.
+        """
+        if isinstance(teryt_ids, str):
+            teryt_ids = [teryt_ids]
+
+        # Determine subjects
+        if subject_ids is None:
+            subject_ids = sorted({
+                sid for tid in teryt_ids
+                for sid in (self._records.get(tid).cross_tables.keys()
+                            if self._records.get(tid) else [])
+                if sid.startswith('E_')
+            })
+
+        # Determine years
+        if years is None:
+            years = YEAR_RANGE_FULL
+        elif isinstance(years, int):
+            years = [years]
+
+        result: dict = {}
+        for year in years:
+            yr_dict: dict = {}
+            for sid in subject_ids:
+                # Aggregate tables across teryt_ids
+                agg_tbl = None
+                ref_ct = None
+                for tid in teryt_ids:
+                    rec = self._records.get(tid)
+                    if rec is None:
+                        continue
+                    ct = rec.cross_tables.get(sid)
+                    if ct is None:
+                        continue
+                    tbl = ct.tables.get(year)
+                    if tbl is None or np.all(np.isnan(tbl)):
+                        continue
+                    if agg_tbl is None:
+                        agg_tbl = np.where(np.isnan(tbl), 0.0, tbl).copy()
+                        ref_ct = ct
+                    else:
+                        agg_tbl += np.where(np.isnan(tbl), 0.0, tbl)
+
+                if agg_tbl is None or ref_ct is None:
+                    continue
+
+                # Convert to label-keyed dict
+                import itertools
+                entries: dict = {}
+                indices = list(itertools.product(
+                    *[range(len(ref_ct.dim_labels[d])) for d in ref_ct.dim_names]
+                ))
+                for idx in indices:
+                    label_key = tuple(
+                        ref_ct.dim_labels[ref_ct.dim_names[k]][idx[k]]
+                        for k in range(len(idx))
+                    )
+                    val = float(agg_tbl[idx])
+                    # Use string key for JSON compatibility
+                    key_str = ' × '.join(label_key) if len(label_key) > 1 else label_key[0]
+                    entries[key_str] = round(val, 2)
+
+                yr_dict[sid] = entries
+
+            if yr_dict:
+                result[year] = yr_dict
+
+        # Also include pop_class if available
+        for year in years:
+            # Aggregate pop_class across teryt_ids for this year
+            agg_pc: Dict[str, float] = {}
+            for tid in teryt_ids:
+                rec = self._records.get(tid)
+                if rec is None:
+                    continue
+                pc = rec.pop_class.get(year, {})
+                for (code, label), val in pc.items():
+                    agg_pc[label] = agg_pc.get(label, 0.0) + val
+            if agg_pc:
+                result.setdefault(year, {})['pop_class'] = agg_pc
+
+        return result
     
     def code_dimension_labels(self, subject_names_dict: Dict[str, str],
                               verbose: bool = True) -> int:
@@ -6089,9 +6545,13 @@ class GeoTERYTDatabase:
                 'data': {f"{k[0]}|{k[1]}|{k[2]}": v.to_dict() for k, v in record.data.items()} if record.data else None,
                 # Cross table storage (NEW in v4.1)
                 'cross_tables': {k: v.to_dict() for k, v in record.cross_tables.items()} if record.cross_tables else None,
-                # Population and classification (NEW in v4.2)
+                # Population and classification (NEW in v4.2, updated v5.2)
                 'pop': {ts.year: v for ts, v in record.pop.items() if not pd.isna(v)} if record.pop.notna().any() else None,
-                'pop_class': record.pop_class.to_dict('index') if len(record.pop_class) > 0 else None
+                'est_pop': {ts.year: v for ts, v in record.est_pop.items() if not pd.isna(v)} if record.est_pop.notna().any() else None,
+                'pop_class': {
+                    yr: {f"{code}|{label}": val for (code, label), val in dist.items()}
+                    for yr, dist in record.pop_class.items()
+                } if record.pop_class else None
             }
             records_data[teryt_id] = rec_dict
         
@@ -6447,7 +6907,7 @@ def load_complete_database(filepath: Union[str, Path], verbose: bool = True) -> 
             for sid, ct_data in ct_dict.items():
                 record.cross_tables[sid] = CrossTable.from_dict(ct_data)
         
-        # Restore population and classification (NEW in v4.2)
+        # Restore population and classification (NEW in v4.2, updated v5.2)
         pop_dict = rec_dict.get('pop')
         if pop_dict:
             for yr, val in pop_dict.items():
@@ -6455,19 +6915,38 @@ def load_complete_database(filepath: Union[str, Path], verbose: bool = True) -> 
                 if ts in record.pop.index:
                     record.pop[ts] = float(val)
         
+        est_pop_dict = rec_dict.get('est_pop')
+        if est_pop_dict:
+            for yr, val in est_pop_dict.items():
+                ts = pd.Timestamp(year=int(yr), month=1, day=1)
+                if ts in record.est_pop.index:
+                    record.est_pop[ts] = float(val)
+        
         pop_class_dict = rec_dict.get('pop_class')
         if pop_class_dict:
-            rows = []
-            for ts_str, vals in pop_class_dict.items():
-                code = vals['pop_class_code']
-                rows.append({
-                    'date': pd.Timestamp(ts_str),
-                    'pop_class_code': code if not pd.isna(code) else np.nan,
-                    'pop_class_label': str(vals['pop_class_label'])
-                })
-            if rows:
-                pc_df = pd.DataFrame(rows).set_index('date')
-                record.pop_class = pc_df
+            # v5.2 format: {year_int: {"code|label": val, ...}}
+            # v4.2 format: {timestamp_str: {"pop_class_code": ..., "pop_class_label": ...}}
+            restored: Dict[int, Dict[tuple, float]] = {}
+            for key, val in pop_class_dict.items():
+                try:
+                    yr = int(key)
+                except (ValueError, TypeError):
+                    # Old v4.2 timestamp format — skip (will be re-classified)
+                    continue
+                if isinstance(val, dict):
+                    yr_dist: Dict[tuple, float] = {}
+                    for code_label_str, amount in val.items():
+                        if '|' in str(code_label_str):
+                            parts = str(code_label_str).split('|', 1)
+                            try:
+                                code = int(parts[0])
+                            except ValueError:
+                                code = int(float(parts[0]))
+                            label = parts[1]
+                            yr_dist[(code, label)] = float(amount)
+                    if yr_dist:
+                        restored[yr] = yr_dist
+            record.pop_class = restored
         
         db._records[teryt_id] = record
     

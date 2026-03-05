@@ -161,7 +161,7 @@ def _get_aggregation_children(
         The database instance.
     year : int
         The year for which to retrieve the hierarchy (default 1999).
-        Years before 1999 automatically fall back to 1999.
+        Falls back to nearest available year if exact match not found.
 
     Rules
     -----
@@ -171,15 +171,22 @@ def _get_aggregation_children(
       rodz ∈ {1,2,3} children are found.
     - Voivodeship (teryt[2:] == '00000'): all powiats + all direct
       gminas with rodz ∈ {1, 2, 3}
-    - Country (teryt == '0000000'): all voivodeships
+    - Country (teryt == '0000000'): always uses new voivodeships (16)
+      for estimation aggregation, regardless of the year hierarchy
+      (which may point to old voivodeships for pre-1995).
     - NEVER include rodz 4, 5, 9 in aggregation sums.
     """
     from geoTERYT_db import filter_aggregation_children
     tid = record.teryt_id
 
-    # Country level
+    # Country level — always use the 16 new voivodeships for estimation
     if tid == '0000000':
-        return record.get_children(year)
+        children = record.get_children(year)
+        # If children include old voivodeships (IDs >= '5100000'),
+        # fall back to new voivodeships from a post-reform year
+        if children and any(c[:2] > '50' for c in children if len(c) == 7):
+            children = record.get_children(max(year, 1999))
+        return children
 
     # Voivodeship level
     if tid[2:] == '00000':
@@ -2100,6 +2107,10 @@ class DemographicEstimator:
         The aggregated cell *proportions* are preserved; only
         the overall magnitude is adjusted so that
         ``sum(result) == sum(M_observed)``.
+
+        Fix 46: skip hybrid scaling when the scaling factor falls
+        below 0.95, which indicates that M_ data likely has
+        incomplete gmina coverage (children sum >> M_ total).
         """
         rec = self.db._records.get(parent_tid)
         if rec is None:
@@ -2119,7 +2130,19 @@ class DemographicEstimator:
             return aggregated, False
 
         factor = m_total / agg_total
-        return np.maximum(aggregated * factor, 0.0), True
+        # Fix 46: skip hybrid scaling when it would cause a
+        # hierarchical consistency violation (powiat ≠ children sum).
+        # Compute expected max_cell_diff after scaling and compare
+        # against the HIER_TOL_PCT threshold from validation.
+        HIER_TOL_PCT = 0.5
+        scaled = np.maximum(aggregated * factor, 0.0)
+        diff = np.abs(scaled - aggregated)
+        max_diff = float(np.max(diff))
+        total = float(np.sum(np.abs(scaled)))
+        pct = 100 * max_diff / total if total > EPSILON else 0.0
+        if pct > HIER_TOL_PCT:
+            return aggregated, False
+        return scaled, True
 
     def _aggregate_to_parents(
         self,
@@ -2709,7 +2732,31 @@ class DemographicEstimator:
                 for tid in gminas:
                     tbl = self._get_observed_table(tid, source_sid, year)
                     if tbl is not None and tbl.shape == full_shape:
-                        observed[tid] = tbl
+                        # Fix 45a: recompute ogółem from core cells
+                        #   (source BDL may have stale ogółem)
+                        core = self._extract_core(
+                            tbl, len(dim_names),
+                            ogolem_idx, non_ogolem_slices,
+                        )
+                        fixed_tbl = self._assemble_with_ogolem(
+                            core, len(dim_names), full_shape,
+                            ogolem_idx, non_ogolem_slices,
+                        )
+                        # Fix 45a+: scale to population when
+                        #   sub-categories do not sum to pop
+                        _rec = self.db._records.get(tid)
+                        if _rec is not None:
+                            _pop = _rec.pop.get(ts, np.nan)
+                            if (
+                                not np.isnan(_pop) and _pop > 0
+                            ):
+                                fixed_tbl = self._scale_table_to_pop(
+                                    fixed_tbl, _pop,
+                                    ogolem_idx,
+                                    non_ogolem_slices,
+                                    full_shape,
+                                )
+                        observed[tid] = fixed_tbl
                     elif tid in seeds and year in seeds[tid]:
                         estimated[tid] = seeds[tid][year].copy()
 
@@ -3218,6 +3265,11 @@ class DemographicEstimator:
             seeds, source_sid, full_shape,
         )
 
+        # Fix 45b: protect synthetic 2011 from Layer 2 modification
+        for tid, syn_tbl in synthetic_2011.items():
+            if tid in seeds and 2011 in seeds[tid]:
+                observed_census.setdefault(tid, {})[2011] = syn_tbl.copy()
+
         # ── Layer 2: voivodeship marginal scaling (temporally smoothed) ──
         self._log("  Layer 2: voivodeship marginal scaling (smoothed)…")
         voiv_tids = self._get_voivodeships()
@@ -3499,6 +3551,12 @@ class DemographicEstimator:
         observed_census = self._collect_observed_tables(
             seeds, source_sid, full_shape,
         )
+
+        # Fix 45b: protect synthetic 2011 from Layer 2 modification
+        for tid, syn_tbl in synthetic_2011.items():
+            if tid in seeds and 2011 in seeds[tid]:
+                observed_census.setdefault(tid, {})[2011] = syn_tbl.copy()
+
         observed_years_per_gmina: Dict[str, Set[int]] = {
             tid: set(yr_tbls.keys())
             for tid, yr_tbls in observed_census.items()
@@ -3523,6 +3581,21 @@ class DemographicEstimator:
 
         # ── Restore census data (belt-and-suspenders) ──
         n_restored = self._restore_census_data(seeds, observed_census)
+        # Fix 45c: recompute ogółem in restored census tables
+        #   (source data may have stale ogółem marginals)
+        for _tid in observed_census:
+            if _tid not in seeds:
+                continue
+            for _yr in observed_census[_tid]:
+                if _yr in seeds[_tid]:
+                    _core = self._extract_core(
+                        seeds[_tid][_yr], ndim,
+                        ogolem_idx, non_ogolem_slices,
+                    )
+                    seeds[_tid][_yr] = self._assemble_with_ogolem(
+                        _core, ndim, full_shape,
+                        ogolem_idx, non_ogolem_slices,
+                    )
         self._log(f"    Census data restored: {n_restored} gmina-years")
 
         # ── store ──
@@ -3804,6 +3877,21 @@ class DemographicEstimator:
 
         # Restore census data that may have been affected
         n_restored = self._restore_census_data(seeds, observed_census)
+        # Fix 45c: recompute ogółem in restored census tables
+        #   (source data may have stale ogółem marginals)
+        for _tid in observed_census:
+            if _tid not in seeds:
+                continue
+            for _yr in observed_census[_tid]:
+                if _yr in seeds[_tid]:
+                    _core = self._extract_core(
+                        seeds[_tid][_yr], ndim,
+                        ogolem_idx, non_ogolem_slices,
+                    )
+                    seeds[_tid][_yr] = self._assemble_with_ogolem(
+                        _core, ndim, full_shape,
+                        ogolem_idx, non_ogolem_slices,
+                    )
         self._log(
             f"    Scaled {n_scaled} national-year combinations"
             f" (restored {n_restored} observed year-tables)"
