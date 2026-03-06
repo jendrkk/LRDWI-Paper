@@ -926,4 +926,23 @@ def get_changes_summary(mega_df: pd.DataFrame) -> pd.DataFrame:
         })
     
     return pd.DataFrame(summary_data)
+
+def remove_polish_characters(text: str) -> str:
+    """
+    Removes Polish characters from a string and replaces them with their non-accented equivalents.
     
+    Parameters:
+    - text (str): The input string that may contain Polish characters.
+    
+    Returns:
+    - str: The string with Polish characters replaced by non-accented equivalents.
+    """
+    polish_chars = {
+        'ą': 'a', 'ć': 'c', 'ę': 'e', 'ł': 'l', 'ń': 'n', 
+        'ó': 'o', 'ś': 's', 'ź': 'z',  'ż': 'z',
+        'Ą': 'A', 'Ć': 'C', 'Ę': 'E', 'Ł': 'L', 'Ń': 'N', 
+        'Ó': 'O', 'Ś': 'S', 'Ź': 'Z',  'Ż': 'Z'
+    }
+    for polish_char, replacement in polish_chars.items():
+        text = text.replace(polish_char, replacement)
+    return text
