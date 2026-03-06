@@ -181,12 +181,11 @@
     The labels are odered in the from the highest eduction level (for cat_code assign the highest number from 1 to length of the array of labels) to the lowest education level (assign cat_code =1), see ~(...). We create the follwoing merged subjects:
     -  M_educ_1990: multilevel approach (when a variable is available on level=6 then level=6 if level=0 then on level=0 for this variable etc. - we extract all available teryts from all subjects), join P2885 and P2402 and H_sex_educ (only educ dimension, so variables with sex label ogółem for P2402) into a single time series with labels:
         - ogółem (to be crated)
-            - take all people 15+ from P2884 (for 1988; age labels: $[10-19] * 1/2 + [20-29] + [30-39] + [40-49] + [50-59] + [60 lat i więcej]$) and from P2114 (for 2002; age labels: $[15-19] + [20-24] + ... + [80-84] + [85 i więcej]$)
+            - take all people 15+ from P2884 (for census 1988; age labels: $[10-19] * 1/2 + [20-29] + [30-39] + [40-49] + [50-59] + [60 lat i więcej]$) and from P2114 (for 2002; age labels: $[15-19] + [20-24] + ... + [80-84] + [85 i więcej]$)
         - wyższe (wyższe)
-        - średnie (średnie razem + policealne)
-        - zasadnicze zawodowe (zasadnicze zawodowe)
-        - podstawowe (podstawowe ukończone)
-        - podstawowe nieukończone i bez wykształcenia
+        - średnie (średnie razem + policealne for P2402 and NEW: policealne oraz średnie zawodowe/branżowe + średnie ogólnokształcące for P2350)
+        - zasadnicze zawodowe (zasadnicze zawodowe; zasadnicze zawodowe/branżowe from P2350)
+        - gimnazjalne, podstawowe i niższe (=podstawowe (podstawowe ukończone) + podstawowe nieukończone i bez wykształcenia for P2402 and ogółem - wyższe - średnie - zasadnicze zawodowe for P2885)
             - available for 2002 and for 1988: podstawowe nieukończone i bez wykształcenia = ogółem - wyższe - średnie - zasadnicze zawodowe - podstawowe
     - M_educ_2000: multilevel approach (when a variable is available on level=6 then level=6 if level=5 then on level=5 for this variable etc. - we extract all available teryts from all subjects), join P2402, P3309, P4315, P2350 and P4092. But we prioritize observations from P2402, P3309 and P4315 (census variables), that means if we have two or more variables available for a year from one of the prioritized subjects and from P2350 or/and P4092 then we take the prioritzied subject value. Only educ dimention, so variables with sex label ogółem for P2402, P3309, P4315. We will have the following labels:
         - wyższe (wyższe)

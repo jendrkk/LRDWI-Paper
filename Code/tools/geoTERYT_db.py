@@ -4956,25 +4956,70 @@ class GeoTERYTDatabase:
         self._recompute_ogółem_1d(SID)
         if verbose:
             print(f"  {SID}: {n_created} entries stored")
-        
+
+        # ── 4b. M_age_sex_1990 ──
+        # P2137 (sex×age 5yr → 10yr) + H_age_sex (sex×age 5yr → 10yr)
+        # 2D cross table: 10yr age bins × sex, matching P2884 age thresholds
+        SID = 'M_age_sex_1990'
+        AGE_10YR_LABELS = ['ogółem', '0-9', '10-19', '20-29', '30-39', '40-49',
+                           '50-59', '60 lat i więcej']
+        # P2137: aggregate 5yr → 10yr for each sex group
+        P2137_10YR_MAP_SEX = {'ogółem': 'ogółem'}
+        P2137_10YR_SUM_SEX = {
+            '0-9': ['0-4', '5-9'], '10-19': ['10-14', '15-19'],
+            '20-29': ['20-24', '25-29'], '30-39': ['30-34', '35-39'],
+            '40-49': ['40-44', '45-49'], '50-59': ['50-54', '55-59'],
+            '60 lat i więcej': ['60-64', '65-69', '70 i więcej'],
+        }
+        # H_age_sex: same 10yr aggregation with extra '0' bin
+        HAGE_10YR_MAP_SEX = {'ogółem': 'ogółem'}
+        HAGE_10YR_SUM_SEX = {
+            '0-9': ['0', '1-4', '5-9'], '10-19': ['10-14', '15-19'],
+            '20-29': ['20-24', '25-29'], '30-39': ['30-34', '35-39'],
+            '40-49': ['40-44', '45-49'], '50-59': ['50-54', '55-59'],
+            '60 lat i więcej': ['60-64', '65-69', '70 i więcej'],
+        }
+
+        n_created = 0
+        for record in self._records.values():
+            # P2137 → aggregate 5yr age bins to 10yr, keeping all sex groups
+            p2137_data = record.get_data_by_subject('P2137')
+            if p2137_data:
+                pairs = self._extract_2d_all_sex(record, 'P2137', 'age',
+                                                  P2137_10YR_MAP_SEX, P2137_10YR_SUM_SEX)
+                if pairs:
+                    n_created += self._store_2d_merged(record, SID, AGE_10YR_LABELS,
+                                                       SEX_LABELS, pairs, 'age_sex_1990')
+            # H_age_sex → same aggregation
+            h_data = record.get_data_by_subject('H_age_sex')
+            if h_data:
+                pairs = self._extract_2d_all_sex(record, 'H_age_sex', 'age',
+                                                  HAGE_10YR_MAP_SEX, HAGE_10YR_SUM_SEX)
+                if pairs:
+                    n_created += self._store_2d_merged(record, SID, AGE_10YR_LABELS,
+                                                       SEX_LABELS, pairs, 'age_sex_1990')
+        result[SID] = ['P2137', 'H_age_sex']
+        if verbose:
+            print(f"  {SID}: {n_created} entries stored")
+
         # ── 5. M_educ_1990 ──
-        # P2885 (1988, gmina) + P2402 (2002, gmina, sex=ogółem) + H_sex_educ (country)
+        # P2885 (1988, gmina) + P2402 (2002, gmina, sex=ogółem) + H_sex_educ (country) + P2350 (voivodship)
         SID = 'M_educ_1990'
         LABELS = ['ogółem', 'wyższe', 'średnie', 'zasadnicze zawodowe',
-                  'podstawowe', 'podstawowe nieukończone i bez wykształcenia']
+                  'gimnazjalne, podstawowe i niższe']
         P2885_MAP = {'wyższe': 'wyższe', 'średnie': 'średnie',
-                     'zasadnicze zawodowe': 'zasadnicze zawodowe',
-                     'podstawowe': 'podstawowe'}
+                     'zasadnicze zawodowe': 'zasadnicze zawodowe'}
         P2402_1990_MAP = {
             'wyższe': 'wyższe', 'policealne': 'średnie', 'średnie razem': 'średnie',
             'zasadnicze zawodowe': 'zasadnicze zawodowe',
-            'podstawowe ukończone': 'podstawowe',
-            'podstawowe nieukończone i bez wykształcenia': 'podstawowe nieukończone i bez wykształcenia',
+            'podstawowe ukończone': 'gimnazjalne, podstawowe i niższe',
+            'podstawowe nieukończone i bez wykształcenia': 'gimnazjalne, podstawowe i niższe',
         }
         H_EDUC_1990_MAP = {
             'ogółem': 'ogółem', 'wyższe': 'wyższe', 'średnie': 'średnie',
-            'zasadnicze zawodowe': 'zasadnicze zawodowe', 'podstawowe': 'podstawowe',
-            'niepełne podstawowe i bez wykształcenia': 'podstawowe nieukończone i bez wykształcenia',
+            'zasadnicze zawodowe': 'zasadnicze zawodowe',
+            'podstawowe': 'gimnazjalne, podstawowe i niższe',
+            'niepełne podstawowe i bez wykształcenia': 'gimnazjalne, podstawowe i niższe',
         }
         
         n_created = 0
@@ -5010,8 +5055,8 @@ class GeoTERYTDatabase:
                             u['ogółem'] = og
                     if 'ogółem' in u:
                         self._compute_residual_label(u, 'ogółem',
-                            ['wyższe', 'średnie', 'zasadnicze zawodowe', 'podstawowe'],
-                            'podstawowe nieukończone i bez wykształcenia')
+                            ['wyższe', 'średnie', 'zasadnicze zawodowe'],
+                            'gimnazjalne, podstawowe i niższe')
                     n_created += self._store_1d_merged(record, SID, LABELS, u, 'educ_1990')
                 
                 # P2402 (2002, sex=ogółem)
@@ -5061,12 +5106,46 @@ class GeoTERYTDatabase:
             if h_data:
                 u = self._extract_2d_filter_sex(record, 'H_sex_educ', 'ogółem', 'educ', H_EDUC_1990_MAP)
                 if u:
-                    if 'ogółem' in u and 'podstawowe nieukończone i bez wykształcenia' not in u:
-                        self._compute_residual_label(u, 'ogółem',
-                            ['wyższe', 'średnie', 'zasadnicze zawodowe', 'podstawowe'],
-                            'podstawowe nieukończone i bez wykształcenia')
+                    # For 1988: both 'podstawowe' and 'niepełne podstawowe' are summed
+                    # into 'gimnazjalne, podstawowe i niższe' via H_EDUC_1990_MAP.
+                    # For other years (1986-87, 1991-94): 'niepełne podstawowe' is NaN,
+                    # so 'gimnazjalne...' only has 'podstawowe'. Fill with residual.
+                    gpi_key = 'gimnazjalne, podstawowe i niższe'
+                    if 'ogółem' in u and gpi_key in u:
+                        og = u['ogółem']
+                        gpi = u[gpi_key]
+                        for ts in og.index:
+                            og_val = og.get(ts, np.nan)
+                            gpi_val = gpi.get(ts, np.nan)
+                            if not pd.isna(og_val) and (pd.isna(gpi_val) or gpi_val <= 0):
+                                parts = 0.0
+                                for k in ['wyższe', 'średnie', 'zasadnicze zawodowe']:
+                                    v = u.get(k, pd.Series(dtype=float)).get(ts, 0)
+                                    if pd.isna(v):
+                                        v = 0
+                                    parts += v
+                                res = og_val - parts
+                                if res >= 0:
+                                    gpi[ts] = res
                     n_created += self._store_1d_merged(record, SID, LABELS, u, 'educ_1990')
-        result[SID] = ['P2885', 'P2402', 'H_sex_educ']
+
+        # P2350 (voivodship level, 1D education, 1995-2020)
+        P2350_1990_MAP = {
+            'wyższe': 'wyższe',
+            'zasadnicze zawodowe/branżowe': 'zasadnicze zawodowe',
+            'gimnazjalne, podstawowe i niższe': 'gimnazjalne, podstawowe i niższe',
+        }
+        P2350_1990_SUM = {
+            'średnie': ['policealne oraz średnie zawodowe/branżowe', 'średnie ogólnokształcące'],
+        }
+        for record in self._records.values():
+            if record.level == LEVEL_VOIVODESHIP or record.teryt_id == '0000000':
+                u = self._extract_1d_labels(record, 'P2350', 'educ',
+                                             P2350_1990_MAP, P2350_1990_SUM)
+                if u:
+                    n_created += self._store_1d_merged(record, SID, LABELS, u, 'educ_1990')
+
+        result[SID] = ['P2885', 'P2402', 'H_sex_educ', 'P2350']
         # Recompute ogółem = sum of sub-categories (P2884/P2114 pop 15+ estimate ≠ sum of educ cats)
         self._recompute_ogółem_1d(SID)
         if verbose:
@@ -5145,17 +5224,18 @@ class GeoTERYTDatabase:
         # P2402 (2002, gmina, all sex) + H_sex_educ (country, all sex)
         SID = 'M_educ_sex_1990'
         EDUC_1990_LABELS = ['ogółem', 'wyższe', 'średnie', 'zasadnicze zawodowe',
-                            'podstawowe', 'podstawowe nieukończone i bez wykształcenia']
+                            'gimnazjalne, podstawowe i niższe']
         P2402_SEX1990_MAP = {
             'wyższe': 'wyższe', 'policealne': 'średnie', 'średnie razem': 'średnie',
             'zasadnicze zawodowe': 'zasadnicze zawodowe',
-            'podstawowe ukończone': 'podstawowe',
-            'podstawowe nieukończone i bez wykształcenia': 'podstawowe nieukończone i bez wykształcenia',
+            'podstawowe ukończone': 'gimnazjalne, podstawowe i niższe',
+            'podstawowe nieukończone i bez wykształcenia': 'gimnazjalne, podstawowe i niższe',
         }
         H_EDUC_SEX1990_MAP = {
             'ogółem': 'ogółem', 'wyższe': 'wyższe', 'średnie': 'średnie',
-            'zasadnicze zawodowe': 'zasadnicze zawodowe', 'podstawowe': 'podstawowe',
-            'niepełne podstawowe i bez wykształcenia': 'podstawowe nieukończone i bez wykształcenia',
+            'zasadnicze zawodowe': 'zasadnicze zawodowe',
+            'podstawowe': 'gimnazjalne, podstawowe i niższe',
+            'niepełne podstawowe i bez wykształcenia': 'gimnazjalne, podstawowe i niższe',
         }
         
         n_created = 0
@@ -5183,24 +5263,42 @@ class GeoTERYTDatabase:
                     sex_seen = set(sl for (_, sl) in pairs.keys())
                     for sex_lbl in sex_seen:
                         og = pairs.get(('ogółem', sex_lbl))
-                        pn_key = ('podstawowe nieukończone i bez wykształcenia', sex_lbl)
-                        if og is not None and pn_key not in pairs:
-                            residual = pd.Series(data=np.nan, index=DATETIME_INDEX_FULL, dtype=float)
-                            for ts in og.index:
-                                og_val = og.get(ts, np.nan)
-                                if pd.isna(og_val):
-                                    continue
-                                parts = 0.0
-                                for elbl in ['wyższe', 'średnie', 'zasadnicze zawodowe', 'podstawowe']:
-                                    v = pairs.get((elbl, sex_lbl), pd.Series(dtype=float)).get(ts, 0)
-                                    if pd.isna(v):
-                                        v = 0
-                                    parts += v
-                                res = og_val - parts
-                                if res >= 0:
-                                    residual[ts] = res
-                            if residual.notna().any():
-                                pairs[pn_key] = residual
+                        gpi_key = ('gimnazjalne, podstawowe i niższe', sex_lbl)
+                        if og is not None:
+                            gpi = pairs.get(gpi_key)
+                            if gpi is not None:
+                                # Fill NaN years with residual
+                                for ts in og.index:
+                                    og_val = og.get(ts, np.nan)
+                                    gpi_val = gpi.get(ts, np.nan)
+                                    if not pd.isna(og_val) and (pd.isna(gpi_val) or gpi_val <= 0):
+                                        parts = 0.0
+                                        for elbl in ['wyższe', 'średnie', 'zasadnicze zawodowe']:
+                                            v = pairs.get((elbl, sex_lbl), pd.Series(dtype=float)).get(ts, 0)
+                                            if pd.isna(v):
+                                                v = 0
+                                            parts += v
+                                        res = og_val - parts
+                                        if res >= 0:
+                                            gpi[ts] = res
+                            else:
+                                # No 'gimnazjalne...' extracted at all → full residual
+                                residual = pd.Series(data=np.nan, index=DATETIME_INDEX_FULL, dtype=float)
+                                for ts in og.index:
+                                    og_val = og.get(ts, np.nan)
+                                    if pd.isna(og_val):
+                                        continue
+                                    parts = 0.0
+                                    for elbl in ['wyższe', 'średnie', 'zasadnicze zawodowe']:
+                                        v = pairs.get((elbl, sex_lbl), pd.Series(dtype=float)).get(ts, 0)
+                                        if pd.isna(v):
+                                            v = 0
+                                        parts += v
+                                    res = og_val - parts
+                                    if res >= 0:
+                                        residual[ts] = res
+                                if residual.notna().any():
+                                    pairs[gpi_key] = residual
                     n_created += self._store_2d_merged(record, SID, EDUC_1990_LABELS,
                                                        SEX_LABELS, pairs, 'educ_sex_1990')
         result[SID] = ['P2402', 'H_sex_educ']

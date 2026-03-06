@@ -2417,9 +2417,17 @@ class DemographicEstimator:
     def _get_1988_age_marginals(
         self,
         rec: 'TERYTRecord',
-        group_idx_map: Dict[str, List[int]],
+        target_labels: List[str],
+        full_age_labels: List[str],
     ) -> Optional[Dict[str, float]]:
         """Extract 1988 age marginals from M_age_1990 or P2884.
+
+        Parameters
+        ----------
+        target_labels : list of str
+            Non-ogółem age labels to extract (e.g. 10yr bin labels).
+        full_age_labels : list of str
+            Full label list including ogółem (for reference).
 
         Returns a dict mapping 10yr group label → total count,
         or ``None`` if data unavailable.
@@ -2434,7 +2442,7 @@ class DemographicEstimator:
                 continue
             labels = ct.dim_labels[ct.dim_names[0]]
             result: Dict[str, float] = {}
-            for grp_lbl in group_idx_map:
+            for grp_lbl in target_labels:
                 idx = None
                 for li, lbl in enumerate(labels):
                     if lbl == grp_lbl:
@@ -2442,7 +2450,7 @@ class DemographicEstimator:
                         break
                 if idx is not None and not np.isnan(tbl[idx]):
                     result[grp_lbl] = float(tbl[idx])
-            if len(result) == len(group_idx_map):
+            if len(result) == len(target_labels):
                 return result
         return None
 
@@ -2881,24 +2889,26 @@ class DemographicEstimator:
 
         Data landscape
         --------------
-        - M_age_sex (16×3): merged from P2137 (gmina 1995–2024) +
-          H_age_sex (old voivodeships 1986–1994).
+        - M_age_sex_1990 (8×3): merged from P2137 (gmina 1995–2024,
+          5yr→10yr aggregated) + H_age_sex (old voivodeships 1986–1994,
+          5yr→10yr aggregated).
         - M_age_1990 (8,): census 1988 gmina (P2884), 10yr bins.
         - P2883 (3,): census 1988 gmina sex marginals.
-        - H_age_sex on old voivodeships: 1986–1994.
 
         Algorithm
         ---------
-        Phase A: Construct 1988 gmina-level age×sex (16×3) via grouped
-                 IPF using H_age_sex old-voivodeship seed + P2884 age
-                 marginals + P2883 sex marginals.
+        Phase A: Construct 1988 gmina-level age×sex (8×3) via standard
+                 2D IPF using old-voivodeship M_age_sex_1990 seed +
+                 P2884 age marginals + P2883 sex marginals (direct
+                 1:1 match, no grouped IPF needed).
         Phase B: Collect anchor tables per gmina (1988 from Phase A +
-                 M_age_sex 1995+ from BDL) and interpolate in log-space.
+                 M_age_sex_1990 1995+ from BDL) and interpolate in
+                 log-space.
         Phase C: Layer 2 — scale gmina aggregates to match old
-                 voivodeship M_age_sex totals for 1986–1994.
+                 voivodeship M_age_sex_1990 totals for 1986–1994.
         Phase D: Store all results.
         """
-        source_sid = 'M_age_sex'
+        source_sid = 'M_age_sex_1990'
         year_range = PREDICTION_1990_RANGE
 
         # ── Step 1: dimensions ──
@@ -2912,25 +2922,10 @@ class DemographicEstimator:
         age_labels = dim_labels[dim_names[0]]
         sex_labels = dim_labels[dim_names[1]]
 
-        # Mapping: 5yr M_age_sex bins → 10yr P2884 groups
-        AGE_5_TO_10 = {
-            '0-9':                ['0-4', '5-9'],
-            '10-19':              ['10-14', '15-19'],
-            '20-29':              ['20-24', '25-29'],
-            '30-39':              ['30-34', '35-39'],
-            '40-49':              ['40-44', '45-49'],
-            '50-59':              ['50-54', '55-59'],
-            '60 lat i więcej':    ['60-64', '65-69', '70 i więcej'],
-        }
-        # Build index map: 10yr label → list of FULL-TABLE row indices
-        group_idx_map: Dict[str, List[int]] = {}
-        for grp_lbl, sub_labels in AGE_5_TO_10.items():
-            indices = [
-                age_labels.index(sl) for sl in sub_labels
-                if sl in age_labels
-            ]
-            if indices:
-                group_idx_map[grp_lbl] = indices
+        # M_age_sex_1990 already uses 10yr bins matching P2884 directly.
+        # Build a simple label→index map for _get_1988_age_marginals.
+        age_non_og = non_ogolem_slices[0]
+        age_non_og_labels = [age_labels[i] for i in age_non_og]
 
         # ── Step 2: Phase A — construct 1988 tables ──
         self._log("  Phase A: constructing 1988 gmina age×sex via IPF…")
@@ -2964,9 +2959,9 @@ class DemographicEstimator:
                 n_skip += 1
                 continue
 
-            # --- P2884 age marginals (10yr bins) ---
+            # --- P2884 age marginals (10yr bins, direct match) ---
             age_marg = self._get_1988_age_marginals(
-                rec, group_idx_map,
+                rec, age_non_og_labels, age_labels,
             )
             if age_marg is None:
                 n_skip += 1
@@ -2991,11 +2986,40 @@ class DemographicEstimator:
                     continue
                 sex_marg = voi_sex_sums * (pop88 / voi_sex_total)
 
-            # --- grouped IPF ---
-            result = self._grouped_ipf_age_sex(
-                seed.copy(), age_marg, sex_marg,
+            # --- standard 2D IPF (10yr age × sex, direct match) ---
+            seed_core = self._extract_core(
+                seed.copy(), len(dim_names),
                 ogolem_idx, non_ogolem_slices,
-                full_shape, group_idx_map,
+            )
+            seed_core = np.maximum(seed_core, EPSILON)
+
+            # Build age marginal array (non-ogółem rows)
+            age_marg_arr = np.array(
+                [age_marg[lbl] for lbl in age_non_og_labels],
+                dtype=float,
+            )
+            # Build sex marginal array (non-ogółem cols)
+            sex_non_og = non_ogolem_slices[1]
+            if isinstance(sex_marg, np.ndarray) and len(sex_marg) == full_shape[1]:
+                # sex_marg is full-length (incl. ogółem) — extract non-ogółem
+                sex_marg_core = np.array(
+                    [sex_marg[si] for si in sex_non_og], dtype=float,
+                )
+            else:
+                # sex_marg is already non-ogółem only (from fallback path)
+                sex_marg_core = np.asarray(sex_marg, dtype=float)
+
+            fitted_core = self._fit_marginals_ipf(
+                seed_core,
+                [
+                    (age_marg_arr, [0]),   # row marginals (age)
+                    (sex_marg_core, [1]),   # column marginals (sex)
+                ],
+            )
+
+            result = self._assemble_with_ogolem(
+                fitted_core, len(dim_names), full_shape,
+                ogolem_idx, non_ogolem_slices,
             )
             if result is not None:
                 # Scale to population for consistency
@@ -3393,25 +3417,27 @@ class DemographicEstimator:
 
         Data landscape
         --------------
-        - M_educ_1990: shape (6,), 1D, WITH ogółem.
+        - M_educ_1990: shape (5,), 1D, WITH ogółem.
           Labels: ogółem, wyższe, średnie, zasadnicze zawodowe,
-                  podstawowe, podstawowe nieukończone i bez wykształcenia
+                  gimnazjalne, podstawowe i niższe
         - Census 1988 gmina (P2885 + P2884-derived ogółem + residual):
-          all 6 categories already stored in M_educ_1990 during
+          all 5 categories already stored in M_educ_1990 during
           database construction.
-        - Census 2002 gmina (P2402 sex=ogółem): 6 categories in
+        - Census 2002 gmina (P2402 sex=ogółem): 5 categories in
           M_educ_1990.
         - Country-level H_sex_educ (sex=ogółem extraction) → stored
           in M_educ_1990 at level 0 for 1986–1988 and 1991–1994.
+        - Voivodship-level P2350 → stored in M_educ_1990 at level 2
+          for 1995–2020.
         - ogółem = total population 15+ (NOT total population).
 
         Algorithm
         ---------
         1. Layer 1: Log-linear interpolation of M_educ_1990 gmina
            data (anchors typically 1988 and 2002).
-        2. Layer 2: Scale national totals to match M_educ_1990
-           country-level data for years where available (1986–88,
-           1991–94).
+        2. Layer 2: Hybrid voivodship + national scaling.
+           a. Voivodship scaling using P2350 data (1995–2020).
+           b. National scaling using H_sex_educ (1986–88, 1991–94).
         3. Store results.
         4. Aggregate to powiat and voivodeship levels.
         """
@@ -3456,20 +3482,26 @@ class DemographicEstimator:
             for tid, yr_tbls in observed_census.items()
         }
 
-        # ── Layer 2: national marginal scaling (temporally smoothed) ──
-        # M_educ_1990 at country level (teryt 0000000) has H_sex_educ
-        # data for 1986–88 and 1991–94.
-        self._log("  Layer 2: national marginal scaling (smoothed)…")
-
-        n_scaled = self._layer2_national_scaling_smoothed(
+        # ── Layer 2: hybrid voivodship + national scaling (smoothed) ──
+        # Voivodship scaling uses P2350 data (1995–2020) stored in
+        # M_educ_1990 at voivodship level — more precise, finer geography.
+        # National scaling uses H_sex_educ (1986–88, 1991–94) stored in
+        # M_educ_1990 at country level — covers earlier years.
+        self._log("  Layer 2a: voivodship marginal scaling (smoothed)…")
+        n_voiv = self._layer2_voiv_scaling_smoothed(
             seeds, source_sid, year_range,
             dim_names, dim_labels,
             observed_years_per_gmina,
         )
+        self._log(f"    Voivodship: {n_voiv} voiv-year combinations")
 
-        self._log(
-            f"    Scaled {n_scaled} national-year combinations"
+        self._log("  Layer 2b: national marginal scaling (smoothed)…")
+        n_nat = self._layer2_national_scaling_smoothed(
+            seeds, source_sid, year_range,
+            dim_names, dim_labels,
+            observed_years_per_gmina,
         )
+        self._log(f"    National: {n_nat} national-year combinations")
 
         # ── Restore census data (belt-and-suspenders) ──
         n_restored = self._restore_census_data(seeds, observed_census)
@@ -3698,13 +3730,15 @@ class DemographicEstimator:
 
         Data landscape
         --------------
-        - M_educ_sex_1990: shape (6, 3), 2D (educ × sex).
+        - M_educ_sex_1990: shape (5, 3), 2D (educ × sex).
           Educ labels: ogółem, wyższe, średnie, zasadnicze zawodowe,
-                       podstawowe, podstawowe nieukończone…
+                       gimnazjalne, podstawowe i niższe
           Sex labels:  ogółem, mężczyźni, kobiety
         - Census 2002 gmina (P2402 → M_educ_sex_1990).
         - Country-level H_sex_educ → M_educ_sex_1990 at level 0
           (1986–1988, 1991–1994).
+        - Voivodship-level M_educ_1990 (1D, from P2350) provides
+          education marginals for voivodship scaling (1995–2020).
         - NO 1988 gmina-level sex×educ joint data. Only M_educ_1990
           (1D educ) and P2883 (1D sex) at gmina level.
 
@@ -3716,8 +3750,11 @@ class DemographicEstimator:
           - Sex distribution inherited from national structure.
         Phase B: Build seeds (1988 from Phase A + 2002 from
                  M_educ_sex_1990) via log-linear interpolation.
-        Phase C: Layer 2 — scale national totals to match
-                 M_educ_sex_1990 at country level for 1986–1994.
+        Phase C: Layer 2 — hybrid voivodship + national scaling.
+          a. Voivodship educ-marginal scaling using M_educ_1990
+             (P2350, 1995–2020).
+          b. National scaling using M_educ_sex_1990 at country level
+             (1986–1994).
         Phase D: Store results.
         """
         source_sid = 'M_educ_sex_1990'
@@ -3917,9 +3954,7 @@ class DemographicEstimator:
 
         self._log(f"    Seeds: {len(seeds)} gminas")
 
-        # ── Phase C: Layer 2 — national marginal scaling (smoothed) ──
-        self._log("  Phase C: national marginal scaling (smoothed)…")
-
+        # ── Phase C: Layer 2 — hybrid voivodship + national scaling ──
         # Snapshot observed census data before scaling
         observed_census = self._collect_observed_tables(
             seeds, source_sid, full_shape,
@@ -3928,7 +3963,21 @@ class DemographicEstimator:
         for tid, yr_dict in observed_census.items():
             observed_years_per_gmina[tid] = set(yr_dict.keys())
 
-        n_scaled = self._layer2_national_scaling_smoothed(
+        # Layer 2a: voivodship educ-marginal scaling (P2350, 1995–2020)
+        # Uses M_educ_1990 (1D) at voivodship level to constrain
+        # education marginals (row sums across sex).
+        self._log("  Phase C-1: voivodship educ-marginal scaling (smoothed)…")
+        n_voiv = self._layer2_educ_sex_marginal_smoothed(
+            seeds, source_sid, educ_1d_sid,
+            year_range, dim_names, dim_labels,
+            observed_years_per_gmina,
+            factor_guard=3.0,
+        )
+        self._log(f"    Voivodship: {n_voiv} voiv-year combinations")
+
+        # Layer 2b: national scaling (H_sex_educ, 1986–94)
+        self._log("  Phase C-2: national marginal scaling (smoothed)…")
+        n_nat = self._layer2_national_scaling_smoothed(
             seeds, source_sid, year_range,
             dim_names, dim_labels,
             observed_years_per_gmina,
@@ -3952,7 +4001,7 @@ class DemographicEstimator:
                         ogolem_idx, non_ogolem_slices,
                     )
         self._log(
-            f"    Scaled {n_scaled} national-year combinations"
+            f"    National: {n_nat} national-year combinations"
             f" (restored {n_restored} observed year-tables)"
         )
 
