@@ -48,7 +48,7 @@ from selenium.common.exceptions import (
 logger = logging.getLogger(__name__)
 
 # ── Credentials ──────────────────────────────────────────────────────────────
-LIS_USER_ID = "jslowi" # set your user ID here
+LIS_USER_ID = "" # set your user ID here
 
 # Password file path (relative to this script's location):
 # tools/ → Code/ → LRDWI-Paper/ → local_repo/ → Paper/ → Long-run.../password.rtf
