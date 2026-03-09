@@ -6953,7 +6953,7 @@ class GeoTERYTDatabase:
 # MODULE-LEVEL FUNCTION FOR LOADING COMPLETE DATABASE (NEW in v3.0)
 # ==============================================================================
 
-def load_complete_database(filepath: Union[str, Path], verbose: bool = True) -> GeoTERYTDatabase:
+def load_complete_database(filepath: Union[str, Path], verbose: bool = True, if_full: bool = True) -> GeoTERYTDatabase:
     """
     Load a complete GeoTERYT database from a saved file.
     
@@ -7069,14 +7069,14 @@ def load_complete_database(filepath: Union[str, Path], verbose: bool = True) -> 
             record.geometry_best_candidate = wkb.loads(geom_cand_wkb)
         
         # Restore data (NEW in v4.0)
-        data_dict = rec_dict.get('data')
+        data_dict = rec_dict.get('data') if if_full else None
         if data_dict:
             for key_str, series_dict in data_dict.items():
                 ds = DataSeries.from_dict(series_dict)
                 record.data[ds.key] = ds
         
         # Restore cross tables (NEW in v4.1)
-        ct_dict = rec_dict.get('cross_tables')
+        ct_dict = rec_dict.get('cross_tables') if if_full else None
         if ct_dict:
             for sid, ct_data in ct_dict.items():
                 record.cross_tables[sid] = CrossTable.from_dict(ct_data)
