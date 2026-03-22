@@ -1,9 +1,10 @@
 """
 Inequality Analyzers — Comprehensive toolkit for income inequality analysis.
 
-Two main classes:
-    CBOSAnalyzer  — works with CBOS microdata (individual survey records)
-    LISAnalyzer   — works with LIS pre-computed regional/group aggregates
+Three main classes:
+    CBOSAnalyzer       — works with CBOS microdata (individual survey records)
+    LISAnalyzer        — works with LIS pre-computed regional/group aggregates
+    LISCountryAnalyzer — works with LIS country-level subgroup data
 
 Supports: Gini, Palma, Theil (with full decomposition), Atkinson, MLD,
 income shares, percentile ratios, percentile levels, demographic
@@ -316,6 +317,51 @@ def theil_decomposition(values, weights, group_labels):
         'group_N': g_N,
         'overall_mean': mu,
     }
+
+
+def theil_group_contributions(values, weights, group_labels):
+    """
+    Compute each group's contribution to the total Theil T index.
+
+    Each group g contributes:
+        between:  s_g * ln(mu_g / mu)
+        within:   s_g * T_g
+        total:    between + within
+
+    where s_g = income share = (sum w_i*y_i in g) / (sum w_i*y_i total).
+
+    Returns
+    -------
+    pd.DataFrame with columns: group, income_share, group_mean, group_theil,
+        group_N, between_contribution, within_contribution,
+        total_contribution, contribution_pct
+    """
+    dec = theil_decomposition(values, weights, group_labels)
+    if np.isnan(dec['total_theil']):
+        return pd.DataFrame()
+    mu = dec['overall_mean']
+    total = dec['total_theil']
+    rows = []
+    for grp in sorted(dec['group_share'].keys()):
+        s_g = dec['group_share'][grp]
+        mu_g = dec['group_mean'][grp]
+        T_g = dec['group_theil'][grp]
+        N_g = dec['group_N'][grp]
+        b_g = s_g * np.log(mu_g / mu) if s_g > 0 and mu_g > 0 else 0.0
+        w_g = s_g * T_g
+        t_g = b_g + w_g
+        rows.append({
+            'group': grp,
+            'income_share': s_g,
+            'group_mean': mu_g,
+            'group_theil': T_g,
+            'group_N': N_g,
+            'between_contribution': b_g,
+            'within_contribution': w_g,
+            'total_contribution': t_g,
+            'contribution_pct': t_g / total * 100 if total > 0 else np.nan,
+        })
+    return pd.DataFrame(rows)
 
 
 def mld_decomposition(values, weights, group_labels):
@@ -704,6 +750,41 @@ class CBOSAnalyzer:
             rows.append(row)
         return pd.DataFrame(rows)
 
+    def theil_contributions(self, year: int, group_col: str,
+                            groups: Optional[List] = None,
+                            region_id_col: Optional[str] = None) -> pd.DataFrame:
+        """Per-group contributions to total Theil T for a single year."""
+        mask = self.df[self.year_col] == year
+        sub = self.df.loc[mask].dropna(subset=[group_col])
+        if groups is not None:
+            sub = sub[sub[group_col].isin(groups)]
+        inc = sub[self._income_key].values
+        w = sub[self._weight_key].values
+        g = sub[group_col].values
+        result = theil_group_contributions(inc, w, g)
+        if len(result) > 0:
+            result['year'] = year
+            if region_id_col is not None and region_id_col in sub.columns:
+                id_map = {}
+                for grp in result['group'].unique():
+                    id_vals = sub.loc[sub[group_col] == grp, region_id_col].dropna()
+                    id_map[grp] = id_vals.iloc[0] if len(id_vals) > 0 else np.nan
+                result['region_id'] = result['group'].map(id_map)
+        return result
+
+    def theil_contribution_timeseries(self, group_col: str,
+                                      groups: Optional[List] = None,
+                                      year_range=None,
+                                      region_id_col: Optional[str] = None) -> pd.DataFrame:
+        """Per-group Theil contributions over time (panel: year x group)."""
+        frames = []
+        for year in self._years(year_range):
+            yearly = self.theil_contributions(year, group_col, groups,
+                                             region_id_col=region_id_col)
+            if len(yearly) > 0:
+                frames.append(yearly)
+        return pd.concat(frames, ignore_index=True) if frames else pd.DataFrame()
+
     def regional_mld_decomposition(self, year: int, region_col: str,
                                     regions: Optional[List] = None) -> dict:
         """MLD (Theil L / GE(0)) decomposition by region for a single year."""
@@ -1030,6 +1111,63 @@ class CBOSAnalyzer:
     # UTILITIES
     # ══════════════════════════════════════════════════════════════════════════
 
+    def country_subgroup_metrics(self, year: int, demo_col: str,
+                                  categories: Optional[List] = None,
+                                  weight_col: Optional[str] = None) -> pd.DataFrame:
+        """
+        Inequality metrics per demographic subgroup at country level.
+
+        Unlike demographic_metrics (which uses the analyzer's weight_col),
+        this method allows specifying a different weight column — typically
+        the original survey 'weight' for country-level comparability with LIS.
+
+        Parameters
+        ----------
+        year : int
+        demo_col : str — e.g. 'sex_L', 'educ_1990_L', 'age_1990_L'
+        categories : list or None
+        weight_col : str or None
+            Weight column to use. None = use the analyzer's default weight.
+            Use 'weight' for original survey weights (LIS comparability).
+        """
+        mask_year = self.df[self.year_col] == year
+        sub = self.df.loc[mask_year].dropna(subset=[demo_col])
+        if categories is not None:
+            sub = sub[sub[demo_col].isin(categories)]
+
+        inc_col = self._income_key
+        w_col = weight_col if weight_col is not None else self._weight_key
+        if weight_col is not None and weight_col != self._weight_key:
+            w_vals = pd.to_numeric(sub[weight_col], errors='coerce').values
+        else:
+            w_vals = None  # use precomputed
+
+        rows = []
+        for cat in sorted(sub[demo_col].unique()):
+            cmask = sub[demo_col] == cat
+            inc = sub.loc[cmask, inc_col].values
+            w = w_vals[cmask.values] if w_vals is not None else sub.loc[cmask, self._weight_key].values
+            metrics = compute_all_metrics(inc, w)
+            metrics['subgroup'] = cat
+            metrics['year'] = year
+            rows.append(metrics)
+        return pd.DataFrame(rows)
+
+    def country_subgroup_timeseries(self, demo_col: str,
+                                    categories: Optional[List] = None,
+                                    year_range=None,
+                                    weight_col: Optional[str] = None) -> pd.DataFrame:
+        """
+        Subgroup metrics over time at country level.
+        See country_subgroup_metrics for parameters.
+        """
+        rows = []
+        for year in self._years(year_range):
+            yearly = self.country_subgroup_metrics(year, demo_col, categories, weight_col=weight_col)
+            if len(yearly) > 0:
+                rows.append(yearly)
+        return pd.concat(rows, ignore_index=True) if rows else pd.DataFrame()
+
     def summary(self) -> dict:
         """Quick summary of the loaded dataset."""
         years = self._years()
@@ -1067,12 +1205,12 @@ class LISAnalyzer:
         LIS data (LIS_Voiv.csv or LIS_Groups.csv).
     income_type : str
         Income variable prefix:
-        - 'pitotalnet'     : Total net personal income (closest to CBOS income_p)
-        - 'pitotalnet_pos' : Total net personal income, positive only
-        - 'pilab_pens'     : Labor + pension income
-        - 'hitotal'        : Total household income (closest to CBOS income_hh)
-        - 'hicash'         : Cash household income
-        - 'hinoncap'       : Non-capital household income
+        - 'pitotalnet'      : Person total net income (closest to CBOS income_p)
+        - 'pitotalnet_pos'  : Person total net income, positive only
+        - 'pilab_pens'      : Person labor + pension income
+        - 'hitotalnet'      : Household total net income (closest to CBOS income_hh)
+        - 'hitotalnet_pos'  : Household total net income, positive only
+        - 'hilab_pens'      : Household labor + pension income
     deflator_col : str or None
         Deflator column for real values, e.g. 'deflator_2017'.
     region_col : str
@@ -1118,14 +1256,15 @@ class LISAnalyzer:
             if full_col in self.df.columns:
                 self._col_map[suffix] = full_col
 
-        # Convert monetary columns to numeric and deflate
+        # Convert monetary columns to numeric, divide by 12 (annual → monthly),
+        # and deflate
         monetary_keys = ['mean', 'median', 'p10', 'p25', 'p75', 'p90', 'p99',
                          'Bottom_50', 'P50_90', 'Top_10', 'Top_1']
         for key in monetary_keys:
             if key in self._col_map:
                 self.df[self._col_map[key]] = pd.to_numeric(
                     self.df[self._col_map[key]], errors='coerce'
-                )
+                ) / 12  # LIS income is annual; convert to monthly for CBOS comparability
                 if deflator_col is not None and deflator_col in self.df.columns:
                     defl = pd.to_numeric(self.df[deflator_col], errors='coerce')
                     self.df[self._col_map[key]] = self.df[self._col_map[key]] * defl
@@ -1249,6 +1388,324 @@ class LISAnalyzer:
             'deflator': self.deflator_col,
         }
 
+    def theil_contributions(self, year: int,
+                            region_id_col: Optional[str] = None) -> pd.DataFrame:
+        """
+        Per-region contributions to total Theil T from pre-computed stats.
+        Uses Nw_total, mean, and theil per region.
+
+        Parameters
+        ----------
+        year : int
+        region_id_col : str or None
+            Column to include as region identifier (e.g. 'region_id').
+        """
+        sub = self.df[self.df[self.year_col] == year].copy()
+        if sub.empty:
+            return pd.DataFrame()
+        nw_col = self._col_map.get('Nw_total')
+        mean_col = self._col_map.get('mean')
+        theil_col = self._col_map.get('theil')
+        if nw_col is None or mean_col is None:
+            return pd.DataFrame()
+        sub = sub.dropna(subset=[nw_col, mean_col])
+        nw = sub[nw_col].values
+        mu_g = sub[mean_col].values
+        pos = (nw > 0) & (mu_g > 0)
+        if pos.sum() < 2:
+            return pd.DataFrame()
+        sub_pos = sub[pos].copy()
+        nw, mu_g = nw[pos], mu_g[pos]
+        mu = (nw * mu_g).sum() / nw.sum()
+        s_g = (nw * mu_g) / (nw * mu_g).sum()
+        T_g = sub_pos[theil_col].values if theil_col is not None else np.zeros(len(sub_pos))
+        b_g = s_g * np.log(mu_g / mu)
+        w_g = s_g * T_g
+        t_g = b_g + w_g
+        total = t_g.sum()
+        result = pd.DataFrame({
+            'group': sub_pos[self.region_col].values,
+            'income_share': s_g,
+            'group_mean': mu_g,
+            'group_theil': T_g,
+            'group_N': nw,
+            'between_contribution': b_g,
+            'within_contribution': w_g,
+            'total_contribution': t_g,
+            'contribution_pct': t_g / total * 100 if total > 0 else np.nan,
+            'year': year,
+        })
+        if region_id_col is not None and region_id_col in sub_pos.columns:
+            result['region_id'] = sub_pos[region_id_col].values
+        return result
+
+    def theil_contribution_timeseries(self, year_range=None,
+                                      region_id_col: Optional[str] = None) -> pd.DataFrame:
+        """Per-region Theil contributions over time."""
+        years = self.years()
+        if year_range is not None:
+            years = [y for y in years if year_range[0] <= y <= year_range[1]]
+        frames = []
+        for year in years:
+            yearly = self.theil_contributions(year, region_id_col=region_id_col)
+            if len(yearly) > 0:
+                frames.append(yearly)
+        return pd.concat(frames, ignore_index=True) if frames else pd.DataFrame()
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# LIS COUNTRY ANALYZER — country-level subgroup data
+# ══════════════════════════════════════════════════════════════════════════════
+
+class LISCountryAnalyzer:
+    """
+    Analyzer for LIS country-level data with demographic subgroups.
+
+    Expects LIS_Country_full.csv with a 'subgroup' column containing:
+    - 'households' / 'persons' for aggregate totals
+    - 'h_*' subgroups (household-head-based) with hitotalnet_* data
+    - 'p_*' subgroups (person-based) with pitotalnet_* data
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+        LIS_Country_full.csv data.
+    income_type : str
+        Income variable prefix. Must match the unit of analysis:
+        - 'pitotalnet'      : Person-level (for 'persons' / 'p_*' subgroups)
+        - 'pitotalnet_pos'  : Person-level, positive only
+        - 'pilab_pens'      : Person labor + pension
+        - 'hitotalnet'      : Household-level (for 'households' / 'h_*' subgroups)
+        - 'hitotalnet_pos'  : Household-level, positive only
+        - 'hilab_pens'      : Household labor + pension
+    deflator_col : str or None
+    subgroup_col : str
+    year_col : str
+    """
+
+    METRIC_SUFFIXES = LISAnalyzer.METRIC_SUFFIXES
+
+    # Mapping: subgroup prefix category -> list of subgroup name patterns
+    SUBGROUP_CATEGORIES = {
+        'sex':      ['sex_kobiety', 'sex_mezczyzni'],
+        'edu':      ['edu_'],
+        'age':      ['age_'],
+        'hhsize':   ['hhsize_'],
+        'popclass': ['popclass_'],
+    }
+
+    def __init__(self, df: pd.DataFrame,
+                 income_type: str = 'pitotalnet',
+                 deflator_col: Optional[str] = None,
+                 subgroup_col: str = 'subgroup',
+                 year_col: str = 'year'):
+
+        self.df = df.copy()
+        self.income_type = income_type
+        self.deflator_col = deflator_col
+        self.subgroup_col = subgroup_col
+        self.year_col = year_col
+
+        # Determine unit prefix for filtering subgroups
+        self._unit_prefix = 'p_' if income_type.startswith('pi') else 'h_'
+        self._aggregate_row = 'persons' if income_type.startswith('pi') else 'households'
+
+        # Build column mapping (same as LISAnalyzer)
+        self._col_map = {}
+        for suffix in self.METRIC_SUFFIXES:
+            full_col = f'{income_type}_{suffix}'
+            if full_col in self.df.columns:
+                self._col_map[suffix] = full_col
+
+        # Convert monetary columns to numeric, divide by 12 (annual → monthly),
+        # and deflate
+        monetary_keys = ['mean', 'median', 'p10', 'p25', 'p75', 'p90', 'p99',
+                         'Bottom_50', 'P50_90', 'Top_10', 'Top_1']
+        for key in monetary_keys:
+            if key in self._col_map:
+                self.df[self._col_map[key]] = pd.to_numeric(
+                    self.df[self._col_map[key]], errors='coerce'
+                ) / 12  # LIS income is annual; convert to monthly for CBOS comparability
+                if deflator_col is not None and deflator_col in self.df.columns:
+                    defl = pd.to_numeric(self.df[deflator_col], errors='coerce')
+                    self.df[self._col_map[key]] = self.df[self._col_map[key]] * defl
+
+        for key, col in self._col_map.items():
+            if key not in monetary_keys:
+                self.df[col] = pd.to_numeric(self.df[col], errors='coerce')
+
+    def _col(self, metric_suffix: str) -> str:
+        if metric_suffix in self._col_map:
+            return self._col_map[metric_suffix]
+        raise KeyError(f"Metric '{metric_suffix}' not found for income type "
+                       f"'{self.income_type}'. Available: {list(self._col_map.keys())}")
+
+    def aggregate_timeseries(self, metrics: Optional[List[str]] = None) -> pd.DataFrame:
+        """
+        Country-level aggregate time series (from 'households' or 'persons' rows).
+
+        Returns one row per year with selected metrics.
+        """
+        if metrics is None:
+            metrics = list(self._col_map.keys())
+
+        sub = self.df[self.df[self.subgroup_col] == self._aggregate_row].copy()
+        cols = [self.year_col]
+        rename = {}
+        for m in metrics:
+            if m in self._col_map:
+                cols.append(self._col_map[m])
+                rename[self._col_map[m]] = m
+        result = sub[cols].copy()
+        result.rename(columns=rename, inplace=True)
+        return result.set_index(self.year_col).sort_index()
+
+    def subgroup_metrics(self, year: int,
+                         category: Optional[str] = None,
+                         subgroups: Optional[List[str]] = None) -> pd.DataFrame:
+        """
+        Get metrics for demographic subgroups in a given year.
+
+        Parameters
+        ----------
+        year : int
+        category : str or None
+            Filter by subgroup category: 'sex', 'edu', 'age', 'hhsize', 'popclass'.
+            If None, returns all subgroups matching the income type's unit prefix.
+        subgroups : list of str or None
+            Explicit list of subgroup names to include.
+        """
+        sub = self.df[self.df[self.year_col] == year].copy()
+
+        # Filter to relevant unit prefix (p_ or h_) subgroups
+        mask = sub[self.subgroup_col].str.startswith(self._unit_prefix)
+        if category is not None and category in self.SUBGROUP_CATEGORIES:
+            patterns = self.SUBGROUP_CATEGORIES[category]
+            cat_mask = pd.Series(False, index=sub.index)
+            for pat in patterns:
+                cat_mask |= sub[self.subgroup_col].str.contains(
+                    self._unit_prefix + pat, regex=False
+                )
+            mask = mask & cat_mask
+        sub = sub[mask]
+
+        if subgroups is not None:
+            sub = sub[sub[self.subgroup_col].isin(subgroups)]
+
+        cols = [self.subgroup_col]
+        rename = {}
+        for m in self._col_map:
+            cols.append(self._col_map[m])
+            rename[self._col_map[m]] = m
+        result = sub[cols].copy()
+        result.rename(columns=rename, inplace=True)
+        result['year'] = year
+        result.rename(columns={self.subgroup_col: 'subgroup'}, inplace=True)
+        return result.reset_index(drop=True)
+
+    def subgroup_timeseries(self, category: Optional[str] = None,
+                            subgroups: Optional[List[str]] = None,
+                            year_range=None) -> pd.DataFrame:
+        """
+        Subgroup metrics over time (panel: year × subgroup).
+        """
+        years = sorted(self.df[self.year_col].dropna().unique())
+        if year_range is not None:
+            years = [y for y in years if year_range[0] <= y <= year_range[1]]
+        rows = []
+        for year in years:
+            yearly = self.subgroup_metrics(year, category, subgroups)
+            if len(yearly) > 0:
+                rows.append(yearly)
+        return pd.concat(rows, ignore_index=True) if rows else pd.DataFrame()
+
+    def available_subgroups(self, category: Optional[str] = None,
+                            year: Optional[int] = None) -> list:
+        """
+        List subgroups available for the current income type's unit.
+        Optionally filter by category and/or year.
+        """
+        sub = self.df if year is None else self.df[self.df[self.year_col] == year]
+        mask = sub[self.subgroup_col].str.startswith(self._unit_prefix)
+        if category is not None and category in self.SUBGROUP_CATEGORIES:
+            patterns = self.SUBGROUP_CATEGORIES[category]
+            cat_mask = pd.Series(False, index=sub.index)
+            for pat in patterns:
+                cat_mask |= sub[self.subgroup_col].str.contains(
+                    self._unit_prefix + pat, regex=False
+                )
+            mask = mask & cat_mask
+        return sorted(sub.loc[mask, self.subgroup_col].unique())
+
+    def years(self) -> list:
+        return sorted(self.df[self.year_col].dropna().unique())
+
+    def available_metrics(self) -> list:
+        return list(self._col_map.keys())
+
+    def summary(self) -> dict:
+        return {
+            'income_type': self.income_type,
+            'unit': self._unit_prefix.rstrip('_'),
+            'aggregate_row': self._aggregate_row,
+            'n_subgroups': len(self.available_subgroups()),
+            'year_range': (min(self.years()), max(self.years())),
+            'n_metrics': len(self._col_map),
+            'deflator': self.deflator_col,
+        }
+
+    def theil_contributions(self, year: int,
+                            category: Optional[str] = None,
+                            subgroups: Optional[List[str]] = None) -> pd.DataFrame:
+        """
+        Per-subgroup contributions to total Theil T from pre-computed stats.
+        Uses Nw_total, mean, and theil per subgroup.
+        """
+        sg = self.subgroup_metrics(year, category, subgroups)
+        if sg.empty or 'mean' not in sg.columns or 'Nw_total' not in sg.columns:
+            return pd.DataFrame()
+        sg = sg.dropna(subset=['mean', 'Nw_total'])
+        nw = sg['Nw_total'].values
+        mu_g = sg['mean'].values
+        pos = (nw > 0) & (mu_g > 0)
+        if pos.sum() < 2:
+            return pd.DataFrame()
+        sg_pos = sg[pos].copy()
+        nw, mu_g = nw[pos], mu_g[pos]
+        mu = (nw * mu_g).sum() / nw.sum()
+        s_g = (nw * mu_g) / (nw * mu_g).sum()
+        T_g = sg_pos['theil'].values if 'theil' in sg_pos.columns else np.zeros(len(sg_pos))
+        b_g = s_g * np.log(mu_g / mu)
+        w_g = s_g * T_g
+        t_g = b_g + w_g
+        total = t_g.sum()
+        return pd.DataFrame({
+            'group': sg_pos['subgroup'].values,
+            'income_share': s_g,
+            'group_mean': mu_g,
+            'group_theil': T_g,
+            'group_N': nw,
+            'between_contribution': b_g,
+            'within_contribution': w_g,
+            'total_contribution': t_g,
+            'contribution_pct': t_g / total * 100 if total > 0 else np.nan,
+            'year': year,
+        })
+
+    def theil_contribution_timeseries(self, category: Optional[str] = None,
+                                      subgroups: Optional[List[str]] = None,
+                                      year_range=None) -> pd.DataFrame:
+        """Per-subgroup Theil contributions over time."""
+        years = sorted(self.df[self.year_col].dropna().unique())
+        if year_range is not None:
+            years = [y for y in years if year_range[0] <= y <= year_range[1]]
+        frames = []
+        for year in years:
+            yearly = self.theil_contributions(year, category, subgroups)
+            if len(yearly) > 0:
+                frames.append(yearly)
+        return pd.concat(frames, ignore_index=True) if frames else pd.DataFrame()
+
 
 # ══════════════════════════════════════════════════════════════════════════════
 # COMPARISON TOOLS — align CBOS and LIS results
@@ -1332,22 +1789,19 @@ def compare_regional(cbos_panel: pd.DataFrame, lis_panel: pd.DataFrame,
 # UTILITY AND PLOTTING FUNCTIONS
 # ══════════════════════════════════════════════════════════════════════════════
 
-def assign_geometries(df: pd.DataFrame, geo_df: gpd.GeoDataFrame, regionl_col: str) -> pd.DataFrame:
+def assign_geometries(df: pd.DataFrame, geo_df: gpd.GeoDataFrame, merge_on: str = 'region_id') -> pd.DataFrame:
     """
-    Assign geometries to a DataFrame based on region names.
+    Assign geometries to a DataFrame by merging on a shared column.
 
     Parameters
     ----------
-    df : pd.DataFrame with a column of region names.
-    geo_df : gpd.GeoDataFrame with geometry and region name column.
-    regionl_col : str — name of the region column in both df and geo_df.
+    df : pd.DataFrame with a merge_on column.
+    geo_df : gpd.GeoDataFrame with 'id' and 'geometry' columns.
+    merge_on : str — column in df to merge with 'id' in geo_df.
 
     Returns
     -------
     pd.DataFrame with an added 'geometry' column from geo_df.
     """
-    
-    
-    
-    merged = df.merge(geo_df[[regionl_col, 'geometry']], on=regionl_col, how='left')
+    merged = df.merge(geo_df[['id', 'geometry']], left_on=merge_on, right_on='id', how='left')
     return merged
